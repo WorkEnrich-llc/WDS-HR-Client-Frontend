@@ -40,6 +40,7 @@ export class ApplicantDetaisComponent implements OnInit {
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
   @ViewChild('assignmentSelectionOverlay') assignmentSelectionOverlay!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
+  @ViewChild('interviewViewOverlay') interviewViewOverlay!: OverlayFilterBoxComponent;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
@@ -101,6 +102,10 @@ export class ApplicantDetaisComponent implements OnInit {
   contractEndDate: string = '';
   // currently selected interview for feedback or view
   currentInterviewForFeedback: any = null;
+  // currently selected interview for view overlay (full details)
+  currentInterviewForView: any = null;
+  interviewViewDetails: any = null;
+  interviewViewLoading: boolean = false;
   // Track expanded feedback items
   expandedFeedbackInterviews: Set<number> = new Set();
 
@@ -232,11 +237,42 @@ export class ApplicantDetaisComponent implements OnInit {
     this.feedbackOverlay?.openOverlay();
   }
 
-  // Stub: view interview details (could navigate or open modal)
+  // Open interview view overlay with disabled inputs
   viewInterview(interview: any): void {
-    // For now we'll navigate to interview detail if route exists, otherwise open details in overlay
-    // Placeholder: show toast
-    this.toasterService.showInfo('Opening interview details');
+    if (!interview?.id) return;
+    this.currentInterviewForView = interview;
+    this.interviewViewDetails = null;
+    this.interviewViewLoading = true;
+    this.interviewViewOverlay?.openOverlay();
+
+    this.jobOpeningsService.getInterviewById(interview.id).subscribe({
+      next: (res) => {
+        this.interviewViewDetails = res?.data?.object_info ?? res?.object_info ?? res;
+        this.interviewViewLoading = false;
+      },
+      error: () => {
+        // Fallback: use list item data if API fails (e.g. backend uses application-id only)
+        this.interviewViewDetails = {
+          title: interview.title,
+          date: interview.date,
+          time_from: interview.time_from,
+          time_to: interview.time_to,
+          status: interview.status,
+          department: interview.department,
+          section: interview.section,
+          interviewer: interview.interviewer,
+          location: interview.location,
+          interview_type: interview.interview_type ?? 1
+        };
+        this.interviewViewLoading = false;
+      }
+    });
+  }
+
+  closeInterviewViewOverlay(): void {
+    this.interviewViewOverlay?.closeOverlay();
+    this.currentInterviewForView = null;
+    this.interviewViewDetails = null;
   }
 
   // Check if interview is completed
@@ -357,6 +393,16 @@ export class ApplicantDetaisComponent implements OnInit {
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const hour12 = hour % 12 || 12;
     return `${hour12}:${minutes} ${ampm}`;
+  }
+
+  /**
+   * Format time range (From - To) for display
+   */
+  formatTimeRange(timeFrom: string, timeTo: string): string {
+    if (!timeFrom && !timeTo) return '—';
+    const from = this.formatTime(timeFrom);
+    const to = timeTo ? this.formatTime(timeTo) : '';
+    return to ? `${from} - ${to}` : from;
   }
 
   /**
@@ -884,6 +930,9 @@ export class ApplicantDetaisComponent implements OnInit {
   closeAllOverlays(): void {
     this.filterBox?.closeOverlay();
     this.jobBox?.closeOverlay();
+    this.interviewViewOverlay?.closeOverlay();
+    this.currentInterviewForView = null;
+    this.interviewViewDetails = null;
   }
 
   ngOnInit(): void {

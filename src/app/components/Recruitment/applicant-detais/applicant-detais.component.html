@@ -1512,3 +1512,79 @@
     }
   </form>
 </app-overlay-filter-box>
+
+<!-- interview view overlay (read-only) -->
+<app-overlay-filter-box #interviewViewOverlay title="View Interview">
+  @if (interviewViewLoading) {
+  <div class="w-100 d-flex flex-column gap-3">
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12" style="height: 38px;"></div>
+    </div>
+    @for (i of [1,2,3,4,5,6,7]; track i) {
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12" style="height: 38px;"></div>
+    </div>
+    }
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <div class="btn btn-lg btn-primary w-100 disabled placeholder" style="height: 48px;"></div>
+    </div>
+  </div>
+  } @else if (interviewViewDetails) {
+  <div class="w-100 d-flex flex-column gap-3">
+    <div class="input">
+      <label>Interview Title</label>
+      <input type="text" class="form-control" [value]="interviewViewDetails.title || '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input">
+      <label>Department</label>
+      <input type="text" class="form-control" [value]="(interviewViewDetails.department?.name ?? interviewViewDetails.department) || '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input">
+      <label>Section</label>
+      <input type="text" class="form-control" [value]="(interviewViewDetails.section?.name ?? interviewViewDetails.section) || '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input">
+      <label>Interviewer</label>
+      <input type="text" class="form-control" [value]="(interviewViewDetails.interviewer?.name ?? interviewViewDetails.interviewer) || '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input">
+      <label>Date</label>
+      <input type="text" class="form-control" [value]="interviewViewDetails.date ? (interviewViewDetails.date | date:'dd/MM/yyyy') : '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input">
+      <label>Time</label>
+      <input type="text" class="form-control" [value]="formatTimeRange(interviewViewDetails.time_from, interviewViewDetails.time_to)" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input">
+      <label>Interview Type</label>
+      <input type="text" class="form-control" [value]="(interviewViewDetails.interview_type === 2 || interviewViewDetails.interview_type?.id === 2) ? 'Online' : 'Offline'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    @if (interviewViewDetails.interview_type === 1 || interviewViewDetails.interview_type?.id === 1) {
+    <div class="input">
+      <label>Interview Location</label>
+      <input type="text" class="form-control" [value]="(interviewViewDetails.location?.name ?? interviewViewDetails.location) || '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    }
+    @if (interviewViewDetails.status) {
+    <div class="input">
+      <label>Status</label>
+      <input type="text" class="form-control" [value]="interviewViewDetails.status" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    }
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="button" class="btn btn-lg btn-primary w-100" (click)="closeInterviewViewOverlay()">
+        <span>Close</span>
+      </button>
+    </div>
+  </div>
+  }
+</app-overlay-filter-box>

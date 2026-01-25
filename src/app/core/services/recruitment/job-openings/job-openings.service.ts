@@ -315,6 +315,12 @@ export class JobOpeningsService {
         return this._HttpClient.get(url);
     }
 
+    // get interview details by interview ID (for view overlay)
+    getInterviewById(interviewId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/interviews/${interviewId}/`;
+        return this._HttpClient.get(url);
+    }
+
     // reschedule interview (update existing interview by interview ID)
     rescheduleInterview(
         interviewId: number,
