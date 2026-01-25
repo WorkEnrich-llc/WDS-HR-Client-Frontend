@@ -183,6 +183,16 @@ export class JobOpeningsService {
         return this._HttpClient.get(url, { params });
     }
 
+    // get feedbacks for a specific interview (optional interview_id filter on feedbacks API)
+    getFeedbacksForInterview(interviewId: number, page: number = 1, perPage: number = 50): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/feedbacks`;
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString())
+            .set('interview_id', interviewId.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
     // get applicant assignments for application id with pagination
     getApplicantAssignments(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/applicant-assignments`;

@@ -846,6 +846,65 @@
     font-weight: 600;
 }
 
+/* Interviewer row (all statuses) */
+.interviewer-display-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.interviewer-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.interviewer-name {
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* Feedback section toggle (Figma) */
+.feedback-section-toggle-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 8px;
+}
+
+.feedback-section-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.feedback-section-toggle-btn:hover {
+    background: transparent;
+}
+
+.feedback-section-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feedback-section-chevron .chevron-icon {
+    transition: transform 0.2s ease;
+}
+
+.feedback-section-chevron .chevron-icon.rotated {
+    transform: rotate(-180deg);
+}
+
 /* Completed Status Styles */
 .completed-status-details {
     display: flex;
@@ -856,7 +915,7 @@
 .overall-rating {
     font-size: 16px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 0;
 }
 
 .feedback-section {

@@ -1,4 +1,6 @@
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
@@ -107,8 +109,10 @@ export class ApplicantDetaisComponent implements OnInit {
   currentInterviewForView: any = null;
   interviewViewDetails: any = null;
   interviewViewLoading: boolean = false;
-  // Track expanded feedback items
-  expandedFeedbackInterviews: Set<number> = new Set();
+  // Track expanded feedback items (by feedback id or composite key)
+  expandedFeedbackInterviews: Set<number | string> = new Set();
+  // Track expanded feedback section per interview (toggle for rating + list; default collapsed)
+  expandedFeedbackSectionByInterview: Set<number | string> = new Set();
 
   // Assignment Selection
   availableAssignments: any[] = [];
@@ -195,21 +199,120 @@ export class ApplicantDetaisComponent implements OnInit {
     // Job offers are only fetched after sending a new job offer, not when tab opens
   }
 
-  // Fetch interviews for current application
+  // Fetch interviews for current application (and application + per-interview feedbacks, then merge)
   fetchInterviews(): void {
-    if (!this.applicationId) { this.interviews = []; this.isInterviewsLoading = false; return; }
+    const appId = this.applicationId;
+    if (!appId) { this.interviews = []; this.isInterviewsLoading = false; return; }
     this.isInterviewsLoading = true;
-    this.jobOpeningsService.getInterviews(this.applicationId, 1, 10).subscribe({
+    this.jobOpeningsService.getInterviews(appId, 1, 10).subscribe({
       next: (res) => {
-        const list = res?.data?.list_items ?? res?.list_items ?? [];
-        this.interviews = Array.isArray(list) ? list : [];
-        this.isInterviewsLoading = false;
+        const raw = res?.data?.list_items ?? res?.list_items ?? [];
+        const list = Array.isArray(raw) ? raw.map((it: any) => this.normaliseInterviewListItem(it)) : [];
+        this.jobOpeningsService.getApplicationFeedbacks(appId, 1, 50).subscribe({
+          next: (fbRes) => {
+            const fbList = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
+            const feedbacks = Array.isArray(fbList) ? fbList : [];
+            let merged = this.mergeFeedbacksIntoInterviews(list, feedbacks);
+            const noFb = merged.filter((m) => this.getFeedbacksList(m).length === 0 && m.id != null);
+            if (noFb.length === 0) {
+              this.interviews = merged;
+              this.isInterviewsLoading = false;
+              return;
+            }
+            const requests = noFb.map((inv) =>
+              this.jobOpeningsService.getFeedbacksForInterview(inv.id!).pipe(
+                catchError(() => of({ data: { list_items: [] }, list_items: [] }))
+              )
+            );
+            forkJoin(requests).subscribe({
+              next: (fbResponses) => {
+                const byId = new Map<number, any[]>();
+                noFb.forEach((inv, i) => {
+                  const arr = fbResponses[i]?.data?.list_items ?? fbResponses[i]?.list_items ?? [];
+                  byId.set(inv.id, Array.isArray(arr) ? arr : []);
+                });
+                merged = merged.map((m) => {
+                  const extra = byId.get(m.id);
+                  if (!extra?.length) return m;
+                  const existing = this.getFeedbacksList(m);
+                  const combined = existing.length
+                    ? [...existing, ...extra.filter((f) => !existing.some((e: any) => e.id != null && e.id === f.id))]
+                    : extra;
+                  return { ...m, feedbacks: combined };
+                });
+                this.interviews = merged;
+                this.isInterviewsLoading = false;
+              },
+              error: () => {
+                this.interviews = merged;
+                this.isInterviewsLoading = false;
+              }
+            });
+          },
+          error: () => {
+            this.interviews = list;
+            this.isInterviewsLoading = false;
+          }
+        });
       },
       error: () => {
         this.interviews = [];
         this.isInterviewsLoading = false;
       }
     });
+  }
+
+  /**
+   * Merge application feedbacks into interviews by interview_id
+   */
+  private mergeFeedbacksIntoInterviews(interviews: any[], applicationFeedbacks: any[]): any[] {
+    const byInterviewId = new Map<number | string, any[]>();
+    for (const fb of applicationFeedbacks) {
+      const id = fb.interview_id ?? fb.interview?.id;
+      if (id != null && id !== '') {
+        const arr = byInterviewId.get(id) ?? [];
+        arr.push(fb);
+        byInterviewId.set(id, arr);
+      }
+    }
+    return interviews.map((inv) => {
+      const id = inv.id ?? inv.interview?.id;
+      const fromApi = (id != null ? (byInterviewId.get(id) ?? []) : []).slice();
+      const existing = Array.isArray(inv.feedbacks) ? inv.feedbacks : [];
+      const combined = existing.length
+        ? [...existing, ...fromApi.filter((f) => !existing.some((e: any) => e.id != null && e.id === f.id))]
+        : fromApi;
+      return { ...inv, feedbacks: combined };
+    });
+  }
+
+  /**
+   * Normalise list item so interviewer/feedbacks are at top level (API may nest under .interview)
+   */
+  private normaliseInterviewListItem(it: any): any {
+    if (!it) return it;
+    const interview = it.interview ?? it;
+    const rawFb = it.feedbacks ?? it.feedback ?? interview.feedbacks ?? interview.feedback;
+    const feedbacks = Array.isArray(rawFb) ? rawFb : (rawFb && typeof rawFb === 'object' ? [rawFb] : []);
+    return {
+      ...interview,
+      id: interview.id ?? it.id,
+      title: interview.title ?? it.title,
+      status: interview.status ?? it.status,
+      date: interview.date ?? it.date,
+      time_from: interview.time_from ?? it.time_from,
+      time_to: interview.time_to ?? it.time_to,
+      interviewer: interview.interviewer ?? it.interviewer,
+      interviewer_name: interview.interviewer_name ?? it.interviewer_name ?? interview.interviewer?.name ?? it.interviewer?.name,
+      feedbacks,
+      rejected_at: interview.rejected_at ?? it.rejected_at,
+      rejection_notes: interview.rejection_notes ?? it.rejection_notes,
+      rejection_message: interview.rejection_message ?? it.rejection_message,
+      accepted_at: interview.accepted_at ?? it.accepted_at,
+      reschedule_request_at: interview.reschedule_request_at ?? it.reschedule_request_at,
+      reschedule_available_at: interview.reschedule_available_at ?? it.reschedule_available_at,
+      expiration_date: interview.expiration_date ?? it.expiration_date
+    };
   }
 
   // Fetch job offers for current application
@@ -368,6 +471,55 @@ export class ApplicantDetaisComponent implements OnInit {
   }
 
   /**
+   * Get interviewer display from feedback (reviewer.name, created_by, or interviewer)
+   */
+  getFeedbackInterviewerDisplay(fb: any): string {
+    if (!fb) return '—';
+    return fb.reviewer?.name ?? fb.created_by ?? fb.interviewer?.name ?? fb.interviewer ?? '—';
+  }
+
+  /**
+   * Get role/title display for feedback (title, role, or section)
+   */
+  getFeedbackRoleDisplay(fb: any): string {
+    if (!fb) return '—';
+    return fb.title ?? fb.role ?? fb.section?.name ?? fb.section ?? '—';
+  }
+
+  /**
+   * Get interviewer display from interview item (interviewer on the interview itself)
+   */
+  getInterviewInterviewerDisplay(item: any): string {
+    if (!item) return '—';
+    const name = item.interviewer_name ?? item.interviewerName;
+    if (name && typeof name === 'string') return name;
+    const inv = item.interviewer;
+    if (!inv) return '—';
+    return (typeof inv === 'object' && inv !== null && inv.name) ? inv.name : String(inv);
+  }
+
+  /**
+   * Normalise feedback list from response (feedbacks array, feedback array, or single feedback)
+   */
+  getFeedbacksList(item: any): any[] {
+    if (!item) return [];
+    const fb = item.feedbacks ?? item.feedback ?? item.interview_feedbacks ?? item.interview?.feedbacks ?? item.interview?.feedback;
+    if (Array.isArray(fb)) return fb;
+    if (fb && typeof fb === 'object') return [fb];
+    return [];
+  }
+
+  /**
+   * Get status label for display (e.g. "Completed" -> "Interview Completed")
+   */
+  getInterviewStatusDisplayLabel(status: string): string {
+    const s = (status || '').toLowerCase();
+    if (s === 'completed') return 'Interview Completed';
+    if (s === 'rejected') return 'Interview Rejected';
+    return status || '—';
+  }
+
+  /**
    * Format date and time for display
    */
   formatInterviewDateTime(date: string, timeFrom: string, timeTo: string): string {
@@ -407,21 +559,48 @@ export class ApplicantDetaisComponent implements OnInit {
   }
 
   /**
+   * Unique key for feedback expand state (id or composite when missing)
+   */
+  getFeedbackExpandKey(item: any, feedback: any, index: number): number | string {
+    return feedback?.id ?? `fb-${item?.id ?? ''}-${index}`;
+  }
+
+  /**
    * Toggle feedback expansion for an interview
    */
-  toggleFeedbackExpansion(feedbackId: number): void {
-    if (this.expandedFeedbackInterviews.has(feedbackId)) {
-      this.expandedFeedbackInterviews.delete(feedbackId);
+  toggleFeedbackExpansion(key: number | string): void {
+    if (this.expandedFeedbackInterviews.has(key)) {
+      this.expandedFeedbackInterviews.delete(key);
     } else {
-      this.expandedFeedbackInterviews.add(feedbackId);
+      this.expandedFeedbackInterviews.add(key);
     }
   }
 
   /**
    * Check if feedback is expanded for an interview
    */
-  isFeedbackExpanded(feedbackId: number): boolean {
-    return this.expandedFeedbackInterviews.has(feedbackId);
+  isFeedbackExpanded(key: number | string): boolean {
+    return this.expandedFeedbackInterviews.has(key);
+  }
+
+  /**
+   * Toggle feedback section (rating + list) for an interview – Figma design
+   */
+  toggleInterviewFeedbacksSection(item: any): void {
+    const key = item?.id ?? `inv-${JSON.stringify(item)}`;
+    if (this.expandedFeedbackSectionByInterview.has(key)) {
+      this.expandedFeedbackSectionByInterview.delete(key);
+    } else {
+      this.expandedFeedbackSectionByInterview.add(key);
+    }
+  }
+
+  /**
+   * Check if feedback section is expanded for an interview (default collapsed)
+   */
+  isInterviewFeedbacksSectionExpanded(item: any): boolean {
+    const key = item?.id ?? `inv-${JSON.stringify(item)}`;
+    return this.expandedFeedbackSectionByInterview.has(key);
   }
 
   // Stub: open create interview overlay

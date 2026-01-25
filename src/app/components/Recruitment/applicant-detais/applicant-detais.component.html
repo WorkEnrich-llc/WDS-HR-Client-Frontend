@@ -382,53 +382,67 @@
                     <div class="status-content-wrapper">
                       <div class="status-header-row">
                         <div class="status-text" [style.color]="statusConfig.color">
-                          {{ item.status }}
+                          {{ getInterviewStatusDisplayLabel(item.status) }}
                         </div>
                         <!-- Edit Feedback Button - Only for Completed status, aligned right -->
-                        @if (item.status === 'Completed' && item.feedbacks && item.feedbacks.length > 0) {
+                        @if ((item.status === 'Completed' || item.status === 'completed') && getFeedbacksList(item).length > 0) {
                         <button type="button" class="edit-feedback-btn" (click)="openFeedbackForInterview(item)">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                           </svg>
-                          <span>Add Feedback</span>
+                          <span>Edit Feedback</span>
                         </button>
                         }
                       </div>
 
-                      <!-- Completed Status - Show Rating and Feedbacks -->
-                      @if (item.status === 'Completed' && item.feedbacks && item.feedbacks.length > 0) {
-                      <div class="completed-status-details">
-                        <div class="overall-rating" [style.color]="statusConfig.color">
-                          {{ getOverallRating(item.feedbacks).toFixed(1) }}/10
-                        </div>
-                        <!-- Expandable Feedback Section -->
+                      <!-- Interviewer (all statuses) - display when available from response -->
+                      @if (getInterviewInterviewerDisplay(item) !== '—') {
+                      <div class="interviewer-display-row">
+                        <span class="interviewer-label">Interviewer:</span>
+                        <span class="interviewer-name">{{ getInterviewInterviewerDisplay(item) }}</span>
+                      </div>
+                      }
+
+                      <!-- Feedbacks (any status) – section toggle matching Figma -->
+                      @if (getFeedbacksList(item).length > 0) {
+                      <div class="feedback-section-toggle-wrapper">
+                        <button type="button" class="feedback-section-toggle-btn"
+                          (click)="toggleInterviewFeedbacksSection(item)">
+                          <span class="overall-rating" [style.color]="statusConfig.color">
+                            {{ getOverallRating(getFeedbacksList(item)).toFixed(1) }}/10
+                          </span>
+                          <div class="feedback-section-chevron">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                              class="chevron-icon" [class.rotated]="isInterviewFeedbacksSectionExpanded(item)">
+                              <path d="M6 9l6 6 6-6"></path>
+                            </svg>
+                          </div>
+                        </button>
+                        @if (isInterviewFeedbacksSectionExpanded(item)) {
                         <div class="feedback-section">
-                          @for (feedback of item.feedbacks; track feedback.id) {
+                          @for (feedback of getFeedbacksList(item); track feedback.id ?? $index) {
                           <div class="feedback-item-wrapper">
                             <button type="button" class="feedback-toggle-btn" 
-                              (click)="toggleFeedbackExpansion(feedback.id)">
-                              <!-- Chevron Icon on Left -->
+                              (click)="toggleFeedbackExpansion(getFeedbackExpandKey(item, feedback, $index))">
                               <div class="chevron-wrapper">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                  class="chevron-icon" [class.rotated]="isFeedbackExpanded(feedback.id)">
+                                  class="chevron-icon" [class.rotated]="isFeedbackExpanded(getFeedbackExpandKey(item, feedback, $index))">
                                   <path d="M6 9l6 6 6-6"></path>
                                 </svg>
                               </div>
-                              <!-- Title and Interviewer Name in Middle -->
                               <div class="feedback-content">
-                                <div class="feedback-title-text">{{ feedback.title || 'UX Design' }}</div>
-                                <div class="feedback-interviewer-name">{{ feedback.created_by }}</div>
+                                <div class="feedback-title-text">{{ getFeedbackRoleDisplay(feedback) }}</div>
+                                <div class="feedback-interviewer-name">{{ getFeedbackInterviewerDisplay(feedback) }}</div>
                               </div>
-                              <!-- Rating on Right -->
                               <span class="feedback-rating" [style.color]="statusConfig.color">
-                                {{ feedback.rating }}/10
+                                {{ feedback.rating != null ? feedback.rating : '—' }}/10
                               </span>
                             </button>
-                            <!-- Expanded Feedback Details -->
-                            @if (isFeedbackExpanded(feedback.id)) {
+                            @if (isFeedbackExpanded(getFeedbackExpandKey(item, feedback, $index))) {
                             <div class="feedback-expanded-content">
                               @if (feedback.comment || feedback.notes) {
                               <div class="feedback-comment">
@@ -445,23 +459,26 @@
                           </div>
                           }
                         </div>
+                        }
                       </div>
                       }
 
-                      <!-- Rejected Status - Show Rejection Details -->
-                      @if (item.status === 'Rejected') {
+                      <!-- Rejected Status - Show Rejection Details from response -->
+                      @if (item.status === 'Rejected' || item.status === 'rejected') {
                       <div class="rejected-status-details">
+                        @if (item.rejected_at) {
                         <div class="rejection-date" [style.color]="statusConfig.color">
                           {{ item.rejected_at | date : "dd/MM/yyyy" }}
                         </div>
-                        @if (item.rejection_notes) {
-                        <p class="rejection-message">{{ item.rejection_notes }}</p>
+                        }
+                        @if (item.rejection_notes || item.rejection_message || item.feedback) {
+                        <p class="rejection-message">{{ item.rejection_notes || item.rejection_message || item.feedback }}</p>
                         }
                       </div>
                       }
 
                       <!-- Accepted Status -->
-                      @if (item.status === 'Accepted' && item.accepted_at) {
+                      @if ((item.status === 'Accepted' || item.status === 'accepted') && item.accepted_at) {
                       <div class="accepted-status-details">
                         <div class="accepted-date" [style.color]="statusConfig.color">
                           Accepted on {{ item.accepted_at | date : "dd/MM/yyyy" }}
@@ -470,7 +487,7 @@
                       }
 
                       <!-- Reschedule Status -->
-                      @if (item.status === 'Reschedule') {
+                      @if (item.status === 'Reschedule' || item.status === 'reschedule') {
                       <div class="reschedule-status-details">
                         <div class="reschedule-date" [style.color]="statusConfig.color">
                           Reschedule requested on {{ item.reschedule_request_at | date : "dd/MM/yyyy" }}
