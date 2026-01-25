@@ -41,6 +41,7 @@ export class ApplicantDetaisComponent implements OnInit {
   @ViewChild('assignmentSelectionOverlay') assignmentSelectionOverlay!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
   @ViewChild('interviewViewOverlay') interviewViewOverlay!: OverlayFilterBoxComponent;
+  @ViewChild('interviewCmp') interviewComponent!: InterviewComponent;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
@@ -425,7 +426,7 @@ export class ApplicantDetaisComponent implements OnInit {
 
   // Stub: open create interview overlay
   openCreateInterviewOverlay(): void {
-    this.toasterService.showInfo('Open create interview dialog');
+    this.interviewComponent?.openInterviewOverlay();
   }
 
   // Open create job offer overlay (stub)

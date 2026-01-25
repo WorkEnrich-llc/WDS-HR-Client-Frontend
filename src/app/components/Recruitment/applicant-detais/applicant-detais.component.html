@@ -116,7 +116,7 @@
       </div>
     </div>
     <div class="col-lg-4 d-flex flex-column gap-4">
-      <app-interview [applicant]="applicantDetails" [applicationId]="applicationId"
+      <app-interview #interviewCmp [applicant]="applicantDetails" [applicationId]="applicationId"
         [applicationDetails]="applicationDetails" (applicationRefreshed)="refreshApplication()"></app-interview>
     </div>
   </div>
