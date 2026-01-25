@@ -74,7 +74,6 @@ export class InterviewRejectedComponent implements OnInit {
         this.isSubmitting = false;
         const errorMsg = error?.error?.message;
         this.errorMessage = errorMsg;
-        this.toastr.error(errorMsg);
         console.error('Error rejecting interview:', error);
       }
     });
