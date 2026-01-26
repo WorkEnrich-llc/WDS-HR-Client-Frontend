@@ -825,7 +825,7 @@ export class AttendanceLogComponent implements OnDestroy {
       next: () => {
         attendance.canceled = true;
         this.isLoading = false;
-        this.toasterService.showSuccess('Attendance log canceled successfully.');
+        // this.toasterService.showSuccess('Attendance log canceled successfully.');
         // Refresh current page to reflect changes
         this.getAllAttendanceLog({
           page: this.currentPage,

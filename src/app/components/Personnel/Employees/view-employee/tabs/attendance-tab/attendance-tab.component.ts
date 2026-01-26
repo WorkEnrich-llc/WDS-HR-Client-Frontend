@@ -319,7 +319,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
         attendance.canceled = true;
-        this.toasterService.showSuccess('Attendance log canceled successfully.');
+        // this.toasterService.showSuccess('Attendance log canceled successfully.');
         // Refresh the attendance log
         const filters: IAttendanceFilters = this.buildFilters();
         this.getAllAttendanceLog(filters);
