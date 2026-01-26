@@ -48,6 +48,8 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     // Month/Year picker state
     showMonthPicker: boolean = false;
     showYearPicker: boolean = false;
+    /** Set when user selects month/year; prevents document click from closing calendar (dropdown is removed so target is detached). */
+    private justSelectedFromPicker: boolean = false;
 
     // Year picker navigation
     yearPickerStartYear: number = 0;
@@ -159,8 +161,12 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     }
 
     @HostListener('document:click', ['$event'])
-    onClickOutside(event: Event): void {
-        if (!this.elementRef.nativeElement.contains(event.target)) {
+    onClickOutside(_event: Event): void {
+        if (this.justSelectedFromPicker) {
+            this.justSelectedFromPicker = false;
+            return;
+        }
+        if (!this.elementRef.nativeElement.contains(_event.target as Node)) {
             if (this.showMonthPicker || this.showYearPicker) {
                 this.showMonthPicker = false;
                 this.showYearPicker = false;
@@ -242,6 +248,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     selectMonth(monthIndex: number): void {
         this.currentMonth = monthIndex;
         this.showMonthPicker = false;
+        this.justSelectedFromPicker = true;
         this.buildCalendar();
     }
 
@@ -249,6 +256,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         if (yearData.disabled) return;
         this.currentYear = yearData.year;
         this.showYearPicker = false;
+        this.justSelectedFromPicker = true;
         this.buildCalendar();
     }
 

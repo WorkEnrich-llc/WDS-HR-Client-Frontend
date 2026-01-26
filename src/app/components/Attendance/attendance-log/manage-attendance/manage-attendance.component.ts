@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { AppTimeDisplayDirective } from 'app/core/directives/app-time-display.directive';
-import { DateInputDirective } from 'app/core/directives/date.directive';
+import { DatePickerComponent } from 'app/components/shared/date-picker/date-picker.component';
 import { AttendanceLog } from 'app/core/models/attendance-log';
 import { AttendanceLogService } from 'app/core/services/attendance/attendance-log/attendance-log.service';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-manage-attendance',
-  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule, AppTimeDisplayDirective, DateInputDirective],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule, AppTimeDisplayDirective, DatePickerComponent],
   templateUrl: './manage-attendance.component.html',
   styleUrl: './manage-attendance.component.css'
 })
@@ -37,6 +37,13 @@ export class ManageAttendanceComponent {
   isSubmitting = false;
   maxDate: string = '';
 
+  get dateErrorMessage(): string | null {
+    const control = this.newLogForm?.get('date');
+    if (!control?.touched) return null;
+    if (control.errors?.['required']) return 'Date is required.';
+    if (control.errors?.['futureDate']) return 'Cannot select a future date. Attendance logs can only be created for today or past dates.';
+    return null;
+  }
 
   private noFutureDateValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) {
@@ -118,6 +125,9 @@ export class ManageAttendanceComponent {
   }
 
   save(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (this.newLogForm.invalid) {
       // Mark all fields as touched to show validation errors
       Object.keys(this.newLogForm.controls).forEach(key => {
@@ -131,15 +141,17 @@ export class ManageAttendanceComponent {
       return;
     }
 
-    const raw = this.newLogForm.value;
+    this.isSubmitting = true;
+    const raw = this.newLogForm.getRawValue();
     // Normalize time values to 24-hour format (HH:mm) before sending to backend
     const startTime = this.normalizeTo24(raw.start);
     const endTime = this.normalizeTo24(raw.end);
 
+    const dateStr = typeof raw.date === 'string' && raw.date.includes('T') ? raw.date.split('T')[0]! : raw.date;
     const attendance: AttendanceLog = {
       id: this.attendanceId,
       employee_id: raw.employee_id,
-      date: raw.date,
+      date: dateStr,
       start: startTime ?? '',
       end: endTime ?? '',
     };
@@ -153,12 +165,16 @@ export class ManageAttendanceComponent {
 
     request.subscribe({
       next: () => {
+        this.isSubmitting = false;
         this.toasterService.showSuccess(
           `Attendance log ${this.isEditMode ? 'updated' : 'created'} successfully!`
         );
         this.router.navigate(['/attendance/attendance-log']);
       },
-      error: (err) => console.error('Error:', err)
+      error: (err) => {
+        this.isSubmitting = false;
+        console.error('Error:', err);
+      }
     });
   }
 
