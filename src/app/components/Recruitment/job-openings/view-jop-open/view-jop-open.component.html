@@ -1812,10 +1812,15 @@
       placeholder="Add rejection notes..."></textarea>
   </div>
   <div class="w-100 mb-3">
-    <label for="rejectionMailMessage" class="form-label mb-2">Email Message (Optional)</label>
+    <label for="rejectionMailMessage" class="form-label mb-2">Email Message<span class="text-danger">*</span></label>
     <textarea id="rejectionMailMessage" name="rejectionMailMessage" class="form-control" rows="3"
       [(ngModel)]="rejectionMailMessage"
-      placeholder="Custom rejection email message to send to the candidate..."></textarea>
+      [class.is-invalid]="!!rejectionMailMessageError"
+      (input)="clearRejectionMailMessageError()"
+      placeholder="Rejection email message to send to the candidate..."></textarea>
+    @if (rejectionMailMessageError) {
+      <small class="text-danger mt-1 d-block">{{ rejectionMailMessageError }}</small>
+    }
   </div>
   <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmReject()"
     [disabled]="isRejectSubmitting">

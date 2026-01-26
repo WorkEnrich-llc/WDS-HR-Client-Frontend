@@ -16,6 +16,7 @@ import { environment } from '../../../../../environments/environment';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 type EvaluationData = {
   label: string;
@@ -92,7 +93,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   private departmentsService = inject(DepartmentsService);
   private branchesService = inject(BranchesService);
   private employeeService = inject(EmployeeService);
-  private toastr = inject(ToastrService);
+  private toastr = inject(ToasterMessageService);
   private httpClient = inject(HttpClient);
   private apiBaseUrl: string = environment.apiBaseUrl;
 
@@ -252,6 +253,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   selectedApplicationForReject: Applicant | null = null;
   rejectionNotes: string = '';
   rejectionMailMessage: string = '';
+  rejectionMailMessageError: string | null = null;
   isRejectSubmitting: boolean = false;
 
   ngOnInit(): void {
@@ -425,7 +427,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.applicantsLoading = false;
         console.error('Error fetching applicants:', error);
-        this.toastr.error('Failed to load applicants', '', { timeOut: 3000 });
+        this.toastr.showError('Failed to load applicants');
       }
     });
   }
@@ -676,7 +678,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error updating job status:', error);
-        this.toastr.error('Failed to update job status', '', { timeOut: 3000 });
+        this.toastr.showError('Failed to update job status');
       }
     });
   }
@@ -727,14 +729,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (response) => {
-        this.toastr.success('Job opening paused successfully', 'Updated Successfully');
+        this.toastr.showSuccess('Job opening paused successfully', 'Updated Successfully');
         this.closePauseModal();
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);
       },
       error: (error) => {
         console.error('Error pausing job:', error);
-        this.toastr.error('Failed to pause job opening');
+        this.toastr.showError('Failed to pause job opening');
         this.closePauseModal();
       }
     });
@@ -758,14 +760,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (response) => {
-        this.toastr.success('Job opening is now live', 'Updated Successfully');
+        this.toastr.showSuccess('Job opening is now live', 'Updated Successfully');
         this.closeMakeLiveModal();
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);
       },
       error: (error) => {
         console.error('Error making job live:', error);
-        this.toastr.error('Failed to make job opening live');
+        this.toastr.showError('Failed to make job opening live');
         this.closeMakeLiveModal();
       }
     });
@@ -977,11 +979,11 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         if (this.jobOpening?.id) {
           this.getJobOpeningDetails(this.jobOpening.id);
         }
-        this.toastr.success('Applicant moved to candidate successfully');
+        this.toastr.showSuccess('Applicant moved to candidate successfully');
       },
       error: (error) => {
         console.error('Error moving applicant to candidate:', error);
-        this.toastr.error('Failed to move applicant to candidate');
+        this.toastr.showError('Failed to move applicant to candidate');
         this.closeCandidateModal();
       }
     });
@@ -1022,11 +1024,11 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         if (this.jobOpening?.id) {
           this.getJobOpeningDetails(this.jobOpening.id);
         }
-        this.toastr.success('Applicant reverted to candidate successfully');
+        this.toastr.showSuccess('Applicant reverted to candidate successfully');
       },
       error: (error) => {
         console.error('Error reverting applicant:', error);
-        this.toastr.error('Failed to revert applicant');
+        this.toastr.showError('Failed to revert applicant');
         this.closeRevertModal();
       }
     });
@@ -1157,7 +1159,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Failed to fetch interview details', err);
         this.interviewDetailsLoading = false;
-        this.toastr.error('Failed to load interview details');
+        this.toastr.showError('Failed to load interview details');
       }
     });
 
@@ -1319,7 +1321,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     }
 
     if (!this.selectedApplicationForAssignment?.applicationId) {
-      this.toastr.error('Application ID not found');
+      this.toastr.showError('Application ID not found');
       return;
     }
 
@@ -1338,7 +1340,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       next: () => {
         this.isAssignmentSubmitting = false;
         this.assignmentSelectionOverlay?.closeOverlay();
-        this.toastr.success('Assignment sent successfully');
+        this.toastr.showSuccess('Assignment sent successfully');
         // Reset form
         this.selectedAssignmentId = null;
         this.assignmentExpirationDate = '';
@@ -1354,7 +1356,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isAssignmentSubmitting = false;
         const errorMessage = error?.error?.message || error?.message || 'Failed to send assignment';
-        this.toastr.error(errorMessage);
+        this.toastr.showError(errorMessage);
       }
     });
   }
@@ -1418,12 +1420,12 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.closeMarkAsCalledModal();
         this.loadApplicants();
         this.getJobOpeningDetails(this.jobOpening.id);
-        this.toastr.success(`Candidate ${actionText.toLowerCase()} successfully`);
+        this.toastr.showSuccess(`Candidate ${actionText.toLowerCase()} successfully`);
       },
       error: (error) => {
         this.isMarkAsCalledLoading = false;
         console.error(`Error ${actionText.toLowerCase()}:`, error);
-        this.toastr.error(`Failed to ${actionText.toLowerCase()}`);
+        this.toastr.showError(`Failed to ${actionText.toLowerCase()}`);
         this.closeMarkAsCalledModal();
       }
     });
@@ -1468,12 +1470,12 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.closeNotInterestedModal();
         this.loadApplicants();
         this.getJobOpeningDetails(this.jobOpening.id);
-        this.toastr.success('Application marked as not interested');
+        this.toastr.showSuccess('Application marked as not interested');
       },
       error: (error) => {
         this.isNotInterestedLoading = false;
         console.error('Error marking as not interested:', error);
-        this.toastr.error('Failed to mark as not interested');
+        this.toastr.showError('Failed to mark as not interested');
         this.closeNotInterestedModal();
       }
     });
@@ -1491,6 +1493,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.selectedApplicationForReject = applicant;
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
+    this.rejectionMailMessageError = null;
     this.showRejectModal = true;
   }
 
@@ -1502,24 +1505,35 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.selectedApplicationForReject = null;
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
+    this.rejectionMailMessageError = null;
+  }
+
+  clearRejectionMailMessageError(): void {
+    this.rejectionMailMessageError = null;
   }
 
   /**
-   * Confirm Reject
+   * Confirm Reject — calls /recruiter/jobs-openings/applications/reject/{id}/
    */
   confirmReject(): void {
     if (!this.selectedApplicationForReject?.applicationId) return;
 
+    this.rejectionMailMessageError = null;
+    if (!this.rejectionMailMessage?.trim()) {
+      this.rejectionMailMessageError = 'Email message is required.';
+      return;
+    }
+
     this.isRejectSubmitting = true;
 
-    // Contact Status 3 = Not Interested (Reject also uses status 3)
-    this.jobOpeningsService.updateApplicantContactStatus(
+    this.jobOpeningsService.rejectApplication(
       this.selectedApplicationForReject.applicationId,
-      3 // 3 - Not Interested
+      (this.rejectionNotes ?? '').trim(),
+      (this.rejectionMailMessage ?? '').trim()
     ).subscribe({
       next: () => {
         this.isRejectSubmitting = false;
-        this.toastr.success('Application rejected successfully');
+        this.toastr.showSuccess('Application rejected successfully');
         this.closeRejectModal();
         this.loadApplicants();
         this.getJobOpeningDetails(this.jobOpening.id);
@@ -1850,11 +1864,11 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
           this.currentInterviewId = null;
           this.loadApplicants();
           this.getJobOpeningDetails(this.jobOpening.id);
-          this.toastr.success('Interview rescheduled successfully');
+          this.toastr.showSuccess('Interview rescheduled successfully');
         },
         error: () => {
           this.submitting = false;
-          this.toastr.error('Failed to reschedule interview');
+          this.toastr.showError('Failed to reschedule interview');
         }
       });
     } else {
@@ -1947,7 +1961,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.feedbackSubmitting = false;
-          this.toastr.success('Feedback submitted successfully');
+          this.toastr.showSuccess('Feedback submitted successfully');
           this.closeFeedbackOverlay();
           this.resetFeedbackForm();
           this.loadApplicants();
@@ -2006,11 +2020,11 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         if (this.jobOpening?.id) {
           this.getJobOpeningDetails(this.jobOpening.id);
         }
-        this.toastr.success('Applicant marked as qualified successfully');
+        this.toastr.showSuccess('Applicant marked as qualified successfully');
       },
       error: (error) => {
         console.error('Error marking applicant as qualified:', error);
-        this.toastr.error('Failed to mark applicant as qualified');
+        this.toastr.showError('Failed to mark applicant as qualified');
         this.closeQualifiedModal();
       }
     });
@@ -2342,7 +2356,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         const jobOfferId = jobOffer.id;
 
         if (!jobOfferId) {
-          this.toastr.error('Job offer not found');
+          this.toastr.showError('Job offer not found');
           this.closeAcceptOfferModal();
           return;
         }
@@ -2357,18 +2371,18 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             if (this.jobOpening?.id) {
               this.getJobOpeningDetails(this.jobOpening.id);
             }
-            this.toastr.success('Job offer accepted successfully');
+            this.toastr.showSuccess('Job offer accepted successfully');
           },
           error: (error) => {
             console.error('Error accepting job offer:', error);
-            this.toastr.error('Failed to accept job offer');
+            this.toastr.showError('Failed to accept job offer');
             this.closeAcceptOfferModal();
           }
         });
       },
       error: (error) => {
         console.error('Error fetching job offer:', error);
-        this.toastr.error('Failed to fetch job offer details');
+        this.toastr.showError('Failed to fetch job offer details');
         this.closeAcceptOfferModal();
       }
     });
@@ -2391,7 +2405,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         const jobOfferId = jobOffer.id;
 
         if (!jobOfferId) {
-          this.toastr.error('Job offer not found');
+          this.toastr.showError('Job offer not found');
           this.closeDeclineOfferModal();
           return;
         }
@@ -2406,18 +2420,18 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             if (this.jobOpening?.id) {
               this.getJobOpeningDetails(this.jobOpening.id);
             }
-            this.toastr.success('Job offer declined successfully');
+            this.toastr.showSuccess('Job offer declined successfully');
           },
           error: (error) => {
             console.error('Error declining job offer:', error);
-            this.toastr.error('Failed to decline job offer');
+            this.toastr.showError('Failed to decline job offer');
             this.closeDeclineOfferModal();
           }
         });
       },
       error: (error) => {
         console.error('Error fetching job offer:', error);
-        this.toastr.error('Failed to fetch job offer details');
+        this.toastr.showError('Failed to fetch job offer details');
         this.closeDeclineOfferModal();
       }
     });
