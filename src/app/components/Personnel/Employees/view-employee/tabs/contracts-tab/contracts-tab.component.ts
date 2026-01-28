@@ -79,6 +79,9 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   modalMessage = '';
   modalMessage2 = '';
 
+  isDeleteModalOpen = false;
+  isDeleting = false;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -676,6 +679,36 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.selectedForDropdown = null;
   }
 
+  openDeleteModal(contract: Contract): void {
+    this.selectedContract = contract;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+    this.selectedContract = null;
+  }
+
+  confirmDeleteContract(): void {
+    if (!this.selectedContract || this.isDeleting) return;
+    this.isDeleting = true;
+    this.employeeService.deleteContract(this.selectedContract.id).subscribe({
+      next: () => {
+        this.isDeleting = false;
+        this.closeDeleteModal();
+        this.toasterService.showSuccess('Contract deleted successfully');
+        this.loadEmployeeContracts();
+        this.contractsDataUpdated.emit();
+      },
+      error: (err) => {
+        this.isDeleting = false;
+        this.closeDeleteModal();
+        console.error('Error deleting contract:', err);
+        this.toasterService.showError(err?.error?.details ?? 'Failed to delete contract');
+      }
+    });
+  }
+
   // Close dropdown when clicking outside
   // @HostListener('document:click', ['$event'])
   // onDocumentClick(event: Event): void {
@@ -687,7 +720,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
+    if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen || this.isDeleteModalOpen) {
       return;
     }
 

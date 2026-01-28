@@ -141,6 +141,7 @@
   background-color: #fef2f2;
   color: #dc2626;
 }
+
 .dropdown-item.confirm-item {
   color: #2d7353;
   font-weight: 600;
@@ -155,6 +156,7 @@
   color: #85252d;
   font-weight: 600;
 }
+
 .dropdown-item.terminate-item:hover {
   background-color: #fef2f2;
   color: #dc2626;
@@ -164,6 +166,7 @@
   color: #85252d;
   font-weight: 600;
 }
+
 .dropdown-item.resign-item:hover {
   background-color: #fffbeb;
   color: #d97706;
@@ -243,6 +246,23 @@
 .remove-btn:hover {
   background-color: #fef2f2;
   color: #b91c1c;
+}
+
+.delete-btn {
+  color: #E04F5F;
+}
+
+.delete-btn svg {
+  fill: #E04F5F;
+}
+
+.delete-btn:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.delete-btn:hover svg {
+  fill: #dc2626;
 }
 
 .custom-date-input.is-invalid {

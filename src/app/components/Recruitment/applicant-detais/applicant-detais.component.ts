@@ -1,6 +1,6 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
+import { Subject, forkJoin, of } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
@@ -36,7 +36,10 @@ import { DatePickerComponent } from '../../shared/date-picker/date-picker.compon
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
 })
-export class ApplicantDetaisComponent implements OnInit {
+export class ApplicantDetaisComponent implements OnInit, OnDestroy {
+  private readonly tabSwitch$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
+
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
@@ -179,6 +182,7 @@ export class ApplicantDetaisComponent implements OnInit {
 
   // Set current tab
   setCurrentTab(tab: string): void {
+    this.tabSwitch$.next();
     this.currentTab = tab;
     // Always fetch feedback when feedback tab is opened
     if (tab === 'feedback') {
@@ -207,11 +211,11 @@ export class ApplicantDetaisComponent implements OnInit {
     const appId = this.applicationId;
     if (!appId) { this.interviews = []; this.isInterviewsLoading = false; return; }
     this.isInterviewsLoading = true;
-    this.jobOpeningsService.getInterviews(appId, 1, 10).subscribe({
+    this.jobOpeningsService.getInterviews(appId, 1, 10).pipe(takeUntil(this.tabSwitch$)).subscribe({
       next: (res) => {
         const raw = res?.data?.list_items ?? res?.list_items ?? [];
         const list = Array.isArray(raw) ? raw.map((it: any) => this.normaliseInterviewListItem(it)) : [];
-        this.jobOpeningsService.getApplicationFeedbacks(appId, 1, 50).subscribe({
+        this.jobOpeningsService.getApplicationFeedbacks(appId, 1, 50).pipe(takeUntil(this.tabSwitch$)).subscribe({
           next: (fbRes) => {
             const fbList = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
             const feedbacks = Array.isArray(fbList) ? fbList : [];
@@ -227,7 +231,7 @@ export class ApplicantDetaisComponent implements OnInit {
                 catchError(() => of({ data: { list_items: [] }, list_items: [] }))
               )
             );
-            forkJoin(requests).subscribe({
+            forkJoin(requests).pipe(takeUntil(this.tabSwitch$)).subscribe({
               next: (fbResponses) => {
                 const byId = new Map<number, any[]>();
                 noFb.forEach((inv, i) => {
@@ -322,17 +326,19 @@ export class ApplicantDetaisComponent implements OnInit {
   fetchJobOffers(): void {
     if (!this.applicationId) { this.jobOffers = []; this.isJobOffersLoading = false; return; }
     this.isJobOffersLoading = true;
-    this.jobOpeningsService.getJobOffers(this.applicationId, 1, 10).subscribe({
-      next: (res) => {
-        const list = res?.data?.list_items ?? res?.list_items ?? [];
-        this.jobOffers = Array.isArray(list) ? list : [];
-        this.isJobOffersLoading = false;
-      },
-      error: () => {
-        this.jobOffers = [];
-        this.isJobOffersLoading = false;
-      }
-    });
+    this.jobOpeningsService.getJobOffers(this.applicationId, 1, 10)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const list = res?.data?.list_items ?? res?.list_items ?? [];
+          this.jobOffers = Array.isArray(list) ? list : [];
+          this.isJobOffersLoading = false;
+        },
+        error: () => {
+          this.jobOffers = [];
+          this.isJobOffersLoading = false;
+        }
+      });
   }
 
   // Open feedback overlay for a specific interview
@@ -352,7 +358,7 @@ export class ApplicantDetaisComponent implements OnInit {
     this.interviewViewLoading = true;
     this.interviewViewOverlay?.openOverlay();
 
-    this.jobOpeningsService.getInterviewById(interview.id).subscribe({
+    this.jobOpeningsService.getInterviewById(interview.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.interviewViewDetails = res?.data?.object_info ?? res?.object_info ?? res;
         this.interviewViewLoading = false;
@@ -624,7 +630,7 @@ export class ApplicantDetaisComponent implements OnInit {
     this.jobBox?.openOverlay();
     this.jobOfferDetailsLoading = true;
 
-    this.jobOpeningsService.getJobOffer(offer.id).subscribe({
+    this.jobOpeningsService.getJobOffer(offer.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
         this.offerSalary = jobOffer.salary ?? null;
@@ -665,7 +671,7 @@ export class ApplicantDetaisComponent implements OnInit {
     if (!this.pendingResendOfferId) return;
     const offerId = this.pendingResendOfferId;
     this.isResendLoading = true;
-    this.jobOpeningsService.resendJobOffer(offerId).subscribe({
+    this.jobOpeningsService.resendJobOffer(offerId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isResendLoading = false;
         this.toasterService.showSuccess('Job offer resend initiated');
@@ -719,7 +725,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.jobOfferDetailsLoading = false;
       return;
     }
-    this.jobOpeningsService.getJobOffer(jobOfferIdToUse).subscribe({
+    this.jobOpeningsService.getJobOffer(jobOfferIdToUse).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
         this.offerSalary = jobOffer.salary ?? null;
@@ -927,7 +933,7 @@ export class ApplicantDetaisComponent implements OnInit {
         this.offerJoinDate,
         this.offerDetails,
         this.noticePeriod != null ? Number(this.noticePeriod) : undefined
-      ).subscribe({
+      ).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.isLoading = false;
           this.jobBox?.closeOverlay();
@@ -949,13 +955,12 @@ export class ApplicantDetaisComponent implements OnInit {
       };
       if (this.withEndDate && this.contractEndDate) payload.end_contract = this.contractEndDate;
       if (this.noticePeriod) payload.notice_period = this.noticePeriod;
-      this.jobOpeningsService.sendJobOfferFull(payload).subscribe({
+      this.jobOpeningsService.sendJobOfferFull(payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.isLoading = false;
           this.jobBox?.closeOverlay();
           this.resetJobOfferForm();
           this.refreshApplication();
-          // Refresh job offers list after sending
           this.fetchJobOffers();
         },
         error: () => {
@@ -1032,7 +1037,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.applicationId,
       this.feedbackRating,
       this.feedbackComment
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isFeedbackSubmitting = false;
         this.feedbackOverlay?.closeOverlay();
@@ -1098,7 +1103,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.applicationId,
       this.rejectionNotes || '',
       this.rejectionMailMessage.trim()
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isRejectSubmitting = false;
         this.toasterService.showSuccess('Applicant rejected successfully');
@@ -1120,8 +1125,7 @@ export class ApplicantDetaisComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Subscribe to route param changes to load applicant data when ID changes
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const applicationIdParam = params.get('applicationId');
       const applicationId = applicationIdParam ? parseInt(applicationIdParam, 10) : NaN;
 
@@ -1129,30 +1133,22 @@ export class ApplicantDetaisComponent implements OnInit {
         this.applicationId = applicationId;
         this.isLoading = true;
 
-        // Reset all cached data when navigating to a new applicant
         this.feedbacks = [];
         this.applicantApplications = [];
         this.assignments = [];
         this.applicantDetails = null;
         this.applicationDetails = null;
-
-        // Reset tab to CV when navigating
         this.currentTab = 'cv';
 
-        // Call application details API directly using application_id
-        this.jobOpeningsService.getApplicationDetails(applicationId).subscribe({
+        this.jobOpeningsService.getApplicationDetails(applicationId).pipe(takeUntil(this.destroy$)).subscribe({
           next: (appRes) => {
             this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
 
-            // Extract applicant details from application response
             if (this.applicationDetails) {
               const application = this.applicationDetails.application || this.applicationDetails;
               const applicant = this.applicationDetails.applicant || {};
-
-              // Extract name, email, phone from application_content if applicant object is empty
               const basicInfo = application.application_content?.['Personal Details']?.['Basic Info'] || [];
 
-              // Map applicant details from application response
               this.applicantDetails = {
                 id: applicant.id,
                 name: applicant.name || basicInfo.find((f: any) => f.name === 'Name')?.value || 'N/A',
@@ -1165,9 +1161,7 @@ export class ApplicantDetaisComponent implements OnInit {
                 evaluation: applicant.evaluation
               };
 
-              // Fetch applications for this applicant
               if (applicant.id) {
-                // Store applicant ID for later use
                 this.applicantDetails.applicantId = applicant.id;
               }
             }
@@ -1182,6 +1176,13 @@ export class ApplicantDetaisComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.tabSwitch$.next();
+    this.tabSwitch$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   getCvUrlFromApplication(): string | undefined {
     const files = this.applicationDetails?.application?.application_content?.Attachments?.files;
     if (Array.isArray(files)) {
@@ -1194,25 +1195,27 @@ export class ApplicantDetaisComponent implements OnInit {
   fetchFeedbacks(): void {
     if (!this.applicationId) { this.isLoading = false; return; }
     this.isFeedbackLoading = true;
-    this.jobOpeningsService.getApplicationFeedbacks(this.applicationId, 1, 10).subscribe({
-      next: (fbRes) => {
-        const list = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
-        this.feedbacks = Array.isArray(list) ? list : [];
-        this.isFeedbackLoading = false;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.feedbacks = [];
-        this.isFeedbackLoading = false;
-        this.isLoading = false;
-      }
-    });
+    this.jobOpeningsService.getApplicationFeedbacks(this.applicationId, 1, 10)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (fbRes) => {
+          const list = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
+          this.feedbacks = Array.isArray(list) ? list : [];
+          this.isFeedbackLoading = false;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.feedbacks = [];
+          this.isFeedbackLoading = false;
+          this.isLoading = false;
+        }
+      });
   }
 
   refreshApplication(): void {
     if (!this.applicationId) return;
     this.isLoading = true;
-    this.jobOpeningsService.getApplicationDetails(this.applicationId).subscribe({
+    this.jobOpeningsService.getApplicationDetails(this.applicationId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (appRes) => {
         this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
         // Update applicant details status from application
@@ -1228,7 +1231,7 @@ export class ApplicantDetaisComponent implements OnInit {
   }
 
   private fetchApplicantApplications(applicantId: number): void {
-    this.jobOpeningsService.getApplicationsByApplicantId(applicantId).subscribe({
+    this.jobOpeningsService.getApplicationsByApplicantId(applicantId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const applications = res?.data?.list_items ?? res?.list_items ?? [];
         this.applicantApplications = Array.isArray(applications) ? applications : [];
@@ -1242,33 +1245,37 @@ export class ApplicantDetaisComponent implements OnInit {
   fetchPreviousApplications(): void {
     if (!this.applicantDetails?.applicantId) { return; }
     this.isApplicationsLoading = true;
-    this.jobOpeningsService.getApplicationsByApplicantId(this.applicantDetails.applicantId).subscribe({
-      next: (res) => {
-        const applications = res?.data?.list_items ?? res?.list_items ?? [];
-        this.applicantApplications = Array.isArray(applications) ? applications : [];
-        this.isApplicationsLoading = false;
-      },
-      error: () => {
-        this.applicantApplications = [];
-        this.isApplicationsLoading = false;
-      }
-    });
+    this.jobOpeningsService.getApplicationsByApplicantId(this.applicantDetails.applicantId)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const applications = res?.data?.list_items ?? res?.list_items ?? [];
+          this.applicantApplications = Array.isArray(applications) ? applications : [];
+          this.isApplicationsLoading = false;
+        },
+        error: () => {
+          this.applicantApplications = [];
+          this.isApplicationsLoading = false;
+        }
+      });
   }
 
   fetchAssignments(): void {
     if (!this.applicationId) { return; }
     this.isAssignmentsLoading = true;
-    this.jobOpeningsService.getApplicantAssignments(this.applicationId, 1, 10).subscribe({
-      next: (res) => {
-        const assignmentsList = res?.data?.list_items ?? res?.list_items ?? [];
-        this.assignments = Array.isArray(assignmentsList) ? assignmentsList : [];
-        this.isAssignmentsLoading = false;
-      },
-      error: () => {
-        this.assignments = [];
-        this.isAssignmentsLoading = false;
-      }
-    });
+    this.jobOpeningsService.getApplicantAssignments(this.applicationId, 1, 10)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const assignmentsList = res?.data?.list_items ?? res?.list_items ?? [];
+          this.assignments = Array.isArray(assignmentsList) ? assignmentsList : [];
+          this.isAssignmentsLoading = false;
+        },
+        error: () => {
+          this.assignments = [];
+          this.isAssignmentsLoading = false;
+        }
+      });
   }
 
   getStatusBadgeForApp(status: string): { class: string; label: string } {
@@ -1319,7 +1326,7 @@ export class ApplicantDetaisComponent implements OnInit {
 
     this.isNextApplicationLoading = true;
 
-    this.jobOpeningsService.getNextApplication(this.applicationId).subscribe({
+    this.jobOpeningsService.getNextApplication(this.applicationId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.isNextApplicationLoading = false;
 
@@ -1369,7 +1376,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.assignmentCurrentPage,
       this.assignmentPageSize,
       this.assignmentSearchTerm
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const list = res?.data?.list_items ?? res?.list_items ?? [];
         this.availableAssignments = Array.isArray(list) ? list : [];
@@ -1450,7 +1457,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.selectedAssignmentId,
       this.applicationId,
       expirationDateTime
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isAssignmentSubmitting = false;
         this.assignmentSelectionOverlay?.closeOverlay();
@@ -1494,12 +1501,11 @@ export class ApplicantDetaisComponent implements OnInit {
     const assignmentId = this.pendingResendAssignmentId;
     this.isResendAssignmentLoading = true;
 
-    this.jobOpeningsService.resendAssignment(assignmentId).subscribe({
+    this.jobOpeningsService.resendAssignment(assignmentId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isResendAssignmentLoading = false;
         this.pendingResendAssignmentId = null;
         this.resendAssignmentPopupOpen = false;
-        // Refresh assignments list
         this.fetchAssignments();
       },
       error: (err) => {

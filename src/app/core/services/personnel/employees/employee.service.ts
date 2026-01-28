@@ -338,6 +338,14 @@ export class EmployeeService {
     return this.http.get<ContractAdjustmentsResponse>(url);
   }
 
+  // Delete expired contract
+  deleteContract(contractId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/contract/delete`;
+    const formData = new FormData();
+    formData.append('contract_id', contractId.toString());
+    return this.http.request<any>('DELETE', url, { body: formData });
+  }
+
 
   // changeEmployeePicture(employeeId: number, file: File): Observable<any> {
   //   const formData = new FormData();
