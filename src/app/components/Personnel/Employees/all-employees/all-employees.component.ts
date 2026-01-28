@@ -368,12 +368,15 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             ? `${employee.contact_info?.mobile?.country?.phone_prefix || ''}${employee.contact_info.mobile.number}`
             : '';
 
+          const contractExpired = employee.current_contract?.expired === true;
+
           return {
             id: employee.id,
             code: employee.code || '',
             name: employee.contact_info?.name || '',
             name_arabic: employee.contact_info?.name_arabic || '',
             employeeStatus: employee.employee_status || '',
+            contractExpired,
             accountStatus: this.getAccountStatus(employee.employee_active),
             jobTitle: employee.job_info?.job_title?.name || '',
             branch: employee.job_info?.branch?.name || '',
