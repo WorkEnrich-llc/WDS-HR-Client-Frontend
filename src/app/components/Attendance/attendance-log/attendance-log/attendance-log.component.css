@@ -269,6 +269,16 @@
   padding-inline-start: var(--spacing-20);
 }
 
+/* Reserve fixed space for expand arrow so rows align when arrow is hidden (e.g. Weekly leave) */
+.arrow-cell {
+  width: 40px;
+  min-width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 .name-cell .emp-name {
   display: inline-block;
   overflow: hidden;

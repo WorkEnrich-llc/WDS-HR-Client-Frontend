@@ -224,9 +224,8 @@
               <div class="d-flex align-items-center main-row">
                 <!-- Main Employee Info -->
                 <div class="d-flex align-items-center name-cell" [ngStyle]="{ width: columnWidths[0] }">
-                  @if(emp.list_items?.length > 0){
-                  <div style="width: 40px">
-                    @if (shouldShowExpandArrow(emp)) {
+                  <div class="arrow-cell">
+                    @if (emp.list_items?.length > 0 && shouldShowExpandArrow(emp)) {
                     <button class="btn btn-sm" (click)="toggleCollapse(emp)">
                       @if (emp.collapsed) {
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -242,7 +241,6 @@
                     </button>
                     }
                   </div>
-                  }
                   <div class="d-flex flex-column ps-1">
                     <span class="d-block text-gray-sm">{{
                       emp?.employee?.id?.toString().padStart(4, "0")
@@ -304,7 +302,7 @@
                 @for (log of emp.list_items; track log; let j = $index) {
                 <div class="d-flex align-items-center inner-row">
                   <div class="d-flex align-items-center" [style.width]="columnWidths[0]">
-                    <div style="width: 40px"></div>
+                    <div class="arrow-cell"></div>
                   </div>
                   <div [style.width]="columnWidths[1]"></div>
                   <div [style.width]="columnWidths[2]"></div>
