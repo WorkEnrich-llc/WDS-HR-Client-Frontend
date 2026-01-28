@@ -358,8 +358,7 @@
       </div>
       } @else {
       <app-date-picker label="Date" placeholder="Select date" [required]="true" [disableBeforeDate]="true"
-        [(ngModel)]="date" name="date"
-        [errorMessage]="validationErrors.date || null"
+        [(ngModel)]="date" name="date" [errorMessage]="validationErrors.date || null"
         (dateChange)="onInterviewDateChange($event)">
       </app-date-picker>
       }
@@ -480,7 +479,7 @@
           </svg>
           <span>{{ overlayTitle }}</span>
         </button>
-        <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="discardInterviewAndClose()">
           <span>Discard Invitation</span>
         </a>
       </div>

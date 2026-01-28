@@ -265,6 +265,12 @@ export class InterviewComponent implements OnChanges {
     this.jobBox?.closeOverlay();
   }
 
+  /** Reset interview form and close overlay when user discards. */
+  discardInterviewAndClose(): void {
+    this.resetInterviewForm();
+    this.closeAllOverlays();
+  }
+
   addAsCandidate(): void {
     if (!this.applicationId) return;
     this.submitting = true;
