@@ -196,7 +196,10 @@ export class ApplicantDetaisComponent implements OnInit {
     if (tab === 'interviews') {
       this.fetchInterviews();
     }
-    // Job offers are only fetched after sending a new job offer, not when tab opens
+    // Always fetch job offers when Job Offers tab is opened
+    if (tab === 'job-offers') {
+      this.fetchJobOffers();
+    }
   }
 
   // Fetch interviews for current application (and application + per-interview feedbacks, then merge)
@@ -414,7 +417,7 @@ export class ApplicantDetaisComponent implements OnInit {
    */
   getInterviewStatusConfig(status: string): { icon: string; color: string; bgColor: string } {
     const normalizedStatus = status?.toLowerCase() || '';
-    
+
     switch (normalizedStatus) {
       case 'completed':
         return {
@@ -526,13 +529,13 @@ export class ApplicantDetaisComponent implements OnInit {
     if (!date) return '';
     const dateObj = new Date(date);
     const formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    
+
     if (timeFrom) {
       const timeFromFormatted = this.formatTime(timeFrom);
       const timeToFormatted = timeTo ? this.formatTime(timeTo) : '';
       return `${formattedDate} ${timeFromFormatted}${timeToFormatted ? ' - ' + timeToFormatted : ''}`;
     }
-    
+
     return formattedDate;
   }
 
