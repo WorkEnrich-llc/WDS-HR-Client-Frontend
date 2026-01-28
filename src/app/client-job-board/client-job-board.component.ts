@@ -110,10 +110,10 @@ export class ClientJobBoardComponent implements OnInit {
             error: (error) => {
                 console.error('Error loading company settings:', error);
                 // Extract error message from response - check details first, then message
-                this.errorMessage = error?.error?.details || 
-                                  error?.error?.message || 
-                                  error?.message || 
-                                  'We encountered an issue while loading the job board. Please try again in a moment.';
+                this.errorMessage = error?.error?.details ||
+                    error?.error?.message ||
+                    error?.message ||
+                    'We encountered an issue while loading the job board. Please try again in a moment.';
                 this.hasError = true;
             }
         });

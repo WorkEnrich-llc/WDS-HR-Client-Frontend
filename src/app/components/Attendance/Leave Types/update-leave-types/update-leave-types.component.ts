@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { DatePipe, NgClass } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -6,6 +6,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
+
+const EMPLOYMENT_OPTIONS_UPDATE: { id: number; name: string }[] = [
+  { id: 1, name: 'Full-Time' },
+  { id: 2, name: 'Part-Time' },
+  { id: 3, name: 'Per Hour' },
+  { id: 4, name: 'Freelance' }
+];
+
+function employmentTypesRequiredUpdate(control: AbstractControl): ValidationErrors | null {
+  const v = control.value;
+  if (!Array.isArray(v) || v.length === 0) return { required: true };
+  return null;
+}
 
 @Component({
   selector: 'app-update-leave-types',
@@ -16,6 +29,10 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
 })
 export class UpdateLeaveTypesComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private el = inject(ElementRef);
+
+  employmentOptions = EMPLOYMENT_OPTIONS_UPDATE;
+  employmentDropdownOpen = false;
   isFormChanged = false;
   carryoverAllowed: boolean = false;
   errMsg: string = '';
@@ -295,11 +312,14 @@ export class UpdateLeaveTypesComponent implements OnInit {
         this.documentStatus = this.leaveTypeData.document_status?.id || 3;
         this.permission = this.leaveTypeData.permission || 'day_off';
 
+        const employmentIds: number[] = Array.isArray(this.leaveTypeData.employment_types)
+          ? this.leaveTypeData.employment_types.map((x: any) => (typeof x === 'object' && x?.id != null) ? x.id : Number(x)).filter((n: number) => !isNaN(n))
+          : (this.leaveTypeData.employment_type?.id != null ? [this.leaveTypeData.employment_type.id] : []);
         this.leaveType1.patchValue({
           code: this.leaveTypeData.code,
           name: this.leaveTypeData.name,
           description: this.leaveTypeData.description,
-          employmentType: this.leaveTypeData.employment_type?.id || ''
+          employmentType: employmentIds.length ? employmentIds : []
         });
 
         this.leaveType2.patchValue({
@@ -509,7 +529,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]),
     description: new FormControl(''),
-    employmentType: new FormControl('', [Validators.required]),
+    employmentType: new FormControl<number[]>([], [employmentTypesRequiredUpdate]),
   });
 
 
@@ -789,7 +809,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
       name: this.leaveType1.get('name')?.value,
       permission: this.permission,
       description: this.leaveType1.get('description')?.value,
-      employment_type: Number(this.leaveType1.get('employmentType')?.value),
+      employment_types: (this.leaveType1.get('employmentType')?.value as number[]) ?? [],
       document_status: this.documentStatus,
       settings: {
         accrual_rate: Number(this.leaveType2.get('accrual_rate')?.value),
@@ -873,7 +893,41 @@ export class UpdateLeaveTypesComponent implements OnInit {
     this.currentStep--;
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(e: Event) {
+    if (!this.el.nativeElement.contains(e.target)) this.employmentDropdownOpen = false;
+  }
 
+  openEmploymentDropdown() {
+    this.employmentDropdownOpen = !this.employmentDropdownOpen;
+    this.leaveType1.get('employmentType')?.markAsTouched();
+  }
+
+  closeEmploymentDropdown() {
+    this.employmentDropdownOpen = false;
+  }
+
+  toggleEmploymentOption(id: number) {
+    const ctrl = this.leaveType1.get('employmentType');
+    const current: number[] = Array.isArray(ctrl?.value) ? [...ctrl.value] : [];
+    const idx = current.indexOf(id);
+    if (idx >= 0) current.splice(idx, 1);
+    else current.push(id);
+    current.sort((a, b) => a - b);
+    ctrl?.setValue(current);
+    ctrl?.updateValueAndValidity();
+  }
+
+  isEmploymentSelected(id: number): boolean {
+    const v = this.leaveType1.get('employmentType')?.value;
+    return Array.isArray(v) && v.includes(id);
+  }
+
+  getEmploymentDisplay(): string {
+    const v = this.leaveType1.get('employmentType')?.value as number[] | null;
+    if (!Array.isArray(v) || v.length === 0) return 'Select types';
+    return v.map(id => EMPLOYMENT_OPTIONS_UPDATE.find(o => o.id === id)?.name ?? id).join(', ');
+  }
 
   get isSaveDisabled(): boolean {
     const isInvalid = this.leaveType1.invalid || this.leaveType2.invalid || this.leaveType3.invalid;

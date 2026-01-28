@@ -24,12 +24,12 @@
   bottom: 48px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
+  background: #393E46;
   border-radius: 20px;
   padding: 24px 32px;
   max-width: 1344px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #948979;
   width: 90%;
   box-sizing: border-box;
   display: block;
@@ -82,7 +82,7 @@
 .company-name {
   font-size: var(--font-size-b1);
   font-weight: var(--font-weight-hv);
-  color: var(--color-primary);
+  color: #DFD0B8;
   line-height: var(--line-height-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -90,8 +90,8 @@
 
 .tagline {
   font-size: var(--font-size-b3);
-  color: var(--color-primary);
-  opacity: 0.7;
+  color: #DFD0B8;
+  opacity: 0.8;
   line-height: var(--line-height-xxs);
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -105,7 +105,7 @@
 }
 
 .copyright-text {
-  color: var(--text-colors-secondary-on-light, #2C435D);
+  color: #DFD0B8;
   text-align: right;
   font-family: var(--font-family-en-font, Poppins);
   font-size: var(--size-b2, 16px);
