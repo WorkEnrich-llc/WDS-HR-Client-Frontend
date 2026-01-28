@@ -1,40 +1,19 @@
 <!-- page header -->
-<app-page-header
-  [breadcrumbs]="[
+<app-page-header [breadcrumbs]="[
     { label: 'Attendance', link: '/attendance' },
     { label: 'Leave Types', link: '/leave-types' },
     { label: 'Create New Leave Type' }
-  ]"
-  title="Create New Leave Type"
-  [create]="todayFormatted"
->
-  <button
-    class="btn btn-lg btn-success w-auto"
-    [disabled]="
+  ]" title="Create New Leave Type" [create]="todayFormatted">
+  <button class="btn btn-lg btn-success w-auto" [disabled]="
       !leaveType1.valid || !leaveType2.valid || !leaveType3.valid || isLoading
-    "
-    (click)="createleaveType()"
-  >
+    " (click)="createleaveType()">
     @if (isLoading) {
-    <span
-      class="spinner-grow spinner-grow-sm"
-      role="status"
-      aria-hidden="true"
-    ></span>
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     } @if (!isLoading) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="m8.5 12.5l2 2l5-5"
-        />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
       </g>
     </svg>
     }
@@ -42,12 +21,7 @@
   </button>
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
         <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
@@ -59,55 +33,29 @@
 
 <!-- steps -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-  <li
-    class="nav-item"
-    [ngClass]="{
+  <li class="nav-item" [ngClass]="{
       active: currentStep === 1,
       'text-success': currentStep > 1,
       'bg-light-success': currentStep > 1
-    }"
-  >
+    }">
     @if (currentStep == 1) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
       <path
-        d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
-        opacity=".5"
-      />
-      <path
-        d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2"
-      />
+        d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
     </svg>
     } @if (currentStep > 1) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      [style.fill]="currentStep > 1 ? 'currentColor' : 'black'"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+      [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
       <path
-        d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
-        opacity=".5"
-      />
-      <path
-        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0"
-      />
+        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
     </svg>
     }
     <span class="nav-link">Main Information</span>
   </li>
 
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    [style.fill]="
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
       currentStep === 1
         ? '#DDE3EB'
         : currentStep === 2
@@ -115,64 +63,35 @@
         : currentStep > 2
         ? '#4CA883'
         : '#DDE3EB'
-    "
-  >
+    ">
     <path
-      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74"
-    />
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
   </svg>
 
-  <li
-    class="nav-item"
-    [ngClass]="{
+  <li class="nav-item" [ngClass]="{
       active: currentStep === 2,
       'text-success': currentStep > 2,
       'bg-light-success': currentStep > 2
-    }"
-  >
-    @if (currentStep <= 2) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
-        d="M13.752 14.5a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-10-5a3 3 0 1 0 6 0a3 3 0 0 0-6 0"
-      />
-      <path
-        [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+    }">
+    @if (currentStep <= 2) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+        d="M13.752 14.5a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-10-5a3 3 0 1 0 6 0a3 3 0 0 0-6 0" />
+      <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
         d="M7.462 6.584a3 3 0 0 0-1.5.021V2a.75.75 0 0 1 1.5 0zm-1.5 5.81a3 3 0 0 0 1.5.021V22a.75.75 0 0 1-1.5 0zm10 5V22a.75.75 0 0 0 1.5 0v-4.585a3 3 0 0 1-1.5-.021m1.5-5.81V2a.75.75 0 0 0-1.5 0v9.605a3 3 0 0 1 1.5-.021"
-        opacity=".5"
-      />
-    </svg>
-    } @if (currentStep > 2) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      [style.fill]="currentStep > 1 ? 'currentColor' : 'black'"
-    >
-      <path
-        d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
-        opacity=".5"
-      />
-      <path
-        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0"
-      />
-    </svg>
-    }
-    <span class="nav-link">Leaves Settings</span>
+        opacity=".5" />
+      </svg>
+      } @if (currentStep > 2) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Leaves Settings</span>
   </li>
 
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    [style.fill]="
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
       currentStep === 2
         ? '#377AFD'
         : currentStep === 3
@@ -180,62 +99,36 @@
         : currentStep > 3
         ? '#4CA883'
         : '#DDE3EB'
-    "
-  >
+    ">
     <path
-      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74"
-    />
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
   </svg>
 
   <!-- Step 3 -->
-  <li
-    class="nav-item"
-    [ngClass]="{
+  <li class="nav-item" [ngClass]="{
       active: currentStep === 3,
       'text-success': currentStep > 3,
       'bg-light-success': currentStep > 3
-    }"
-  >
-    @if (currentStep <= 3) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+    }">
+    @if (currentStep <= 3) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
         d="M12 22c-4.714 0-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22"
-        opacity=".5"
-      />
-      <path
-        [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
-        d="M10.683 18.62A6.75 6.75 0 0 0 18.75 12a.75.75 0 0 0-1.5 0A5.25 5.25 0 1 1 12 6.75a.75.75 0 0 0 0-1.5a6.75 6.75 0 0 0-1.317 13.37"
-      />
-      <path
-        [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
-        d="M13.31 6.045a.75.75 0 0 1 .986-.393a7.73 7.73 0 0 1 4.052 4.052a.75.75 0 0 1-1.378.591a6.23 6.23 0 0 0-3.265-3.265a.75.75 0 0 1-.394-.985M12 9.75a.75.75 0 0 1 .75.75v.75h.75a.75.75 0 1 1 0 1.5h-.75v.75a.75.75 0 1 1-1.5 0v-.75h-.75a.75.75 0 0 1 0-1.5h.75v-.75a.75.75 0 0 1 .75-.75"
-      />
-    </svg>
+        opacity=".5" />
+      <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+        d="M10.683 18.62A6.75 6.75 0 0 0 18.75 12a.75.75 0 0 0-1.5 0A5.25 5.25 0 1 1 12 6.75a.75.75 0 0 0 0-1.5a6.75 6.75 0 0 0-1.317 13.37" />
+      <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+        d="M13.31 6.045a.75.75 0 0 1 .986-.393a7.73 7.73 0 0 1 4.052 4.052a.75.75 0 0 1-1.378.591a6.23 6.23 0 0 0-3.265-3.265a.75.75 0 0 1-.394-.985M12 9.75a.75.75 0 0 1 .75.75v.75h.75a.75.75 0 1 1 0 1.5h-.75v.75a.75.75 0 1 1-1.5 0v-.75h-.75a.75.75 0 0 1 0-1.5h.75v-.75a.75.75 0 0 1 .75-.75" />
+      </svg>
 
-    } @if (currentStep > 3) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      [style.fill]="currentStep > 3 ? 'currentColor' : 'black'"
-    >
-      <path
-        d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
-        opacity=".5"
-      />
-      <path
-        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0"
-      />
-    </svg>
-    }
-    <span class="nav-link">Extra Conditions </span><small>Optional</small>
+      } @if (currentStep > 3) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 3 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Extra Conditions </span><small>Optional</small>
   </li>
 </ul>
 
@@ -248,27 +141,16 @@
       <div class="input">
         <label for="leaveId">Leave Type Code (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="text"
-            formControlName="code"
-            id="leaveId"
-            class="form-control custom-date-input"
-            placeholder="0050"
-          />
+          <input type="text" formControlName="code" id="leaveId" class="form-control custom-date-input"
+            placeholder="0050" />
         </div>
       </div>
       <div class="input">
         <label for="leaveName">Leave Type Name<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="text"
-            id="leaveName"
-            formControlName="name"
-            class="form-control custom-date-input"
-            placeholder="Leave type name"
-            (focus)="leaveType1.get('name')?.markAsTouched()"
-            (blur)="leaveType1.get('name')?.markAsTouched()"
-          />
+          <input type="text" id="leaveName" formControlName="name" class="form-control custom-date-input"
+            placeholder="Leave type name" (focus)="leaveType1.get('name')?.markAsTouched()"
+            (blur)="leaveType1.get('name')?.markAsTouched()" />
         </div>
         @if (leaveType1.get('name')?.touched &&
         leaveType1.get('name')?.errors?.['required']) {
@@ -287,39 +169,33 @@
       <div class="input">
         <label for="desc">Leave Type Description (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <textarea
-            type="text"
-            formControlName="description"
-            id="desc"
-            class="form-control custom-date-input"
-            placeholder="Describe the leave type briefly"
-          ></textarea>
+          <textarea type="text" formControlName="description" id="desc" class="form-control custom-date-input"
+            placeholder="Describe the leave type briefly"></textarea>
         </div>
       </div>
       <div class="input">
         <label for="emptype">Employment Type<span>*</span></label>
         <div class="employment-multi-select form-outline w-100 position-relative custom-date-wrapper">
-          <button
-            type="button"
-            id="emptype"
+          <button type="button" id="emptype"
             class="employment-trigger form-control custom-date-input text-start d-flex align-items-center justify-content-between gap-2"
             [class.is-invalid]="leaveType1.get('employmentType')?.touched && leaveType1.get('employmentType')?.errors?.['required']"
-            (click)="openEmploymentDropdown()"
-          >
+            (click)="openEmploymentDropdown()">
             <span class="employment-trigger-text">{{ getEmploymentDisplay() }}</span>
-            <svg class="employment-chevron" [class.open]="employmentDropdownOpen" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="employment-chevron" [class.open]="employmentDropdownOpen" xmlns="http://www.w3.org/2000/svg"
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
           @if (employmentDropdownOpen) {
-            <div class="employment-dropdown" (click)="$event.stopPropagation()">
-              @for (opt of employmentOptions; track opt.id) {
-                <label class="employment-option">
-                  <input type="checkbox" [checked]="isEmploymentSelected(opt.id)" (change)="toggleEmploymentOption(opt.id)" />
-                  <span>{{ opt.name }}</span>
-                </label>
-              }
-            </div>
+          <div class="employment-dropdown" (click)="$event.stopPropagation()">
+            @for (opt of employmentOptions; track opt.id) {
+            <label class="employment-option">
+              <input type="checkbox" [checked]="isEmploymentSelected(opt.id)"
+                (change)="toggleEmploymentOption(opt.id)" />
+              <span>{{ opt.name }}</span>
+            </label>
+            }
+          </div>
           }
         </div>
         @if (leaveType1.get('employmentType')?.touched &&
@@ -335,25 +211,10 @@
     }
     <!-- next button -->
     <div class="btn-fixed">
-      <button
-        class="btn btn-lg btn-primary"
-        [disabled]="!leaveType1.valid"
-        (click)="goNext()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M4 12h16m0 0l-6-6m6 6l-6 6"
-          />
+      <button class="btn btn-lg btn-primary" [disabled]="!leaveType1.valid" (click)="goNext()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
         <span>Next (1/3)</span>
       </button>
@@ -371,13 +232,8 @@
       <div class="input">
         <label for="accrualRate">Accrual Rate<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="number"
-            formControlName="accrual_rate"
-            id="accrualRate"
-            class="form-control custom-date-input"
-            placeholder="Per Month"
-          />
+          <input type="number" formControlName="accrual_rate" id="accrualRate" class="form-control custom-date-input"
+            placeholder="Per Month" />
         </div>
         @if (leaveType2.get('accrual_rate')?.touched &&
         leaveType2.get('accrual_rate')?.errors?.['required']) {
@@ -398,13 +254,8 @@
       <div class="input">
         <label for="leaveLimits">Leave Limits<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="number"
-            formControlName="leave_limits"
-            id="leaveLimits"
-            class="form-control custom-date-input"
-            placeholder="Per Year"
-          />
+          <input type="number" formControlName="leave_limits" id="leaveLimits" class="form-control custom-date-input"
+            placeholder="Per Year" />
         </div>
         @if (leaveType2.get('leave_limits')?.touched &&
         leaveType2.get('leave_limits')?.errors?.['required']) {
@@ -427,13 +278,8 @@
       <div class="input">
         <label for="maxReview">Max Review Days<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="number"
-            formControlName="max_review_days"
-            id="maxReview"
-            class="form-control custom-date-input"
-            placeholder="ex: 5"
-          />
+          <input type="number" formControlName="max_review_days" id="maxReview" class="form-control custom-date-input"
+            placeholder="ex: 5" />
         </div>
         @if (leaveType2.get('max_review_days')?.touched &&
         leaveType2.get('max_review_days')?.errors?.['required']) {
@@ -443,37 +289,18 @@
         <p class="error-msg">Max Review Days must be number.</p>
         }
       </div>
-      <div
-        class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
-      >
-        <input
-          class="form-check-input m-0"
-          [(ngModel)]="carryoverAllowed"
-          (change)="toggleCarryoverValidators()"
-          [ngModelOptions]="{ standalone: true }"
-          type="checkbox"
-          id="allowCarryover"
-          style="cursor: pointer"
-        />
-        <label
-          class="form-check-label m-0"
-          for="allowCarryover"
-          style="cursor: pointer"
-        >
+      <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+        <input class="form-check-input m-0" [(ngModel)]="carryoverAllowed" (change)="toggleCarryoverValidators()"
+          [ngModelOptions]="{ standalone: true }" type="checkbox" id="allowCarryover" style="cursor: pointer" />
+        <label class="form-check-label m-0" for="allowCarryover" style="cursor: pointer">
           Allow Carryover
         </label>
       </div>
       <div class="input mt-2" [style.opacity]="carryoverAllowed ? '1' : '0.5'">
         <label for="maxCarryover">Maximum Carryover Days</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="number"
-            [disabled]="!carryoverAllowed"
-            formControlName="maximum_carryover_days"
-            id="maxCarryover"
-            class="form-control custom-date-input"
-            placeholder="ex: 5"
-          />
+          <input type="number" [disabled]="!carryoverAllowed" formControlName="maximum_carryover_days" id="maxCarryover"
+            class="form-control custom-date-input" placeholder="ex: 5" />
         </div>
         @if (leaveType2.get('maximum_carryover_days')?.touched &&
         leaveType2.get('maximum_carryover_days')?.errors?.['required']) {
@@ -498,47 +325,19 @@
     }
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
-      <button
-        class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-        (click)="goPrev()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M20 12H4m0 0l6-6m-6 6l6 6"
-          />
+      <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
 
       <!-- next button -->
-      <button
-        class="btn btn-lg btn-primary"
-        [disabled]="!leaveType2.valid"
-        (click)="goNext()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M4 12h16m0 0l-6-6m6 6l-6 6"
-          />
+      <button class="btn btn-lg btn-primary" [disabled]="!leaveType2.valid" (click)="goNext()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
         <span>Next (2/3)</span>
       </button>
@@ -573,52 +372,31 @@
       <div class="input">
         <div class="form-check p-0 m-0 my-2">
           <div class="d-flex align-items-start gap-2">
-            <input
-              class="form-check-input m-0 mt-1"
-              type="checkbox"
-              id="extra_with_min_days_service"
-              formControlName="extra_with_min_days_service"
-              style="flex-shrink: 0; cursor: pointer"
-            />
+            <input class="form-check-input m-0 mt-1" type="checkbox" id="extra_with_min_days_service"
+              formControlName="extra_with_min_days_service" style="flex-shrink: 0; cursor: pointer" />
             <div class="d-flex flex-column" style="gap: 0.25rem">
-              <label
-                class="form-check-label m-0"
-                for="extra_with_min_days_service"
-                style="font-weight: 500; line-height: 1.5; cursor: pointer"
-              >
+              <label class="form-check-label m-0" for="extra_with_min_days_service"
+                style="font-weight: 500; line-height: 1.5; cursor: pointer">
                 Custom Minimum Days of Service
               </label>
-              <small
-                class="text-muted"
-                style="
+              <small class="text-muted" style="
                   font-size: 0.875rem;
                   line-height: 1.4;
                   color: var(--color-secondary-400);
-                "
-              >
+                ">
                 By default, the leave balance will start after probation.
               </small>
             </div>
           </div>
         </div>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <div
-            class="input w-100"
-            [style.opacity]="
+          <div class="input w-100" [style.opacity]="
               leaveType3.get('minDaysService')?.disabled ? 0.5 : 1
-            "
-          >
+            ">
             <label [for]="'MinDaysService'">Value</label>
-            <div
-              class="form-outline w-100 position-relative custom-date-wrapper"
-            >
-              <input
-                type="text"
-                [id]="'MinDaysService'"
-                class="form-control custom-date-input"
-                formControlName="minDaysService"
-                placeholder="Enter number or select option"
-              />
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" [id]="'MinDaysService'" class="form-control custom-date-input"
+                formControlName="minDaysService" placeholder="Enter number or select option" />
             </div>
             @if (leaveType3.get('minDaysService')?.touched &&
             leaveType3.get('minDaysService')?.errors?.['required']) {
@@ -633,21 +411,10 @@
       <hr />
 
       <div class="input">
-        <div
-          class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1"
-        >
-          <input
-            class="form-check-input m-0"
-            type="checkbox"
-            id="extra_with_age"
-            formControlName="extra_with_age"
-            style="cursor: pointer"
-          />
-          <label
-            class="form-check-label m-0"
-            for="extra_with_age"
-            style="cursor: pointer"
-          >
+        <div class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1">
+          <input class="form-check-input m-0" type="checkbox" id="extra_with_age" formControlName="extra_with_age"
+            style="cursor: pointer" />
+          <label class="form-check-label m-0" for="extra_with_age" style="cursor: pointer">
             Extra limit with Age
           </label>
         </div>
@@ -657,16 +424,9 @@
           <div [formGroupName]="i" class="w-100 d-flex align-items-start gap-2">
             <div class="input w-100">
               <label [for]="'Age_' + i">Age</label>
-              <div
-                class="form-outline w-100 position-relative custom-date-wrapper"
-              >
-                <input
-                  type="number"
-                  [id]="'Age_' + i"
-                  class="form-control custom-date-input"
-                  formControlName="age"
-                  placeholder="ex: 5"
-                />
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" [id]="'Age_' + i" class="form-control custom-date-input" formControlName="age"
+                  placeholder="ex: 5" />
               </div>
               @if (ageItem.get('age')?.touched &&
               ageItem.get('age')?.errors?.['required']) {
@@ -680,16 +440,9 @@
             </div>
             <div class="input w-100">
               <label [for]="'ExtraDays_' + i">Extra days</label>
-              <div
-                class="form-outline w-100 position-relative custom-date-wrapper"
-              >
-                <input
-                  type="number"
-                  [id]="'ExtraDays_' + i"
-                  class="form-control custom-date-input"
-                  formControlName="extraDays"
-                  placeholder="ex: 5"
-                />
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" [id]="'ExtraDays_' + i" class="form-control custom-date-input"
+                  formControlName="extraDays" placeholder="ex: 5" />
               </div>
               @if (ageItem.get('extraDays')?.touched &&
               ageItem.get('extraDays')?.errors?.['required']) {
@@ -702,26 +455,13 @@
               }
             </div>
             @if (i > 0) {
-            <button
-              type="button"
-              class="btn btn-outline-danger mt-4"
-              (click)="removeAgeItem(i)"
-              style="height: fit-content"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z"
-                />
+            <button type="button" class="btn btn-outline-danger mt-4" (click)="removeAgeItem(i)"
+              style="height: fit-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                <path fill="currentColor"
+                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
               </svg>
             </button>
             }
@@ -729,18 +469,9 @@
           }
         </div>
 
-        <button
-          type="button"
-          class="btn btn-lg btn-outline-primary w-100 mt-3"
-          (click)="addAgeItem()"
-          [disabled]="!leaveType3.get('extra_with_age')?.value"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-          >
+        <button type="button" class="btn btn-lg btn-outline-primary w-100 mt-3" (click)="addAgeItem()"
+          [disabled]="!leaveType3.get('extra_with_age')?.value">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
@@ -752,21 +483,10 @@
       <hr />
 
       <div class="input">
-        <div
-          class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1"
-        >
-          <input
-            class="form-check-input m-0"
-            type="checkbox"
-            id="extra_with_service"
-            formControlName="extra_with_service"
-            style="cursor: pointer"
-          />
-          <label
-            class="form-check-label m-0"
-            for="extra_with_service"
-            style="cursor: pointer"
-          >
+        <div class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1">
+          <input class="form-check-input m-0" type="checkbox" id="extra_with_service"
+            formControlName="extra_with_service" style="cursor: pointer" />
+          <label class="form-check-label m-0" for="extra_with_service" style="cursor: pointer">
             Extra limit with years of Service
           </label>
         </div>
@@ -777,16 +497,9 @@
           <div [formGroupName]="i" class="w-100 d-flex align-items-start gap-2">
             <div class="input w-100">
               <label [for]="'YearsOfService_' + i">Years of Service</label>
-              <div
-                class="form-outline w-100 position-relative custom-date-wrapper"
-              >
-                <input
-                  type="number"
-                  [id]="'YearsOfService_' + i"
-                  class="form-control custom-date-input"
-                  formControlName="yearsOfService"
-                  placeholder="ex: 5"
-                />
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" [id]="'YearsOfService_' + i" class="form-control custom-date-input"
+                  formControlName="yearsOfService" placeholder="ex: 5" />
               </div>
               @if (serviceItem.get('yearsOfService')?.touched &&
               serviceItem.get('yearsOfService')?.errors?.['required']) {
@@ -800,16 +513,9 @@
             </div>
             <div class="input w-100">
               <label [for]="'ExtraDaysService_' + i">Extra days</label>
-              <div
-                class="form-outline w-100 position-relative custom-date-wrapper"
-              >
-                <input
-                  type="number"
-                  [id]="'ExtraDaysService_' + i"
-                  class="form-control custom-date-input"
-                  formControlName="extraDays"
-                  placeholder="ex: 5"
-                />
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" [id]="'ExtraDaysService_' + i" class="form-control custom-date-input"
+                  formControlName="extraDays" placeholder="ex: 5" />
               </div>
               @if (serviceItem.get('extraDays')?.touched &&
               serviceItem.get('extraDays')?.errors?.['required']) {
@@ -822,26 +528,13 @@
               }
             </div>
             @if (i > 0) {
-            <button
-              type="button"
-              class="btn btn-outline-danger mt-4"
-              (click)="removeServiceItem(i)"
-              style="height: fit-content"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z"
-                />
+            <button type="button" class="btn btn-outline-danger mt-4" (click)="removeServiceItem(i)"
+              style="height: fit-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                <path fill="currentColor"
+                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
               </svg>
             </button>
             }
@@ -849,18 +542,9 @@
           }
         </div>
 
-        <button
-          type="button"
-          class="btn btn-lg btn-outline-primary w-100 mt-3"
-          (click)="addServiceItem()"
-          [disabled]="!leaveType3.get('extra_with_service')?.value"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-          >
+        <button type="button" class="btn btn-lg btn-outline-primary w-100 mt-3" (click)="addServiceItem()"
+          [disabled]="!leaveType3.get('extra_with_service')?.value">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
@@ -872,21 +556,10 @@
       <hr />
 
       <div class="input">
-        <div
-          class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1"
-        >
-          <input
-            class="form-check-input m-0"
-            type="checkbox"
-            id="extra_with_experience"
-            formControlName="extra_with_experience"
-            style="cursor: pointer"
-          />
-          <label
-            class="form-check-label m-0"
-            for="extra_with_experience"
-            style="cursor: pointer"
-          >
+        <div class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1">
+          <input class="form-check-input m-0" type="checkbox" id="extra_with_experience"
+            formControlName="extra_with_experience" style="cursor: pointer" />
+          <label class="form-check-label m-0" for="extra_with_experience" style="cursor: pointer">
             Extra limit with years of Experience
           </label>
         </div>
@@ -896,20 +569,11 @@
           = $index) {
           <div [formGroupName]="i" class="w-100 d-flex align-items-start gap-2">
             <div class="input w-100">
-              <label [for]="'YearsOfExperience_' + i"
-                >Years of Experience</label
-              >
-              <div
-                class="form-outline w-100 position-relative custom-date-wrapper"
-              >
-                <input
-                  type="number"
-                  [id]="'YearsOfExperience_' + i"
-                  class="form-control custom-date-input"
-                  formControlName="yearsOfExperience"
-                  placeholder="ex: 5"
-                  [disabled]="!leaveType3.get('extra_with_experience')?.value"
-                />
+              <label [for]="'YearsOfExperience_' + i">Years of Experience</label>
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" [id]="'YearsOfExperience_' + i" class="form-control custom-date-input"
+                  formControlName="yearsOfExperience" placeholder="ex: 5"
+                  [disabled]="!leaveType3.get('extra_with_experience')?.value" />
               </div>
               @if (experienceItem.get('yearsOfExperience')?.touched &&
               experienceItem.get('yearsOfExperience')?.errors?.['required']) {
@@ -923,17 +587,10 @@
             </div>
             <div class="input w-100">
               <label [for]="'ExtraDaysExperience_' + i">Extra days</label>
-              <div
-                class="form-outline w-100 position-relative custom-date-wrapper"
-              >
-                <input
-                  type="number"
-                  [id]="'ExtraDaysExperience_' + i"
-                  class="form-control custom-date-input"
-                  formControlName="extraDays"
-                  placeholder="ex: 5"
-                  [disabled]="!leaveType3.get('extra_with_experience')?.value"
-                />
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" [id]="'ExtraDaysExperience_' + i" class="form-control custom-date-input"
+                  formControlName="extraDays" placeholder="ex: 5"
+                  [disabled]="!leaveType3.get('extra_with_experience')?.value" />
               </div>
               @if (experienceItem.get('extraDays')?.touched &&
               experienceItem.get('extraDays')?.errors?.['required']) {
@@ -946,26 +603,13 @@
               }
             </div>
             @if (i > 0) {
-            <button
-              type="button"
-              class="btn btn-outline-danger mt-4"
-              (click)="removeExperienceItem(i)"
-              style="height: fit-content"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z"
-                />
+            <button type="button" class="btn btn-outline-danger mt-4" (click)="removeExperienceItem(i)"
+              style="height: fit-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                <path fill="currentColor"
+                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
               </svg>
             </button>
             }
@@ -973,18 +617,9 @@
           }
         </div>
 
-        <button
-          type="button"
-          class="btn btn-lg btn-outline-primary w-100 mt-3"
-          (click)="addExperienceItem()"
-          [disabled]="!leaveType3.get('extra_with_experience')?.value"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-          >
+        <button type="button" class="btn btn-lg btn-outline-primary w-100 mt-3" (click)="addExperienceItem()"
+          [disabled]="!leaveType3.get('extra_with_experience')?.value">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
@@ -1001,56 +636,26 @@
     }
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
-      <button
-        class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-        (click)="goPrev()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M20 12H4m0 0l6-6m-6 6l6 6"
-          />
+      <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button
-        class="btn btn-lg btn-success w-auto"
-        [disabled]="
+      <button class="btn btn-lg btn-success w-auto" [disabled]="
           !leaveType1.valid ||
           !leaveType2.valid ||
           !leaveType3.valid ||
           isLoading
-        "
-        (click)="createleaveType()"
-      >
+        " (click)="createleaveType()">
         @if (isLoading) {
-        <span
-          class="spinner-grow spinner-grow-sm"
-          role="status"
-          aria-hidden="true"
-        ></span>
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         } @if (!isLoading) {
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m8.5 12.5l2 2l5-5"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
           </g>
         </svg>
         }
@@ -1062,25 +667,12 @@
 }
 
 <!-- discard -->
-<app-popup
-  [title]="'Discard Leave Type'"
-  [paragraph1]="'Are you sure you want to discard creating the new Leave Type?'"
-  [paragraph2]="'This action cannot be undone!'"
-  [isOpen]="isModalOpen"
-  (close)="closeModal()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-dark w-100"
-    (click)="confirmAction()"
-  >
+<app-popup [title]="'Discard Leave Type'" [paragraph1]="'Are you sure you want to discard creating the new Leave Type?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
     Discard Leave Type
   </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="closeModal()"
-  >
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
     Cancel
   </button>
 </app-popup>
