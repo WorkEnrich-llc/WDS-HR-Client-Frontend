@@ -537,11 +537,12 @@ export class AttendanceLogComponent implements OnDestroy {
     return list?.find(item => item.main_record === true);
   }
 
-  /** True when the row has sub-records and should show the expand arrow (hidden for Weekly leave). */
+  /** True when the row has sub-records and should show the expand arrow */
   shouldShowExpandArrow(emp: any): boolean {
     if (!emp?.list_items?.length) return false;
     const status = this.getMainRecord(emp.list_items)?.status;
-    return status !== 'Weekly leave';
+    const hiddenStatuses = ['On Leave', 'Holiday', 'Weekly leave'];
+    return !hiddenStatuses.includes(status);
   }
 
   // Check if a record has check-in
