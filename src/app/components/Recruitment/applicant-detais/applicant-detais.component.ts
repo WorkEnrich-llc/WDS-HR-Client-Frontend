@@ -43,6 +43,7 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
+  @ViewChild('notesOverlay') notesOverlay!: OverlayFilterBoxComponent;
   @ViewChild('assignmentSelectionOverlay') assignmentSelectionOverlay!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
   @ViewChild('interviewViewOverlay') interviewViewOverlay!: OverlayFilterBoxComponent;
@@ -72,6 +73,24 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   // Job Offers
   jobOffers: any[] = [];
   isJobOffersLoading: boolean = false;
+  // Notes
+  notes: any[] = [];
+  isNotesLoading: boolean = false;
+  notesPage: number = 1;
+  notesPerPage: number = 10;
+  notesTotal: number = 0;
+  noteText: string = '';
+  isNoteSubmitting: boolean = false;
+  notesSelection = new Set<number>();
+  notesPendingDelete: number[] = [];
+  isDeleteSubmitting: boolean = false;
+  editingNoteId: number | null = null;
+  noteOverlayTitle: string = 'Add Note';
+  isDeletePopupOpen: boolean = false;
+
+  get notesSelectedCount(): number {
+    return this.notesSelection.size;
+  }
   // pending resend target
   pendingResendOfferId: number | null = null;
   // popup state for resend confirmation
@@ -187,6 +206,10 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
     // Always fetch feedback when feedback tab is opened
     if (tab === 'feedback') {
       this.fetchFeedbacks();
+    }
+    // Always fetch notes when Notes tab is opened
+    if (tab === 'notes') {
+      this.fetchNotes();
     }
     // Always fetch previous applications when tab is opened
     if (tab === 'previous-applications') {
@@ -337,6 +360,35 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
         error: () => {
           this.jobOffers = [];
           this.isJobOffersLoading = false;
+        }
+      });
+  }
+
+  // Fetch notes linked to the current application
+  fetchNotes(): void {
+    const appId = this.applicationId;
+    if (!appId) { this.notes = []; this.notesTotal = 0; this.isNotesLoading = false; return; }
+    this.isNotesLoading = true;
+    this.jobOpeningsService.getApplicationNotes(appId, this.notesPage, this.notesPerPage)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const payload = res?.data ?? res;
+          const list = payload?.list_items ?? res?.list_items ?? [];
+          this.notes = Array.isArray(list) ? list : [];
+          this.notesTotal = payload?.total_items ?? this.notes.length;
+          this.isNotesLoading = false;
+          const currentIds = new Set(this.notes.map((note: any) => note.id));
+          Array.from(this.notesSelection).forEach((id) => {
+            if (!currentIds.has(id)) {
+              this.notesSelection.delete(id);
+            }
+          });
+        },
+        error: () => {
+          this.notes = [];
+          this.notesTotal = 0;
+          this.isNotesLoading = false;
         }
       });
   }
@@ -1120,8 +1172,10 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
     this.filterBox?.closeOverlay();
     this.jobBox?.closeOverlay();
     this.interviewViewOverlay?.closeOverlay();
+    this.notesOverlay?.closeOverlay();
     this.currentInterviewForView = null;
     this.interviewViewDetails = null;
+    this.closeDeletePopup();
   }
 
   ngOnInit(): void {
@@ -1210,6 +1264,102 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+  openAddNoteOverlay(): void {
+    this.editingNoteId = null;
+    this.noteOverlayTitle = 'Add Note';
+    this.noteText = '';
+    this.notesOverlay?.openOverlay();
+  }
+
+  openEditNoteOverlay(note: any): void {
+    if (!note?.id) return;
+    this.editingNoteId = note.id;
+    this.noteOverlayTitle = 'Edit Note';
+    this.noteText = note.note_text || '';
+    this.notesOverlay?.openOverlay();
+  }
+
+  submitNote(): void {
+    if (!this.applicationId || !this.noteText.trim()) return;
+
+    const trimmedText = this.noteText.trim();
+    this.isNoteSubmitting = true;
+    const request$ = this.editingNoteId
+      ? this.jobOpeningsService.updateApplicationNote(this.editingNoteId, trimmedText)
+      : this.jobOpeningsService.createApplicationNote(this.applicationId, trimmedText);
+
+    request$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          const action = this.editingNoteId ? 'updated' : 'added';
+          this.isNoteSubmitting = false;
+          this.notesOverlay?.closeOverlay();
+          this.noteText = '';
+          this.editingNoteId = null;
+          this.noteOverlayTitle = 'Add Note';
+          this.notesPage = 1;
+          this.selectedNotesClear();
+          this.fetchNotes();
+        },
+        error: (err: any) => {
+          this.isNoteSubmitting = false;
+          const errorMessage = err?.error?.details ?? 'Failed to save note';
+          this.toasterService.showError(errorMessage);
+        }
+      });
+  }
+
+  toggleNoteSelection(noteId: number, checked: boolean): void {
+    if (!noteId) return;
+    if (checked) {
+      this.notesSelection.add(noteId);
+    } else {
+      this.notesSelection.delete(noteId);
+    }
+  }
+
+  isNoteSelected(noteId: number): boolean {
+    return this.notesSelection.has(noteId);
+  }
+
+  selectedNotesClear(): void {
+    this.notesSelection.clear();
+  }
+
+  openDeleteNotesOverlay(noteIds?: number[]): void {
+    const selected = noteIds && noteIds.length ? noteIds : Array.from(this.notesSelection);
+    if (!selected.length) return;
+    this.notesPendingDelete = selected;
+    this.isDeletePopupOpen = true;
+  }
+
+  confirmDeleteNotes(): void {
+    if (!this.notesPendingDelete.length) return;
+    this.isDeleteSubmitting = true;
+    this.jobOpeningsService.deleteApplicationNotes(this.notesPendingDelete)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isDeleteSubmitting = false;
+          this.closeDeletePopup();
+          this.selectedNotesClear();
+          this.notesPage = 1;
+          this.fetchNotes();
+        },
+        error: (err: any) => {
+          this.isDeleteSubmitting = false;
+          const errorMessage = err?.error?.details ?? 'Failed to delete note(s)';
+          this.toasterService.showError(errorMessage);
+        }
+      });
+  }
+
+  closeDeletePopup(): void {
+    this.isDeletePopupOpen = false;
+    this.notesPendingDelete = [];
   }
 
   refreshApplication(): void {

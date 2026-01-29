@@ -69,6 +69,18 @@ export class JobOpeningsService {
         return this._HttpClient.put(url, jobOpeningData);
     }
 
+    // update note by id
+    updateApplicationNote(noteId: number, noteText: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/notes`;
+        const body = {
+            request_data: {
+                id: noteId,
+                note_text: noteText
+            }
+        };
+        return this._HttpClient.put(url, body);
+    }
+
     // update job opening status
     updateJobOpeningStatus(id: number, status: any): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/jobs-openings/${id}/`;
@@ -222,6 +234,40 @@ export class JobOpeningsService {
             .set('per_page', perPage.toString());
         return this._HttpClient.get(url, { params });
     }
+
+    // get recruiter notes by application id
+    getApplicationNotes(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/notes`;
+        const params = new HttpParams()
+            .set('application_id', applicationId.toString())
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
+    // create note for application
+    createApplicationNote(applicationId: number, noteText: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/notes`;
+        const body = {
+            request_data: {
+                application_id: applicationId,
+                note_text: noteText
+            }
+        };
+        return this._HttpClient.post(url, body);
+    }
+
+    // delete one or more notes
+    deleteApplicationNotes(noteIds: number[]): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/notes`;
+        const body = {
+            request_data: {
+                id: noteIds
+            }
+        };
+        return this._HttpClient.request('delete', url, { body });
+    }
+
 
     // add feedback for application
     addApplicationFeedback(applicationId: number, rating: number, comment: string): Observable<any> {
