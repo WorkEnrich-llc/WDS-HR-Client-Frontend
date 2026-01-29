@@ -68,9 +68,12 @@ export class ManageAttendanceComponent {
   ngOnInit(): void {
     this.initFormModel();
 
-    // Set max date to today for date input
+    // Set max date to today for date input (use local date, not UTC)
     const today = new Date();
-    this.maxDate = today.toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    this.maxDate = `${year}-${month}-${day}`;
 
     const todayFormatted = new Date().toLocaleDateString('en-GB');
     this.createDate = todayFormatted;

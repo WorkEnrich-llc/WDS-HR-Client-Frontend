@@ -89,6 +89,12 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         this.buildCalendar();
     }
 
+    private parseLocalDate(dateString: string): Date {
+        // Parse YYYY-MM-DD string as a local date, not UTC
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Date(year, month - 1, day, 0, 0, 0, 0);
+    }
+
     private generateYearList(): void {
         const currentYear = new Date().getFullYear();
 
@@ -105,12 +111,12 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         let maxYear: number | null = null;
 
         if (this.minDateValue) {
-            const minDate = new Date(this.minDateValue);
+            const minDate = this.parseLocalDate(this.minDateValue);
             minYear = minDate.getFullYear();
         }
 
         if (this.maxDateValue) {
-            const maxDate = new Date(this.maxDateValue);
+            const maxDate = this.parseLocalDate(this.maxDateValue);
             maxYear = maxDate.getFullYear();
         }
 
@@ -148,14 +154,14 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
 
     canGoToPreviousYearPage(): boolean {
         if (!this.minDateValue) return true;
-        const minDate = new Date(this.minDateValue);
+        const minDate = this.parseLocalDate(this.minDateValue);
         const minYear = minDate.getFullYear();
         return this.yearPickerStartYear > minYear;
     }
 
     canGoToNextYearPage(): boolean {
         if (!this.maxDateValue) return true;
-        const maxDate = new Date(this.maxDateValue);
+        const maxDate = this.parseLocalDate(this.maxDateValue);
         const maxYear = maxDate.getFullYear();
         return this.yearPickerEndYear < maxYear;
     }
@@ -276,8 +282,8 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const minDate = this.minDateValue ? new Date(this.minDateValue) : null;
-        const maxDate = this.maxDateValue ? new Date(this.maxDateValue) : null;
+        const minDate = this.minDateValue ? this.parseLocalDate(this.minDateValue) : null;
+        const maxDate = this.maxDateValue ? this.parseLocalDate(this.maxDateValue) : null;
 
         // Generate 42 days (6 weeks)
         for (let i = 0; i < 42; i++) {
@@ -334,7 +340,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         if (day.disabled) return;
 
         this.selectedDate = new Date(day.date);
-        this.selectedDate.setHours(12, 0, 0, 0);
+        this.selectedDate.setHours(0, 0, 0, 0);
 
         if (this.showTime) {
             const now = new Date();
