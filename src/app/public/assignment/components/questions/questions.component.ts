@@ -47,6 +47,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   totalMinutes: number = 0;
   remainingSeconds: number = 0;
   timerInterval: any = null;
+  isTimeOver: boolean = false;
 
   // Event listener references for cleanup
   private preventContextMenuHandler?: (e: MouseEvent) => void;
@@ -891,8 +892,15 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
-    this.toastr.warning('Time is up!');
-    // TODO: Auto-submit assignment
+
+    // Mark time as over
+    this.isTimeOver = true;
+
+    // Trigger time over event that parent component can listen to
+    window.dispatchEvent(new CustomEvent('assignmentTimeOver'));
+
+    // Auto-submit assignment (bypassing validation)
+    this.submitAssignment();
   }
 
   /**
@@ -1217,6 +1225,13 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
 
     // Get the answer data for the current (last) question
     const answerData = this.answers[currentQuestion.id];
+
+    // If time is over, bypass all validation and go straight to confirm
+    if (this.isTimeOver) {
+      this.confirmSubmitAssignment();
+      return;
+    }
+
     if (!answerData) {
       this.validationError = 'Please provide an answer before proceeding';
       return;
@@ -1262,6 +1277,45 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     }
 
     const answerData = this.answers[currentQuestion.id];
+
+    // If time is over, don't validate - just submit regardless
+    if (this.isTimeOver) {
+      // Submit to API even if answer is missing
+      this.isSubmittingAnswer = true;
+      this.assignmentService.submitAnswer(
+        this.accessToken!,
+        currentQuestion.id,
+        answerData?.selected_answer_id || null,
+        answerData?.text_answer || null
+      )
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.isSubmittingAnswer = false;
+
+            // Check for error_handling in response
+            const errorHandling = response?.data?.error_handling || response?.error_handling;
+            if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+              const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+              const errorMessage = errorMessages.join('. ') || 'An error occurred';
+              this.toastr.error(errorMessage);
+              return;
+            }
+
+            this.isSubmitted = true;
+            this.refreshAssignmentOverview();
+          },
+          error: (error) => {
+            this.isSubmittingAnswer = false;
+            // Mark as submitted even if there's an error when time is over
+            this.isSubmitted = true;
+            this.refreshAssignmentOverview();
+            console.error('Error submitting assignment at time up:', error);
+          }
+        });
+      return;
+    }
+
     if (!answerData) {
       this.validationError = 'Please provide an answer before proceeding';
       return;
