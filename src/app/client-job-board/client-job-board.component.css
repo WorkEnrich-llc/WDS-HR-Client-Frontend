@@ -2,7 +2,7 @@
     display: block;
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 32px 0 0;
     background-color: #222831;
     min-height: 100vh;
 }

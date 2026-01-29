@@ -70,7 +70,7 @@ export class ApplyFormComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.jobBoardService.getJobDetails(jobId).subscribe({
+    this.jobBoardService.getJobDetails(jobId, 'apply_click').subscribe({
       next: (response) => {
         this.isLoading = false;
         const jobData = response.data?.object_info;

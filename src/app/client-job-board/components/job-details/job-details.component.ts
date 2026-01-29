@@ -55,7 +55,7 @@ export class JobDetailsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.jobBoardService.getJobDetails(jobId).subscribe({
+    this.jobBoardService.getJobDetails(jobId, 'job_detail').subscribe({
       next: (response) => {
         this.isLoading = false;
         const jobData = response.data?.object_info;
@@ -78,10 +78,10 @@ export class JobDetailsComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         // Extract error message from response - check details first, then message
-        this.errorMessage = error.error?.details || 
-                          error.error?.message || 
-                          error?.message || 
-                          'We encountered an issue while fetching job details. Please try again in a moment.';
+        this.errorMessage = error.error?.details ||
+          error.error?.message ||
+          error?.message ||
+          'We encountered an issue while fetching job details. Please try again in a moment.';
         console.error('Error loading job details:', error);
       }
     });

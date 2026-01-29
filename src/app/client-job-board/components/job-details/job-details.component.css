@@ -235,7 +235,7 @@
   width: 90%;
   max-width: 1344px;
   margin: 0 auto;
-  padding: 48px 0;
+  padding: 0 0 48px;
   font-family: var(--font-family);
   background-color: #222831;
   min-height: calc(100vh - 200px);
