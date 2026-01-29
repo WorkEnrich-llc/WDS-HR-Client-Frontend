@@ -805,7 +805,7 @@
 
 .status-indicator-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
 }
 
@@ -819,7 +819,7 @@
     flex-shrink: 0;
     border: none;
     box-shadow: none;
-    margin-top: 10px;
+    margin-top: 0;
 }
 
 .status-icon-circle svg {
@@ -844,6 +844,19 @@
 .status-text {
     font-size: 14px;
     font-weight: 600;
+}
+
+.status-text-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-icon,
+.status-checkmark {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
 }
 
 /* Interviewer row (all statuses) */
@@ -916,6 +929,7 @@
     font-size: 16px;
     font-weight: 700;
     margin-bottom: 0;
+    color: #000;
 }
 
 .feedback-section {
@@ -1011,6 +1025,7 @@
         opacity: 0;
         max-height: 0;
     }
+
     to {
         opacity: 1;
         max-height: 500px;
@@ -1067,6 +1082,7 @@
 .rejection-date {
     font-size: 14px;
     font-weight: 500;
+    color: #000;
 }
 
 .rejection-message {
@@ -1088,6 +1104,7 @@
 .accepted-date {
     font-size: 14px;
     font-weight: 500;
+    color: #000;
 }
 
 /* Reschedule Status Styles */
@@ -1100,6 +1117,7 @@
 .reschedule-date {
     font-size: 14px;
     font-weight: 500;
+    color: #000;
 }
 
 .reschedule-available {
@@ -1117,4 +1135,5 @@
 .expired-date {
     font-size: 14px;
     font-weight: 500;
+    color: #000;
 }

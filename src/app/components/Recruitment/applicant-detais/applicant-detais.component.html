@@ -344,48 +344,52 @@
                 @let statusConfig = getInterviewStatusConfig(item.status);
                 <div class="interview-status-section">
                   <div class="status-indicator-row">
-                    <!-- Status Icon Circle -->
-                    <div class="status-icon-circle" [style.background-color]="statusConfig.bgColor"
-                      [style.color]="statusConfig.color">
-                      @if (statusConfig.icon === 'check-circle') {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                      </svg>
-                      } @else if (statusConfig.icon === 'times-circle') {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                          d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
-                      </svg>
-                      } @else if (statusConfig.icon === 'calendar-alt') {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                          d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM5 7V6h14v1H5z" />
-                      </svg>
-                      } @else if (statusConfig.icon === 'clock') {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                          d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
-                      </svg>
-                      } @else if (statusConfig.icon === 'paper-plane') {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                      </svg>
-                      } @else {
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="12" r="10" />
-                      </svg>
-                      }
-                    </div>
-
                     <!-- Status Text and Content -->
                     <div class="status-content-wrapper">
                       <div class="status-header-row">
-                        <div class="status-text" [style.color]="statusConfig.color">
-                          {{ getInterviewStatusDisplayLabel(item.status) }}
+                        <div class="status-text-wrapper">
+                          @if (statusConfig.icon === 'check-circle') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="currentColor" class="status-icon" [style.color]="statusConfig.color">
+                            <path
+                              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                          </svg>
+                          } @else if (statusConfig.icon === 'times-circle') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="currentColor" class="status-icon" [style.color]="statusConfig.color">
+                            <path
+                              d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+                          </svg>
+                          } @else if (statusConfig.icon === 'calendar-alt') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="currentColor" class="status-icon" [style.color]="statusConfig.color">
+                            <path
+                              d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM5 7V6h14v1H5z" />
+                          </svg>
+                          } @else if (statusConfig.icon === 'clock') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="currentColor" class="status-icon" [style.color]="statusConfig.color">
+                            <path
+                              d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                          </svg>
+                          } @else if (statusConfig.icon === 'paper-plane') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="currentColor" class="status-icon" [style.color]="statusConfig.color">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                          </svg>
+                          } @else {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="currentColor" class="status-icon" [style.color]="statusConfig.color">
+                            <circle cx="12" cy="12" r="10" />
+                          </svg>
+                          }
+                          <span class="status-text" [style.color]="statusConfig.color">
+                            {{ getInterviewStatusDisplayLabel(item.status) }}
+                          </span>
                         </div>
                         <!-- Edit Feedback Button - Only for Completed status, aligned right -->
-                        @if ((item.status === 'Completed' || item.status === 'completed') && getFeedbacksList(item).length > 0) {
+                        @if ((item.status === 'Completed' || item.status === 'completed') &&
+                        getFeedbacksList(item).length > 0) {
                         <button type="button" class="edit-feedback-btn" (click)="openFeedbackForInterview(item)">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -410,13 +414,14 @@
                       <div class="feedback-section-toggle-wrapper">
                         <button type="button" class="feedback-section-toggle-btn"
                           (click)="toggleInterviewFeedbacksSection(item)">
-                          <span class="overall-rating" [style.color]="statusConfig.color">
+                          <span class="overall-rating">
                             {{ getOverallRating(getFeedbacksList(item)).toFixed(1) }}/10
                           </span>
                           <div class="feedback-section-chevron">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                              class="chevron-icon" [class.rotated]="isInterviewFeedbacksSectionExpanded(item)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round" class="chevron-icon"
+                              [class.rotated]="isInterviewFeedbacksSectionExpanded(item)">
                               <path d="M6 9l6 6 6-6"></path>
                             </svg>
                           </div>
@@ -425,18 +430,20 @@
                         <div class="feedback-section">
                           @for (feedback of getFeedbacksList(item); track feedback.id ?? $index) {
                           <div class="feedback-item-wrapper">
-                            <button type="button" class="feedback-toggle-btn" 
+                            <button type="button" class="feedback-toggle-btn"
                               (click)="toggleFeedbackExpansion(getFeedbackExpandKey(item, feedback, $index))">
                               <div class="chevron-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                  class="chevron-icon" [class.rotated]="isFeedbackExpanded(getFeedbackExpandKey(item, feedback, $index))">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" class="chevron-icon"
+                                  [class.rotated]="isFeedbackExpanded(getFeedbackExpandKey(item, feedback, $index))">
                                   <path d="M6 9l6 6 6-6"></path>
                                 </svg>
                               </div>
                               <div class="feedback-content">
                                 <div class="feedback-title-text">{{ getFeedbackRoleDisplay(feedback) }}</div>
-                                <div class="feedback-interviewer-name">{{ getFeedbackInterviewerDisplay(feedback) }}</div>
+                                <div class="feedback-interviewer-name">{{ getFeedbackInterviewerDisplay(feedback) }}
+                                </div>
                               </div>
                               <span class="feedback-rating" [style.color]="statusConfig.color">
                                 {{ feedback.rating != null ? feedback.rating : '—' }}/10
@@ -467,12 +474,13 @@
                       @if (item.status === 'Rejected' || item.status === 'rejected') {
                       <div class="rejected-status-details">
                         @if (item.rejected_at) {
-                        <div class="rejection-date" [style.color]="statusConfig.color">
+                        <div class="rejection-date">
                           {{ item.rejected_at | date : "dd/MM/yyyy" }}
                         </div>
                         }
                         @if (item.rejection_notes || item.rejection_message || item.feedback) {
-                        <p class="rejection-message">{{ item.rejection_notes || item.rejection_message || item.feedback }}</p>
+                        <p class="rejection-message">{{ item.rejection_notes || item.rejection_message || item.feedback
+                          }}</p>
                         }
                       </div>
                       }
@@ -480,8 +488,8 @@
                       <!-- Accepted Status -->
                       @if ((item.status === 'Accepted' || item.status === 'accepted') && item.accepted_at) {
                       <div class="accepted-status-details">
-                        <div class="accepted-date" [style.color]="statusConfig.color">
-                          Accepted on {{ item.accepted_at | date : "dd/MM/yyyy" }}
+                        <div class="accepted-date">
+                          <span>Accepted on {{ item.accepted_at | date : "dd/MM/yyyy" }}</span>
                         </div>
                       </div>
                       }
@@ -489,7 +497,7 @@
                       <!-- Reschedule Status -->
                       @if (item.status === 'Reschedule' || item.status === 'reschedule') {
                       <div class="reschedule-status-details">
-                        <div class="reschedule-date" [style.color]="statusConfig.color">
+                        <div class="reschedule-date">
                           Reschedule requested on {{ item.reschedule_request_at | date : "dd/MM/yyyy" }}
                         </div>
                         @if (item.reschedule_available_at) {
@@ -503,7 +511,7 @@
                       <!-- Expired Status -->
                       @if (item.status === 'Expired') {
                       <div class="expired-status-details">
-                        <div class="expired-date" [style.color]="statusConfig.color">
+                        <div class="expired-date">
                           Expired on {{ item.expiration_date | date : "dd/MM/yyyy" }}
                         </div>
                       </div>
@@ -1455,8 +1463,7 @@
     <div class="input">
       <app-date-picker label="Join Date" placeholder="Select join date" [required]="true" [disableBeforeDate]="true"
         [(ngModel)]="offerJoinDate" [ngModelOptions]="{standalone: true}"
-        [errorMessage]="jobOfferValidationErrors.joinDate || null" 
-        [disabled]="overlayTitle === 'Offer Details'"
+        [errorMessage]="jobOfferValidationErrors.joinDate || null" [disabled]="overlayTitle === 'Offer Details'"
         (dateChange)="onJoinDateChange($event)" (blur)="validateJoinDateField()">
       </app-date-picker>
       @if (jobOfferValidationErrors.joinDate) {
@@ -1472,8 +1479,7 @@
     <div class="input">
       <app-date-picker label="Contract End Date" placeholder="Select contract end date" [required]="false"
         [disableBeforeDate]="true" [(ngModel)]="contractEndDate" [ngModelOptions]="{standalone: true}"
-        [disabled]="overlayTitle === 'Offer Details'"
-        (dateChange)="onContractEndDateChange($event)">
+        [disabled]="overlayTitle === 'Offer Details'" (dateChange)="onContractEndDateChange($event)">
       </app-date-picker>
     </div>
     }
@@ -1566,38 +1572,46 @@
     </div>
     <div class="input">
       <label>Department</label>
-      <input type="text" class="form-control" [value]="(interviewViewDetails.department?.name ?? interviewViewDetails.department) || '—'" readonly disabled
+      <input type="text" class="form-control"
+        [value]="(interviewViewDetails.department?.name ?? interviewViewDetails.department) || '—'" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input">
       <label>Section</label>
-      <input type="text" class="form-control" [value]="(interviewViewDetails.section?.name ?? interviewViewDetails.section) || '—'" readonly disabled
+      <input type="text" class="form-control"
+        [value]="(interviewViewDetails.section?.name ?? interviewViewDetails.section) || '—'" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input">
       <label>Interviewer</label>
-      <input type="text" class="form-control" [value]="(interviewViewDetails.interviewer?.name ?? interviewViewDetails.interviewer) || '—'" readonly disabled
+      <input type="text" class="form-control"
+        [value]="(interviewViewDetails.interviewer?.name ?? interviewViewDetails.interviewer) || '—'" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input">
       <label>Date</label>
-      <input type="text" class="form-control" [value]="interviewViewDetails.date ? (interviewViewDetails.date | date:'dd/MM/yyyy') : '—'" readonly disabled
+      <input type="text" class="form-control"
+        [value]="interviewViewDetails.date ? (interviewViewDetails.date | date:'dd/MM/yyyy') : '—'" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input">
       <label>Time</label>
-      <input type="text" class="form-control" [value]="formatTimeRange(interviewViewDetails.time_from, interviewViewDetails.time_to)" readonly disabled
+      <input type="text" class="form-control"
+        [value]="formatTimeRange(interviewViewDetails.time_from, interviewViewDetails.time_to)" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input">
       <label>Interview Type</label>
-      <input type="text" class="form-control" [value]="(interviewViewDetails.interview_type === 2 || interviewViewDetails.interview_type?.id === 2) ? 'Online' : 'Offline'" readonly disabled
+      <input type="text" class="form-control"
+        [value]="(interviewViewDetails.interview_type === 2 || interviewViewDetails.interview_type?.id === 2) ? 'Online' : 'Offline'"
+        readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     @if (interviewViewDetails.interview_type === 1 || interviewViewDetails.interview_type?.id === 1) {
     <div class="input">
       <label>Interview Location</label>
-      <input type="text" class="form-control" [value]="(interviewViewDetails.location?.name ?? interviewViewDetails.location) || '—'" readonly disabled
+      <input type="text" class="form-control"
+        [value]="(interviewViewDetails.location?.name ?? interviewViewDetails.location) || '—'" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     }
