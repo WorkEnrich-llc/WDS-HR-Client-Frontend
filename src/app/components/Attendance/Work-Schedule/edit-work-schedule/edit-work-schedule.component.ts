@@ -100,6 +100,7 @@ export class EditWorkScheduleComponent {
             from: system.shift_range?.from || '',
             to: system.shift_range?.to || '',
             max_check_out: system.max_check_out || '',
+            allowed_break_minutes: system.allowed_break_minutes ?? '',
             terms: system.terms_and_rules || ''
           });
         }
@@ -403,6 +404,7 @@ export class EditWorkScheduleComponent {
     from: new FormControl(''),
     to: new FormControl(''),
     max_check_out: new FormControl(''),
+    allowed_break_minutes: new FormControl('', [Validators.min(0)]),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
   }, {
     validators: [this.shiftRangeValidator.bind(this)]
@@ -631,6 +633,7 @@ export class EditWorkScheduleComponent {
             to: this.workSchadule2.get('to')?.value
           },
           max_check_out: this.workSchadule2.get('max_check_out')?.value,
+          allowed_break_minutes: Number(this.workSchadule2.get('allowed_break_minutes')?.value) || 0,
           terms_and_rules: this.workSchadule2.get('terms')?.value
         }
       }
