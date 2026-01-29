@@ -435,3 +435,39 @@
         transform: scale(1);
     }
 }
+
+/* Unanswered Question State */
+.answers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.answers-header .answers-title {
+    margin-bottom: 0;
+}
+
+.unanswered-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #FEF3C7;
+    border-radius: 20px;
+    border: 1px solid #FCD34D;
+}
+
+.unanswered-icon {
+    color: #B45309;
+    flex-shrink: 0;
+}
+
+.unanswered-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #92400E;
+    margin: 0;
+    white-space: nowrap;
+}
