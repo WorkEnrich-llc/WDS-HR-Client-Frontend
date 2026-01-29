@@ -36,6 +36,18 @@ interface EarlyLeaveOccurrence {
   deductionRules: EarlyLeaveDeductionRule[];
 }
 
+// Interfaces for time gaps structure (same as lateness)
+interface TimeGapsDeductionRule {
+  thresholdTime: number | null;
+  deductionValue: number | null;
+  deductionBase: number | null; // salaryPortionIndex
+}
+
+interface TimeGapsOccurrence {
+  isExpanded: boolean;
+  deductionRules: TimeGapsDeductionRule[];
+}
+
 @Component({
   selector: 'app-edit-full-time',
   imports: [PageHeaderComponent, PopupComponent, FormsModule, NgClass],
@@ -302,6 +314,66 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       });
     });
 
+    // Map Time Gaps entries
+    // New API structure: array of occurrences, each with index and list of rules
+    // Same structure as lateness and early leave
+    if (fullTimeSettings.time_gaps && fullTimeSettings.time_gaps.length > 0) {
+      this.timeGapsOccurrences = fullTimeSettings.time_gaps
+        .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+        .map((occurrence: any, occurrenceIndex: number) => {
+          // Each occurrence has an index and a list of rules
+          const rules = occurrence.list && Array.isArray(occurrence.list)
+            ? occurrence.list
+              .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+              .map((rule: any) => ({
+                thresholdTime: rule.minutes !== null && rule.minutes !== undefined
+                  ? Number(rule.minutes)
+                  : null,
+                deductionValue: rule.value !== null && rule.value !== undefined
+                  ? Number(rule.value)
+                  : null,
+                deductionBase: rule.salary_portion_index !== null && rule.salary_portion_index !== undefined
+                  ? Number(rule.salary_portion_index)
+                  : null
+              }))
+            : [];
+
+          return {
+            isExpanded: occurrenceIndex === 0, // Expand first occurrence by default
+            deductionRules: rules.length > 0 ? rules : [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+          };
+        });
+
+      // Set first occurrence to expanded, others to collapsed
+      if (this.timeGapsOccurrences.length > 0) {
+        this.timeGapsOccurrences[0].isExpanded = true;
+        for (let i = 1; i < this.timeGapsOccurrences.length; i++) {
+          this.timeGapsOccurrences[i].isExpanded = false;
+        }
+      }
+    } else {
+      // No API data - create empty structure
+      this.timeGapsOccurrences = [
+        {
+          isExpanded: true,
+          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+        }
+      ];
+    }
+
+    // Initialize validation errors for time gaps
+    this.timeGapsValidationErrors = {};
+    this.timeGapsOccurrences.forEach((occurrence, occurrenceIndex) => {
+      this.timeGapsValidationErrors[occurrenceIndex] = {};
+      occurrence.deductionRules.forEach((_, ruleIndex) => {
+        this.timeGapsValidationErrors[occurrenceIndex][ruleIndex] = {
+          thresholdTime: false,
+          deductionValue: false,
+          deductionBase: false
+        };
+      });
+    });
+
     // Map Absence entries
     if (fullTimeSettings.absence && fullTimeSettings.absence.length > 0) {
       this.absenceEntries = [...fullTimeSettings.absence]
@@ -358,6 +430,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       graceMinutes: this.graceMinutes,
       latenessOccurrences: this.latenessOccurrences,
       earlyLeaveOccurrences: this.earlyLeaveOccurrences,
+      timeGapsOccurrences: this.timeGapsOccurrences,
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
       flatRateValue: this.flatRateValue,
@@ -375,6 +448,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       graceMinutes: this.graceMinutes,
       latenessOccurrences: this.latenessOccurrences,
       earlyLeaveOccurrences: this.earlyLeaveOccurrences,
+      timeGapsOccurrences: this.timeGapsOccurrences,
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
       flatRateValue: this.flatRateValue,
@@ -597,6 +671,104 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // step 3 - Time Gaps
+  // New structure: Each occurrence has multiple deduction rules
+  timeGapsOccurrences: TimeGapsOccurrence[] = [
+    {
+      isExpanded: true,
+      deductionRules: [
+        { thresholdTime: null, deductionValue: null, deductionBase: null }
+      ]
+    },
+    {
+      isExpanded: false,
+      deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+    },
+    {
+      isExpanded: false,
+      deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+    }
+  ];
+
+  timeGapsValidationErrors: { [occurrenceIndex: number]: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } } = {};
+
+  toggleTimeGapsOccurrenceExpanded(occurrenceIndex: number) {
+    if (this.timeGapsOccurrences[occurrenceIndex]) {
+      this.timeGapsOccurrences[occurrenceIndex].isExpanded = !this.timeGapsOccurrences[occurrenceIndex].isExpanded;
+    }
+  }
+
+  addTimeGapsOccurrence() {
+    this.timeGapsOccurrences.push({
+      isExpanded: false,
+      deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+    });
+    const newIndex = this.timeGapsOccurrences.length - 1;
+    this.timeGapsValidationErrors[newIndex] = { 0: { thresholdTime: false, deductionValue: false, deductionBase: false } };
+  }
+
+  removeTimeGapsOccurrence(occurrenceIndex: number) {
+    if (this.timeGapsOccurrences.length > 1) {
+      this.timeGapsOccurrences.splice(occurrenceIndex, 1);
+      // Clean up validation errors
+      const newErrors: { [key: number]: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } } = {};
+      Object.keys(this.timeGapsValidationErrors).forEach(key => {
+        const oldIndex = parseInt(key);
+        if (oldIndex < occurrenceIndex) {
+          newErrors[oldIndex] = this.timeGapsValidationErrors[oldIndex];
+        } else if (oldIndex > occurrenceIndex) {
+          newErrors[oldIndex - 1] = this.timeGapsValidationErrors[oldIndex];
+        }
+      });
+      this.timeGapsValidationErrors = newErrors;
+    }
+  }
+
+  addTimeGapsDeductionRule(occurrenceIndex: number) {
+    if (this.timeGapsOccurrences[occurrenceIndex]) {
+      this.timeGapsOccurrences[occurrenceIndex].deductionRules.push({
+        thresholdTime: null,
+        deductionValue: null,
+        deductionBase: null
+      });
+      const ruleIndex = this.timeGapsOccurrences[occurrenceIndex].deductionRules.length - 1;
+      if (!this.timeGapsValidationErrors[occurrenceIndex]) {
+        this.timeGapsValidationErrors[occurrenceIndex] = {};
+      }
+      this.timeGapsValidationErrors[occurrenceIndex][ruleIndex] = {
+        thresholdTime: false,
+        deductionValue: false,
+        deductionBase: false
+      };
+    }
+  }
+
+  removeTimeGapsDeductionRule(occurrenceIndex: number, ruleIndex: number) {
+    if (this.timeGapsOccurrences[occurrenceIndex] &&
+      this.timeGapsOccurrences[occurrenceIndex].deductionRules.length > 1) {
+      this.timeGapsOccurrences[occurrenceIndex].deductionRules.splice(ruleIndex, 1);
+      // Clean up validation errors for this occurrence
+      if (this.timeGapsValidationErrors[occurrenceIndex]) {
+        const newRuleErrors: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } = {};
+        Object.keys(this.timeGapsValidationErrors[occurrenceIndex]).forEach(key => {
+          const oldRuleIndex = parseInt(key);
+          if (oldRuleIndex < ruleIndex) {
+            newRuleErrors[oldRuleIndex] = this.timeGapsValidationErrors[occurrenceIndex][oldRuleIndex];
+          } else if (oldRuleIndex > ruleIndex) {
+            newRuleErrors[oldRuleIndex - 1] = this.timeGapsValidationErrors[occurrenceIndex][oldRuleIndex];
+          }
+        });
+        this.timeGapsValidationErrors[occurrenceIndex] = newRuleErrors;
+      }
+    }
+  }
+
+  clearTimeGapsValidationError(occurrenceIndex: number, ruleIndex: number, field: 'thresholdTime' | 'deductionValue' | 'deductionBase'): void {
+    if (this.timeGapsValidationErrors[occurrenceIndex] && this.timeGapsValidationErrors[occurrenceIndex][ruleIndex]) {
+      this.timeGapsValidationErrors[occurrenceIndex][ruleIndex][field] = false;
+    }
+  }
+
   // step 4 - Overtime
   allowOvertime: boolean = false;
   overtimeType: string = 'flatRate';
@@ -654,9 +826,10 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     const labels: { [key: number]: string } = {
       1: 'Lateness',
       2: 'Early Leave',
-      3: 'Absence',
-      4: 'Overtime',
-      5: 'Grace Period'
+      3: 'Time Gaps',
+      4: 'Absence',
+      5: 'Overtime',
+      6: 'Grace Period'
     };
     const label = labels[this.currentStep] || '';
     return `Edit ${label} - Full Time`;
@@ -680,6 +853,11 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
         return; // Don't proceed if validation fails
       }
     } else if (this.currentStep === 3) {
+      this.validateTimeGapsStep();
+      if (!this.isStepValid(this.currentStep)) {
+        return; // Don't proceed if validation fails
+      }
+    } else if (this.currentStep === 4) {
       this.validateAbsenceStep();
       if (!this.isStepValid(this.currentStep)) {
         return; // Don't proceed if validation fails
@@ -718,6 +896,20 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       this.earlyLeaveValidationErrors[occurrenceIndex] = {};
       occurrence.deductionRules.forEach((rule, ruleIndex) => {
         this.earlyLeaveValidationErrors[occurrenceIndex][ruleIndex] = {
+          thresholdTime: rule.thresholdTime === null || rule.thresholdTime === undefined,
+          deductionValue: rule.deductionValue === null || rule.deductionValue === undefined,
+          deductionBase: rule.deductionBase === null || rule.deductionBase === undefined
+        };
+      });
+    });
+  }
+
+  validateTimeGapsStep(): void {
+    this.timeGapsValidationErrors = {};
+    this.timeGapsOccurrences.forEach((occurrence, occurrenceIndex) => {
+      this.timeGapsValidationErrors[occurrenceIndex] = {};
+      occurrence.deductionRules.forEach((rule, ruleIndex) => {
+        this.timeGapsValidationErrors[occurrenceIndex][ruleIndex] = {
           thresholdTime: rule.thresholdTime === null || rule.thresholdTime === undefined,
           deductionValue: rule.deductionValue === null || rule.deductionValue === undefined,
           deductionBase: rule.deductionBase === null || rule.deductionBase === undefined
@@ -828,7 +1020,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
   }
 
   goToStep(step: number) {
-    const maxStep = 5;
+    const maxStep = 6;
     const current = this.currentStep;
 
     // Prevent navigation while APIs are loading
@@ -854,6 +1046,8 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       } else if (i === 1) {
         this.validateEarlyLeaveStep();
       } else if (i === 2) {
+        this.validateTimeGapsStep();
+      } else if (i === 3) {
         this.validateAbsenceStep();
       }
       if (!this.isStepValid(i + 1)) {
@@ -891,14 +1085,25 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
             )
           );
 
-      case 3: // Absence
+      case 3: // Time Gaps
+        return this.timeGapsOccurrences.length > 0 &&
+          this.timeGapsOccurrences.every(occurrence =>
+            occurrence.deductionRules.length > 0 &&
+            occurrence.deductionRules.every(rule =>
+              rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
+              rule.deductionValue !== null && rule.deductionValue !== undefined &&
+              rule.deductionBase !== null && rule.deductionBase !== undefined
+            )
+          );
+
+      case 4: // Absence
         return this.absenceEntries.length > 0 &&
           this.absenceEntries.every(entry =>
             entry.value !== null && entry.value !== undefined &&
             entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
           );
 
-      case 4: // Overtime
+      case 5: // Overtime
         if (!this.allowOvertime) {
           return true; // If overtime is not allowed, step is valid
         }
@@ -912,7 +1117,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
         }
         return false;
 
-      case 5: // Grace Period
+      case 6: // Grace Period
         if (!this.allowGrace) {
           return true; // If grace period is not allowed, step is valid
         }
@@ -995,15 +1200,20 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     }
     if (!this.isStepValid(3)) {
       this.currentStep = 3;
-      this.validateAbsenceStep();
+      this.validateTimeGapsStep();
       return;
     }
     if (!this.isStepValid(4)) {
       this.currentStep = 4;
+      this.validateAbsenceStep();
       return;
     }
     if (!this.isStepValid(5)) {
       this.currentStep = 5;
+      return;
+    }
+    if (!this.isStepValid(6)) {
+      this.currentStep = 6;
       return;
     }
 
@@ -1017,6 +1227,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
           full_time: {
             lateness: this.buildOccurrencesWithSequentialIndices(this.latenessOccurrences),
             early_leave: this.buildOccurrencesWithSequentialIndices(this.earlyLeaveOccurrences),
+            time_gaps: this.buildOccurrencesWithSequentialIndices(this.timeGapsOccurrences),
             absence: this.absenceEntries.map((entry, index) => ({
               index: index + 1,
               value: entry.value || 0,
@@ -1074,6 +1285,19 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
                   : []
               }))
               : [],
+            time_gaps: existingPartTimeSettings.time_gaps && Array.isArray(existingPartTimeSettings.time_gaps)
+              ? existingPartTimeSettings.time_gaps.map((occurrence: any) => ({
+                index: occurrence.index,
+                list: occurrence.list && Array.isArray(occurrence.list)
+                  ? occurrence.list.map((rule: any) => ({
+                    index: rule.index,
+                    minutes: rule.minutes,
+                    value: rule.value,
+                    salary_portion_index: rule.salary_portion_index
+                  }))
+                  : []
+              }))
+              : [],
             absence: existingPartTimeSettings.absence && Array.isArray(existingPartTimeSettings.absence)
               ? existingPartTimeSettings.absence.map((item: any) => ({
                 index: item.index,
@@ -1106,9 +1330,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
                   from_time: item.from_time || '0:0',
                   to_time: item.to_time || '0:0',
                   rate: parseFloat(parseFloat(item.rate || 0).toFixed(1))
-                  // salary_portion_index: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-                  //   ? Number(item.salary_portion_index)
-                  //   : 1
                 }))
               } : {
                 status: false,

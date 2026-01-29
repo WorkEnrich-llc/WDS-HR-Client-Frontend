@@ -73,6 +73,7 @@ export interface OvertimeSettings {
 export interface WorkTypeSettings {
   lateness: PenaltyRule[];
   early_leave: PenaltyRule[];
+  time_gaps?: PenaltyRule[];
   absence: PenaltyRule[];
   grace_period: GracePeriod;
   overtime?: OvertimeSettings;

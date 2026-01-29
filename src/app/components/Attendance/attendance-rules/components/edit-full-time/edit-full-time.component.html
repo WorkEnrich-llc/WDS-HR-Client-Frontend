@@ -66,7 +66,19 @@
         'active': currentStep === 3
     }" (click)="goToStep(3)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 3"
         [attr.tabindex]="currentStep === 3 ? '0' : '-1'" role="tab" id="tab-3" aria-controls="panel-3"
-        aria-label="Step 3: Absence" style="cursor: pointer;">
+        aria-label="Step 3: Time Gaps" style="cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8s8 3.6 8 8s-3.6 8-8 8m3.5-9h-3v-3h-2v3h-3v2h3v3h2v-3h3z" />
+        </svg>
+        <span class="nav-link">Time Gaps</span>
+    </li>
+
+    <li class="nav-item" role="presentation" [ngClass]="{
+        'active': currentStep === 4
+    }" (click)="goToStep(4)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 4"
+        [attr.tabindex]="currentStep === 4 ? '0' : '-1'" role="tab" id="tab-4" aria-controls="panel-4"
+        aria-label="Step 4: Absence" style="cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path
                 d="M4.929 4.929c-3.905 3.905-3.905 10.237 0 14.142s10.237 3.905 14.142 0s3.905-10.237 0-14.142s-10.237-3.905-14.142 0"
@@ -77,10 +89,10 @@
     </li>
 
     <li class="nav-item" role="presentation" [ngClass]="{
-        'active': currentStep === 4
-    }" (click)="goToStep(4)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 4"
-        [attr.tabindex]="currentStep === 4 ? '0' : '-1'" role="tab" id="tab-4" aria-controls="panel-4"
-        aria-label="Step 4: Overtime" style="cursor: pointer;">
+        'active': currentStep === 5
+    }" (click)="goToStep(5)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 5"
+        [attr.tabindex]="currentStep === 5 ? '0' : '-1'" role="tab" id="tab-5" aria-controls="panel-5"
+        aria-label="Step 5: Overtime" style="cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path
                 d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8s8 3.6 8 8s-3.6 8-8 8" />
@@ -90,10 +102,10 @@
     </li>
 
     <li class="nav-item" role="presentation" [ngClass]="{
-        'active': currentStep === 5
-    }" (click)="goToStep(5)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 5"
-        [attr.tabindex]="currentStep === 5 ? '0' : '-1'" role="tab" id="tab-5" aria-controls="panel-5"
-        aria-label="Step 5: Grace Period" style="cursor: pointer;">
+        'active': currentStep === 6
+    }" (click)="goToStep(6)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 6"
+        [attr.tabindex]="currentStep === 6 ? '0' : '-1'" role="tab" id="tab-6" aria-controls="panel-6"
+        aria-label="Step 6: Grace Period" style="cursor: pointer;">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path
                 d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
@@ -783,9 +795,253 @@
 </div>
 }
 
-<!-- Absence -->
+<!-- Time Gaps -->
 @if (currentStep === 3) {
 <div class="content-hug" role="tabpanel" id="panel-3" aria-labelledby="tab-3" [attr.aria-hidden]="currentStep !== 3">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Time Gaps</h2>
+        <div class="lateness-table-wrapper">
+            <div class="lateness-table">
+                <!-- Table Header -->
+                <div class="lateness-table-header">
+                    <div class="lateness-header-cell" style="width: 48px;"></div>
+                    <div class="lateness-header-cell flex-grow-1">Occurrence</div>
+                    <div class="lateness-header-cell" style="width: 200px;">Threshold Time</div>
+                    <div class="lateness-header-cell" style="width: 200px;">Deduction Value</div>
+                    <div class="lateness-header-cell flex-grow-1">Deduction Base</div>
+                    <div class="lateness-header-cell" style="width: 48px;"></div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="lateness-table-content">
+                    @if (loading || salaryPortionsLoading) {
+                    @for (i of [1, 2, 3]; track i) {
+                    <div class="lateness-table-row">
+                        <div class="lateness-table-cell" style="width: 48px;"></div>
+                        <div class="lateness-table-cell flex-grow-1">
+                            <div class="skeleton-block h-4 w-75"></div>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 200px;">
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 200px;">
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </div>
+                        <div class="lateness-table-cell flex-grow-1">
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 48px;"></div>
+                    </div>
+                    }
+                    } @else {
+                    @for (occurrence of timeGapsOccurrences; track $index; let occurrenceIndex = $index) {
+                    <!-- Occurrence Row (Expandable) -->
+                    <div class="lateness-table-row occurrence-row" [class.expanded]="occurrence.isExpanded"
+                        [class.has-rules]="occurrence.isExpanded && occurrence.deductionRules.length > 0">
+                        <div class="lateness-table-cell expand-icon-cell" style="width: 48px;">
+                            <button type="button" class="expand-toggle-btn"
+                                (click)="toggleTimeGapsOccurrenceExpanded(occurrenceIndex)"
+                                [attr.aria-expanded]="occurrence.isExpanded"
+                                [attr.aria-label]="(occurrence.isExpanded ? 'Collapse' : 'Expand') + ' ' + getOccurrenceLabel(occurrenceIndex)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    [class.rotated]="occurrence.isExpanded">
+                                    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                        d="M8 10l4 4 4-4" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="lateness-table-cell occurrence-cell flex-grow-1">
+                            <span class="occurrence-label">{{ getOccurrenceLabel(occurrenceIndex) }}</span>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 200px;"></div>
+                        <div class="lateness-table-cell" style="width: 200px;"></div>
+                        <div class="lateness-table-cell flex-grow-1"></div>
+                        <div class="lateness-table-cell actions-cell" style="width: 48px;">
+                            @if (timeGapsOccurrences.length > 1) {
+                            <button type="button" (click)="removeTimeGapsOccurrence(occurrenceIndex)"
+                                class="btn-icon-remove"
+                                [attr.aria-label]="'Remove ' + getOccurrenceLabel(occurrenceIndex) + ' occurrence'"
+                                title="Remove {{ getOccurrenceLabel(occurrenceIndex) }} occurrence">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                                    <path fill="currentColor"
+                                        d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                                </svg>
+                            </button>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Deduction Rules (shown when expanded) -->
+                    @if (occurrence.isExpanded) {
+                    @for (rule of occurrence.deductionRules; track $index; let ruleIndex = $index) {
+                    <div class="lateness-table-row deduction-rule-row" [class.alt-row]="ruleIndex % 2 === 1"
+                        [class.last-rule]="ruleIndex === occurrence.deductionRules.length - 1">
+                        <div class="lateness-table-cell expand-icon-cell" style="width: 48px;">
+                            <svg class="connecting-line-svg" width="64" height="48" viewBox="0 0 64 48" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                                <path d="M64 24H30C26.6863 24 24 21.3137 24 18V0" stroke="#4A6D97" stroke-width="1.5" />
+                                <path d="M24 48V32.9143V0" stroke="#4A6D97" stroke-width="1.5" />
+                            </svg>
+                        </div>
+                        <div class="lateness-table-cell occurrence-cell flex-grow-1">
+                            <div class="deduction-rule-label">
+                                Deduction Rule #{{ ruleIndex + 1 }}
+                            </div>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 200px;">
+                            <div class="w-100">
+                                <label [for]="'timegaps-threshold-' + occurrenceIndex + '-' + ruleIndex"
+                                    class="visually-hidden">
+                                    Threshold time for {{ getOccurrenceLabel(occurrenceIndex) }} rule {{ ruleIndex + 1
+                                    }}
+                                </label>
+                                <input type="number" [id]="'timegaps-threshold-' + occurrenceIndex + '-' + ruleIndex"
+                                    [(ngModel)]="rule.thresholdTime" class="form-control table-input"
+                                    [class.is-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].thresholdTime"
+                                    (input)="clearTimeGapsValidationError(occurrenceIndex, ruleIndex, 'thresholdTime')"
+                                    [attr.aria-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].thresholdTime"
+                                    placeholder="Enter Minutes" [ngModelOptions]="{ standalone: true }" />
+                                @if (timeGapsValidationErrors[occurrenceIndex][ruleIndex].thresholdTime) {
+                                <div class="invalid-feedback d-block" role="alert">
+                                    Threshold time is required
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 200px;">
+                            <div class="w-100">
+                                <label [for]="'timegaps-value-' + occurrenceIndex + '-' + ruleIndex"
+                                    class="visually-hidden">
+                                    Deduction value for {{ getOccurrenceLabel(occurrenceIndex) }} rule {{ ruleIndex + 1
+                                    }}
+                                </label>
+                                <input type="number" [id]="'timegaps-value-' + occurrenceIndex + '-' + ruleIndex"
+                                    [(ngModel)]="rule.deductionValue" class="form-control table-input"
+                                    [class.is-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionValue"
+                                    (input)="clearTimeGapsValidationError(occurrenceIndex, ruleIndex, 'deductionValue')"
+                                    [attr.aria-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionValue"
+                                    placeholder="Enter Value in days" [ngModelOptions]="{ standalone: true }" />
+                                @if (timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionValue) {
+                                <div class="invalid-feedback d-block" role="alert">
+                                    Deduction value is required
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="lateness-table-cell flex-grow-1">
+                            <div class="w-100">
+                                <label [for]="'timegaps-base-' + occurrenceIndex + '-' + ruleIndex"
+                                    class="visually-hidden">
+                                    Deduction base for {{ getOccurrenceLabel(occurrenceIndex) }} rule {{ ruleIndex + 1
+                                    }}
+                                </label>
+                                <select [id]="'timegaps-base-' + occurrenceIndex + '-' + ruleIndex"
+                                    [(ngModel)]="rule.deductionBase" class="form-select table-input"
+                                    [class.is-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
+                                    (change)="clearTimeGapsValidationError(occurrenceIndex, ruleIndex, 'deductionBase')"
+                                    [attr.aria-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option [ngValue]="null" disabled>Select Salary Portion</option>
+                                    @for (portion of salaryPortions; track portion.index) {
+                                    <option [ngValue]="portion.index">
+                                        @if (shouldShowPercentage(portion.percentage)) {
+                                        {{ portion.name }} ({{ portion.percentage }}%)
+                                        } @else {
+                                        {{ portion.name }}
+                                        }
+                                    </option>
+                                    }
+                                </select>
+                                @if (timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionBase) {
+                                <div class="invalid-feedback d-block" role="alert">
+                                    Deduction base is required
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="lateness-table-cell actions-cell" style="width: 48px;">
+                            @if (occurrence.deductionRules.length > 1) {
+                            <button type="button" (click)="removeTimeGapsDeductionRule(occurrenceIndex, ruleIndex)"
+                                class="btn-icon-remove"
+                                [attr.aria-label]="'Remove deduction rule ' + (ruleIndex + 1) + ' for ' + getOccurrenceLabel(occurrenceIndex)"
+                                title="Remove deduction rule">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                                    <path fill="currentColor"
+                                        d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                                </svg>
+                            </button>
+                            }
+                        </div>
+                    </div>
+                    }
+                    <!-- Add Deduction Rule Button -->
+                    <div class="lateness-table-row add-rule-row">
+                        <div class="lateness-table-cell expand-icon-cell" style="width: 48px;">
+                            <svg class="connecting-line-svg" width="64" height="48" viewBox="0 0 64 48" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                                <path d="M64 24H30C26.6863 24 24 21.3137 24 18V0" stroke="#4A6D97" stroke-width="1.5" />
+                                <path d="M24 24.75V0" stroke="#4A6D97" stroke-width="1.5" stroke-linecap="butt" />
+                            </svg>
+                        </div>
+                        <div class="lateness-table-cell add-rule-cell flex-grow-1">
+                            <button type="button" (click)="addTimeGapsDeductionRule(occurrenceIndex)"
+                                class="btn-add-rule d-flex align-items-center gap-1"
+                                [attr.aria-label]="'Add deduction rule for ' + getOccurrenceLabel(occurrenceIndex)">
+                                <svg width="17" height="17" viewBox="0 0 17 17" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M8.625 5.8125C8.625 5.50184 8.37316 5.25 8.0625 5.25C7.75184 5.25 7.5 5.50184 7.5 5.8125L7.5 7.50002H5.8125C5.50184 7.50002 5.25 7.75186 5.25 8.06252C5.25 8.37318 5.50184 8.62502 5.8125 8.62502H7.5V10.3125C7.5 10.6232 7.75184 10.875 8.0625 10.875C8.37316 10.875 8.625 10.6232 8.625 10.3125L8.625 8.62502H10.3125C10.6232 8.62502 10.875 8.37318 10.875 8.06252C10.875 7.75186 10.6232 7.50002 10.3125 7.50002H8.625V5.8125Z"
+                                        fill="#377AFD" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M8.0625 0C3.6097 0 0 3.6097 0 8.0625C0 12.5153 3.6097 16.125 8.0625 16.125C12.5153 16.125 16.125 12.5153 16.125 8.0625C16.125 3.6097 12.5153 0 8.0625 0ZM1.125 8.0625C1.125 4.23102 4.23102 1.125 8.0625 1.125C11.894 1.125 15 4.23102 15 8.0625C15 11.894 11.894 15 8.0625 15C4.23102 15 1.125 11.894 1.125 8.0625Z"
+                                        fill="#377AFD" />
+                                </svg>
+                                <span>Add Deduction Rule</span>
+                            </button>
+                        </div>
+                        <div class="lateness-table-cell" style="width: 200px;"></div>
+                        <div class="lateness-table-cell" style="width: 200px;"></div>
+                        <div class="lateness-table-cell flex-grow-1"></div>
+                        <div class="lateness-table-cell" style="width: 48px;"></div>
+                    </div>
+                    }
+                    }
+                    }
+                </div>
+
+                <!-- Add Occurrence Button -->
+                <div class="lateness-table-row add-occurrence-row">
+                    <div class="lateness-table-cell" style="width: 48px;"></div>
+                    <div class="lateness-table-cell add-occurrence-cell flex-grow-1">
+                        <button type="button" (click)="addTimeGapsOccurrence()"
+                            class="btn-add-occurrence d-flex align-items-center gap-1"
+                            aria-label="Add new time gaps occurrence">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8s8 3.6 8 8s-3.6 8-8 8" />
+                                <path fill="currentColor" d="M15 12h-3v-3h-2v3H7v2h3v3h2v-3h3z" />
+                            </svg>
+                            <span>Add Occurrence</span>
+                        </button>
+                    </div>
+                    <div class="lateness-table-cell" style="width: 200px;"></div>
+                    <div class="lateness-table-cell" style="width: 200px;"></div>
+                    <div class="lateness-table-cell flex-grow-1"></div>
+                    <div class="lateness-table-cell" style="width: 48px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Absence -->
+@if (currentStep === 4) {
+<div class="content-hug" role="tabpanel" id="panel-4" aria-labelledby="tab-4" [attr.aria-hidden]="currentStep !== 4">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Absence</h2>
         <div class="table-responsive">
@@ -929,16 +1185,16 @@
     </button>
     }
 
-    @if(currentStep < 5){ <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
+    @if(currentStep < 6){ <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
-        <span>Next ({{currentStep}}/5)</span>
+        <span>Next ({{currentStep}}/6)</span>
         </button>
         }
 
-        @if(currentStep === 5){
+        @if(currentStep === 6){
         <button type="button" class="btn btn-lg btn-success" [disabled]="isSaving || !hasChanges()"
             (click)="saveChanges()">
             @if (isSaving) {
