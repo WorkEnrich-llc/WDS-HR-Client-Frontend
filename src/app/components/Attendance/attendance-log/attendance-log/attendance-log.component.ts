@@ -537,14 +537,6 @@ export class AttendanceLogComponent implements OnDestroy {
     return list?.find(item => item.main_record === true);
   }
 
-  /** True when the row has sub-records and should show the expand arrow */
-  shouldShowExpandArrow(emp: any): boolean {
-    if (!emp?.list_items?.length) return false;
-    const status = this.getMainRecord(emp.list_items)?.status;
-    const hiddenStatuses = ['On Leave', 'Holiday', 'Weekly leave'];
-    return !hiddenStatuses.includes(status);
-  }
-
   // Check if a record has check-in
   hasCheckIn(record: any): boolean {
     return record?.times_object?.working_check_in && record?.times_object?.working_check_in !== '00:00';
@@ -833,7 +825,7 @@ export class AttendanceLogComponent implements OnDestroy {
       next: () => {
         attendance.canceled = true;
         this.isLoading = false;
-        // this.toasterService.showSuccess('Attendance log canceled successfully.');
+        this.toasterService.showSuccess('Attendance log canceled successfully.');
         // Refresh current page to reflect changes
         this.getAllAttendanceLog({
           page: this.currentPage,
