@@ -193,10 +193,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     }
   }
 
-  canDeleteContract(contract: Contract): boolean {
-    return contract.status?.trim().toLowerCase() === 'expired';
-  }
-
   // Format date
   getFormattedDate(dateString: string | null): string {
     if (!dateString) return 'N/A';
