@@ -421,20 +421,18 @@ export class JobOpeningsService {
         return this._HttpClient.put(url, body);
     }
 
-    // accept job offer by ID with application_id param
-    acceptJobOffer(jobOfferId: number, applicationId: number): Observable<any> {
+    // accept job offer by ID (no application_id query param)
+    acceptJobOffer(jobOfferId: number): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/job-offers/${jobOfferId}/`;
-        const params = new HttpParams().set('application_id', applicationId.toString());
         const body = { request_data: { status: 1 } };
-        return this._HttpClient.patch(url, body, { params });
+        return this._HttpClient.patch(url, body);
     }
 
-    // decline job offer by ID with application_id param
-    declineJobOffer(jobOfferId: number, applicationId: number): Observable<any> {
+    // decline job offer by ID (no application_id query param)
+    declineJobOffer(jobOfferId: number): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/job-offers/${jobOfferId}/`;
-        const params = new HttpParams().set('application_id', applicationId.toString());
         const body = { request_data: { status: 2 } };
-        return this._HttpClient.patch(url, body, { params });
+        return this._HttpClient.patch(url, body);
     }
 
     // update job offer status directly via application ID

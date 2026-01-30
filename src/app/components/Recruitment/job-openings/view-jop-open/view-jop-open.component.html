@@ -1735,8 +1735,19 @@
 <app-popup [title]="'Accept Job Offer'" [paragraph1]="'Are you sure you want to mark this job offer as accepted?'"
   [paragraph2]="'This action will finalize the hiring process for this applicant.'" [isOpen]="isAcceptOfferModalOpen"
   (close)="closeAcceptOfferModal()">
-  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmAcceptOffer()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmAcceptOffer()"
+    [disabled]="isAcceptOfferLoading">
+    @if (!isAcceptOfferLoading) {
     Confirm
+    }
+    @if (isAcceptOfferLoading) {
+    <span class="d-flex align-items-center justify-content-center gap-2">
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <span>Accepting...</span>
+    </span>
+    }
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAcceptOfferModal()">
     Cancel
@@ -1747,8 +1758,19 @@
 <app-popup [title]="'Decline Job Offer'" [paragraph1]="'Are you sure you want to mark this job offer as declined?'"
   [paragraph2]="'This action will mark the job offer as declined by the candidate.'" [isOpen]="isDeclineOfferModalOpen"
   (close)="closeDeclineOfferModal()">
-  <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmDeclineOffer()">
+  <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmDeclineOffer()"
+    [disabled]="isDeclineOfferLoading">
+    @if (!isDeclineOfferLoading) {
     Confirm
+    }
+    @if (isDeclineOfferLoading) {
+    <span class="d-flex align-items-center justify-content-center gap-2">
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <span>Declining...</span>
+    </span>
+    }
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeclineOfferModal()">
     Cancel
@@ -1814,12 +1836,11 @@
   <div class="w-100 mb-3">
     <label for="rejectionMailMessage" class="form-label mb-2">Email Message<span class="text-danger">*</span></label>
     <textarea id="rejectionMailMessage" name="rejectionMailMessage" class="form-control" rows="3"
-      [(ngModel)]="rejectionMailMessage"
-      [class.is-invalid]="!!rejectionMailMessageError"
+      [(ngModel)]="rejectionMailMessage" [class.is-invalid]="!!rejectionMailMessageError"
       (input)="clearRejectionMailMessageError()"
       placeholder="Rejection email message to send to the candidate..."></textarea>
     @if (rejectionMailMessageError) {
-      <small class="text-danger mt-1 d-block">{{ rejectionMailMessageError }}</small>
+    <small class="text-danger mt-1 d-block">{{ rejectionMailMessageError }}</small>
     }
   </div>
   <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmReject()"

@@ -444,6 +444,24 @@ export class AdminDashboardComponent implements OnDestroy {
             colors: valuesArray.map((v: any) => v?.color_code ?? '#e5e7eb50')
           };
         });
+        // map alerts (if present in response)
+        const alertsItem = dashboardData.find((x: any) => x.title === 'Alerts');
+        if (alertsItem && Array.isArray(alertsItem.value)) {
+          this.alerts = alertsItem.value.map((a: any) => {
+            const info = a.extra_meta?.info || {};
+            return {
+              id: a.id,
+              title: info.title || a.title || '',
+              content: info.body || info.description || a.content || '',
+              number: a.number ?? null,
+              raw: a
+            };
+          });
+        } else {
+          // if no alerts were returned, clear existing alerts so overlay appears
+          this.alerts = [];
+        }
+
         this.getDataLoad = false;
         // console.log("Charts Data:", this.chartsData);
 

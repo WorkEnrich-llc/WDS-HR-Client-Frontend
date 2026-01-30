@@ -182,6 +182,7 @@
     <div class="column last-column">
       <!-- alerts Card -->
       <div class="content-box alerts flex-fill d-flex flex-column h-100 position-relative">
+        @if(getDataLoad || !alerts || alerts.length == 0) {
         <div class="overlay">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
             <!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
@@ -194,6 +195,7 @@
           </svg>
           <span>Soon</span>
         </div>
+        }
 
         <h2>Alerts</h2>
         @if(getDataLoad){

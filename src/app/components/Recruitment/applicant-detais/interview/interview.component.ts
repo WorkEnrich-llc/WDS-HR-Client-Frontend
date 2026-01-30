@@ -990,7 +990,7 @@ export class InterviewComponent implements OnChanges {
 
     // If Job Offer Sent status (status code 3), use the new job offer accept API
     if (this.status === 'Job Offer Sent' && this.jobOfferId) {
-      this.svc.acceptJobOffer(this.jobOfferId, this.applicationId).subscribe({
+      this.svc.acceptJobOffer(this.jobOfferId).subscribe({
         next: () => {
           this.submitting = false;
           this.applicationRefreshed.emit();

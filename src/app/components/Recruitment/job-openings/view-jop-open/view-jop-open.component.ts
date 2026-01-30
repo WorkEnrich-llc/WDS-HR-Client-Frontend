@@ -34,6 +34,7 @@ type Applicant = {
   id: number; // table row id display (application or applicant code)
   applicantId: number; // actual applicant id
   applicationId: number; // application id to be used in routing/API
+  jobOfferId?: number | null; // job offer id when an offer exists (from additional_info.job_offer_id)
   interviewId?: number | null; // from additional_info.interview_id (for interview details API)
   name: string;
   phoneNumber: string;
@@ -150,6 +151,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   isQualifiedModalOpen: boolean = false;
   isAcceptOfferModalOpen: boolean = false;
   isDeclineOfferModalOpen: boolean = false;
+  // Loading states for accept/decline actions
+  isAcceptOfferLoading: boolean = false;
+  isDeclineOfferLoading: boolean = false;
   isRevertModalOpen: boolean = false;
 
   // Store current applicant data for job offer component
@@ -367,6 +371,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             id: item.application_id ?? item.id ?? 0, // For display in table
             applicantId: item.id ?? 0, // Actual applicant id
             applicationId: item.application_id ?? 0, // Application id for navigation
+            jobOfferId: item.additional_info?.job_offer_id ?? item.job_offer_id ?? null,
             interviewId: item.additional_info?.interview_id ?? null,
             name: item.name || 'N/A',
             phoneNumber: item.phone ? item.phone.toString() : 'N/A',
@@ -2309,6 +2314,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     if (!applicant?.applicationId) return;
     this.openDropdownApplicationId = null;
     this.selectedApplicant = applicant;
+    this.isAcceptOfferLoading = false;
     this.isAcceptOfferModalOpen = true;
   }
 
@@ -2318,6 +2324,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeAcceptOfferModal(): void {
     this.isAcceptOfferModalOpen = false;
     this.selectedApplicant = null;
+    this.isAcceptOfferLoading = false;
   }
 
   /**
@@ -2327,6 +2334,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     if (!applicant?.applicationId) return;
     this.openDropdownApplicationId = null;
     this.selectedApplicant = applicant;
+    this.isDeclineOfferLoading = false;
     this.isDeclineOfferModalOpen = true;
   }
 
@@ -2336,20 +2344,23 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeDeclineOfferModal(): void {
     this.isDeclineOfferModalOpen = false;
     this.selectedApplicant = null;
+    this.isDeclineOfferLoading = false;
   }
 
   /**
    * Confirm and accept job offer
    */
   confirmAcceptOffer(): void {
-    if (!this.selectedApplicant?.applicationId) return;
+    // Use jobOfferId (API expects offer id); do not send application_id
+    const jobOfferId = this.selectedApplicant?.jobOfferId;
+    if (!jobOfferId) return;
 
-    const applicationId = this.selectedApplicant.applicationId;
-
-    this.jobOpeningsService.updateJobOfferStatus(applicationId, 1).pipe(
+    this.isAcceptOfferLoading = true;
+    this.jobOpeningsService.acceptJobOffer(jobOfferId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.isAcceptOfferLoading = false;
         this.closeAcceptOfferModal();
         this.loadApplicants();
         if (this.jobOpening?.id) {
@@ -2358,8 +2369,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.toastr.showSuccess('Job offer accepted successfully');
       },
       error: (error) => {
+        this.isAcceptOfferLoading = false;
         console.error('Error accepting job offer:', error);
-        this.toastr.showError('Failed to accept job offer');
         this.closeAcceptOfferModal();
       }
     });
@@ -2370,14 +2381,16 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    * Confirm and decline job offer
    */
   confirmDeclineOffer(): void {
-    if (!this.selectedApplicant?.applicationId) return;
+    // Use jobOfferId (API expects offer id); do not send application_id
+    const jobOfferId = this.selectedApplicant?.jobOfferId;
+    if (!jobOfferId) return;
 
-    const applicationId = this.selectedApplicant.applicationId;
-
-    this.jobOpeningsService.updateJobOfferStatus(applicationId, 2).pipe(
+    this.isDeclineOfferLoading = true;
+    this.jobOpeningsService.declineJobOffer(jobOfferId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.isDeclineOfferLoading = false;
         this.closeDeclineOfferModal();
         this.loadApplicants();
         if (this.jobOpening?.id) {
@@ -2386,6 +2399,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.toastr.showSuccess('Job offer declined successfully');
       },
       error: (error) => {
+        this.isDeclineOfferLoading = false;
         console.error('Error declining job offer:', error);
         this.toastr.showError('Failed to decline job offer');
         this.closeDeclineOfferModal();
