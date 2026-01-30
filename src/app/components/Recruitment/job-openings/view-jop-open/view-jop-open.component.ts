@@ -2388,6 +2388,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     });
   }
 
+
   /**
    * Confirm and decline job offer
    */
@@ -2482,7 +2483,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   getInterviewStatusConfig(status: string): { icon: string; color: string; bgColor: string } {
     const normalizedStatus = status?.toLowerCase() || '';
-    
+
     switch (normalizedStatus) {
       case 'completed':
         return {
