@@ -193,7 +193,7 @@
           @for (alert of alerts; track $index) {
           <div class="alert" (click)="onAlertClick(alert)" role="button" tabindex="0"
             (keydown.enter)="onAlertClick(alert)" style="cursor: pointer">
-            <div class="icon">
+            <div class="icon">    
               @if(alert.number) {
               <span>{{ alert.number }}</span>
               } @else {
