@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { HttpEventType } from '@angular/common/http';
@@ -46,6 +46,7 @@ import { DatePipe, NgClass } from '@angular/common';
 export class ViewEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private toasterMessageService = inject(ToasterMessageService);
   private customFieldsService = inject(CustomFieldsService);
   private changeDetector = inject(ChangeDetectorRef);
@@ -595,6 +596,15 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Restore tab from query params (primary `tab`, fallback `tap` for compatibility)
+    this.route.queryParamMap.subscribe(q => {
+      const tabParam = q.get('tab') || q.get('tap');
+      const allowed = ['attendance', 'requests', 'documents', 'contracts', 'leave-balance', 'custom-info', 'devices'];
+      if (tabParam && allowed.includes(tabParam)) {
+        this.setCurrentTab(tabParam as any, false);
+      }
+    });
+
     this.route.params.subscribe(params => {
       this.employeeId = +params['id'];
       if (this.employeeId) {
@@ -965,11 +975,27 @@ export class ViewEmployeeComponent implements OnInit {
   // }
 
   // Tab management method
-  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices'): void {
+  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices', updateQuery: boolean = true): void {
     if (tab === 'devices') {
       this.loadEmployeeDevices(!this.devicesAttempted);
     }
     this.currentTab = tab;
+
+    // Update query param to persist selected tab in URL
+    if (updateQuery) {
+      try {
+        // Persist using `tab` query param (preferred). Keep other params unchanged.
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { tab: tab },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
+      } catch (e) {
+        // ignore navigation errors
+        console.warn('Failed to update tab query param', e);
+      }
+    }
   }
 
   loadEmployeeDevices(force = false, page: number = this.devicesPage, perPage: number = this.devicesPerPage): void {

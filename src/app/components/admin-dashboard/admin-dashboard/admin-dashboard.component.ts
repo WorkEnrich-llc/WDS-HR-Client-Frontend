@@ -1,4 +1,5 @@
 import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartOptions } from 'chart.js';
@@ -36,7 +37,8 @@ export class AdminDashboardComponent implements OnDestroy {
     private _DepartmentsService: DepartmentsService,
     private _BranchesService: BranchesService,
     private leaveBalanceService: LeaveBalanceService,
-    private systemSetupService: SystemSetupService
+    private systemSetupService: SystemSetupService,
+    private router: Router
   ) { }
   getDataLoad: boolean = true;
 
@@ -50,6 +52,57 @@ export class AdminDashboardComponent implements OnDestroy {
   // ---------- Tour persistence ----------
   private get tourDone(): boolean {
     return localStorage.getItem(this.systemSetupTourDoneKey) === 'true';
+  }
+
+  onAlertClick(alert: any): void {
+    try {
+      const redir = alert?.raw?.extra_meta?.redirection;
+      if (!redir || !redir.route) return;
+
+      const template = redir.route as string;
+
+      const getNested = (obj: any, path: string) => {
+        if (!obj || !path) return undefined;
+        const parts = path.split('.');
+        let cur = obj;
+        for (const p of parts) {
+          if (cur == null) return undefined;
+          cur = cur[p];
+        }
+        return cur;
+      };
+
+      // try to extract employee_id from redirection.api if available
+      let employeeId: string | null = null;
+      try {
+        const api = redir?.api;
+        if (api) {
+          const parsed = new URL(api, window.location.origin);
+          employeeId = parsed.searchParams.get('employee_id');
+        }
+      } catch {
+        // ignore parsing errors
+      }
+
+      // Replace placeholders: prefer actual values, otherwise fall back to employeeId when available
+      const finalRoute = template.replace(/\{([^}]+)\}/g, (_, key) => {
+        const val = getNested(alert?.raw, key) ??
+          getNested(alert?.raw?.extra_meta, key) ??
+          getNested(redir, key);
+        if (val !== undefined && val !== null && String(val) !== '') return String(val);
+        if (employeeId) return String(employeeId);
+        return '';
+      });
+
+      if (!finalRoute) return;
+
+      // Normalize common typo 'tap' => 'tab' in query param
+      const normalized = finalRoute.replace(/\btap=/, 'tab=');
+
+      this.router.navigateByUrl(normalized);
+    } catch (e) {
+      console.error('Failed to navigate for alert:', e);
+    }
   }
 
   private set tourDone(val: boolean) {
