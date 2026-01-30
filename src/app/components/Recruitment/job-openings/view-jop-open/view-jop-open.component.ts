@@ -10,7 +10,6 @@ import { DatePipe, NgClass, DecimalPipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
-import { HttpParams } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -2347,42 +2346,20 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     const applicationId = this.selectedApplicant.applicationId;
 
-    // First, get the job offer ID by fetching job offer details
-    this.jobOpeningsService.getJobOffer(applicationId).pipe(
+    this.jobOpeningsService.updateJobOfferStatus(applicationId, 1).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (response) => {
-        const jobOffer = response.data?.object_info || response.data || response;
-        const jobOfferId = jobOffer.id;
-
-        if (!jobOfferId) {
-          this.toastr.showError('Job offer not found');
-          this.closeAcceptOfferModal();
-          return;
+      next: () => {
+        this.closeAcceptOfferModal();
+        this.loadApplicants();
+        if (this.jobOpening?.id) {
+          this.getJobOpeningDetails(this.jobOpening.id);
         }
-
-        // Accept the job offer (status: 1)
-        this.jobOpeningsService.acceptJobOffer(jobOfferId, applicationId).pipe(
-          takeUntil(this.destroy$)
-        ).subscribe({
-          next: () => {
-            this.closeAcceptOfferModal();
-            this.loadApplicants();
-            if (this.jobOpening?.id) {
-              this.getJobOpeningDetails(this.jobOpening.id);
-            }
-            this.toastr.showSuccess('Job offer accepted successfully');
-          },
-          error: (error) => {
-            console.error('Error accepting job offer:', error);
-            this.toastr.showError('Failed to accept job offer');
-            this.closeAcceptOfferModal();
-          }
-        });
+        this.toastr.showSuccess('Job offer accepted successfully');
       },
       error: (error) => {
-        console.error('Error fetching job offer:', error);
-        this.toastr.showError('Failed to fetch job offer details');
+        console.error('Error accepting job offer:', error);
+        this.toastr.showError('Failed to accept job offer');
         this.closeAcceptOfferModal();
       }
     });
@@ -2397,42 +2374,20 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     const applicationId = this.selectedApplicant.applicationId;
 
-    // First, get the job offer ID by fetching job offer details
-    this.jobOpeningsService.getJobOffer(applicationId).pipe(
+    this.jobOpeningsService.updateJobOfferStatus(applicationId, 2).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (response) => {
-        const jobOffer = response.data?.object_info || response.data || response;
-        const jobOfferId = jobOffer.id;
-
-        if (!jobOfferId) {
-          this.toastr.showError('Job offer not found');
-          this.closeDeclineOfferModal();
-          return;
+      next: () => {
+        this.closeDeclineOfferModal();
+        this.loadApplicants();
+        if (this.jobOpening?.id) {
+          this.getJobOpeningDetails(this.jobOpening.id);
         }
-
-        // Decline the job offer (status: 2)
-        this.jobOpeningsService.declineJobOffer(jobOfferId, applicationId).pipe(
-          takeUntil(this.destroy$)
-        ).subscribe({
-          next: () => {
-            this.closeDeclineOfferModal();
-            this.loadApplicants();
-            if (this.jobOpening?.id) {
-              this.getJobOpeningDetails(this.jobOpening.id);
-            }
-            this.toastr.showSuccess('Job offer declined successfully');
-          },
-          error: (error) => {
-            console.error('Error declining job offer:', error);
-            this.toastr.showError('Failed to decline job offer');
-            this.closeDeclineOfferModal();
-          }
-        });
+        this.toastr.showSuccess('Job offer declined successfully');
       },
       error: (error) => {
-        console.error('Error fetching job offer:', error);
-        this.toastr.showError('Failed to fetch job offer details');
+        console.error('Error declining job offer:', error);
+        this.toastr.showError('Failed to decline job offer');
         this.closeDeclineOfferModal();
       }
     });

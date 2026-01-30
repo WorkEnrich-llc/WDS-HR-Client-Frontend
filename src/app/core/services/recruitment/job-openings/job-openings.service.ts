@@ -437,6 +437,13 @@ export class JobOpeningsService {
         return this._HttpClient.patch(url, body, { params });
     }
 
+    // update job offer status directly via application ID
+    updateJobOfferStatus(applicationId: number, status: 1 | 2): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers/${applicationId}/`;
+        const body = { request_data: { status } };
+        return this._HttpClient.patch(url, body);
+    }
+
     // edit join date for job offer
     editJoinDate(jobOfferId: number, joinDate: string): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/job-offers/edit-join-date/${jobOfferId}/`;
