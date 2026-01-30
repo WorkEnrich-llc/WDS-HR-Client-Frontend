@@ -368,7 +368,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             ? `${employee.contact_info?.mobile?.country?.phone_prefix || ''}${employee.contact_info.mobile.number}`
             : '';
 
-          const contractExpired = employee.current_contract?.expired === true;
+          // Check for expired status from subscription.renewal_in.expired or current_contract.expired
+          const contractExpired = item.subscription?.renewal_in?.expired === true || employee.current_contract?.expired === true;
 
           return {
             id: employee.id,
