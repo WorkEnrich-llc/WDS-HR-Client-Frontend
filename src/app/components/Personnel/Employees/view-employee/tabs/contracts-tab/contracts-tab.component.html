@@ -143,7 +143,7 @@
         </a>
 
         <!-- Delete Action - Only for expired contracts -->
-        @if (contract.expired) {
+        @if (canDeleteContract(contract)) {
         <a (click)="openDeleteModal(contract)" class="view-btn delete-btn" title="Delete Contract">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#E04F5F" class="bi bi-trash"
             viewBox="0 0 16 16">
