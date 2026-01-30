@@ -35,6 +35,7 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   // View state
   isStartingAssignment: boolean = false;
   private popupRedirectChecked: boolean = false;
+  showTimeOverlay: boolean = false;
 
   // Navbar and Footer data
   logoData: LogoData = {};
@@ -56,7 +57,7 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     // Check if opened in main window and redirect to popup
     this.checkAndOpenInPopup();
-    
+
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -73,9 +74,23 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Detect mobile/touch devices. Popup flow (window.open, close, etc.) causes
+   * broken behavior on mobile (tabs, blank screen, close fails); skip it.
+   */
+  private isMobile(): boolean {
+    if (typeof navigator === 'undefined' || !navigator.userAgent) return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+  }
+
+  /**
    * Check if page is opened in main window and redirect to popup window
    */
   private checkAndOpenInPopup(): void {
+    // Skip popup flow on mobile: window.open/close causes blank tabs, focus issues, etc.
+    if (this.isMobile()) {
+      return;
+    }
+
     // Prevent multiple checks
     if (this.popupRedirectChecked) {
       return;
@@ -128,7 +143,7 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
     if (popup) {
       // Focus the popup
       popup.focus();
-      
+
       // Hide current window content and show redirect message
       setTimeout(() => {
         if (document.body) {
@@ -145,7 +160,7 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
           document.body.appendChild(messageDiv);
         }
       }, 100);
-      
+
       // Close current window after a short delay (browsers may block this)
       setTimeout(() => {
         try {
@@ -180,6 +195,15 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // Prevent copying and text selection
     this.preventCopying();
+
+    // Listen for time over event from questions component
+    window.addEventListener('assignmentTimeOver', () => {
+      this.showTimeOverlay = true;
+      // Disable interactions
+      if (document.body) {
+        document.body.style.pointerEvents = 'none';
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -193,6 +217,14 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.preventDevToolsHandler) {
       document.removeEventListener('keydown', this.preventDevToolsHandler, true);
+    }
+
+    // Remove time over event listener
+    window.removeEventListener('assignmentTimeOver', () => { });
+
+    // Restore pointer events
+    if (document.body) {
+      document.body.style.pointerEvents = 'auto';
     }
 
     // Remove component-level event listeners
@@ -218,12 +250,12 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private isLocalhost(): boolean {
     const hostname = window.location.hostname;
-    return hostname === 'localhost' || 
-           hostname === '127.0.0.1' || 
-           hostname === '::1' ||
-           hostname.startsWith('192.168.') ||
-           hostname.startsWith('10.') ||
-           hostname.startsWith('172.');
+    return hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '::1' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('172.');
   }
 
   /**
@@ -309,146 +341,154 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
     this.assignmentService.getAssignmentOverview(this.accessToken!)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (response) => {
-        // Check for error_handling array first (check both response.data and response directly)
-        const errorHandling = response?.data?.error_handling || response?.error_handling;
+        next: (response) => {
+          // Check for error_handling array first (check both response.data and response directly)
+          const errorHandling = response?.data?.error_handling || response?.error_handling;
 
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.errorHandling = errorHandling;
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(this.errorMessage || 'An error occurred');
-          this.assignmentData = null; // Ensure assignmentData is null when there are errors
-          this.isLoading = false;
-          return;
-        }
-
-        // Clear any previous errors
-        this.errorHandling = [];
-        this.errorMessage = null;
-
-        const objectInfo = response?.data?.object_info || response?.object_info;
-
-        if (objectInfo) {
-          this.assignmentData = objectInfo;
-
-          // Save overview data to service before navigating (for questions component to use)
-          if (objectInfo.company) {
-            this.assignmentStateService.setOverviewData(this.accessToken!, {
-              company: {
-                theme: objectInfo.company.theme,
-                logo_url: objectInfo.company.logo_url,
-                name: objectInfo.company.name,
-                title: objectInfo.company.title,
-                social_links: objectInfo.company.social_links
-              }
-            });
-          }
-
-          // Check assignment status
-          const assignmentStatus = objectInfo.applicant_assignment?.status;
-          const isSubmitted = assignmentStatus && 
-            String(assignmentStatus).trim().toLowerCase() === 'submitted';
-          const isStarted = assignmentStatus && 
-            String(assignmentStatus).trim().toLowerCase() === 'started';
-          
-          // If assignment is submitted, don't navigate - just show overview with submitted state
-          if (isSubmitted) {
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errorHandling = errorHandling;
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(this.errorMessage || 'An error occurred');
+            this.assignmentData = null; // Ensure assignmentData is null when there are errors
             this.isLoading = false;
             return;
           }
 
-          // Check if assignment is already started - navigate to questions
-          
-          if (isStarted) {
-            this.router.navigate(['/assignment/questions'], { queryParams: { s: this.accessToken } });
-            this.isLoading = false;
-            return;
-          }
+          // Clear any previous errors
+          this.errorHandling = [];
+          this.errorMessage = null;
 
-          // Apply theme color from company data
-          if (objectInfo.company?.theme) {
-            this.themeService.setThemeColor(objectInfo.company.theme);
-          }
+          const objectInfo = response?.data?.object_info || response?.object_info;
 
-          // Set up navbar and footer data
-          if (objectInfo.company) {
-            this.logoData = {
-              icon: objectInfo.company.logo_url || undefined,
-              companyName: objectInfo.company.name || undefined,
-              tagline: objectInfo.company.title || undefined
-            };
+          if (objectInfo) {
+            this.assignmentData = objectInfo;
 
-            // Set up social media links
-            if (objectInfo.company.social_links) {
-              this.socialMediaLinks = {};
-              if (objectInfo.company.social_links.facebook) {
-                this.socialMediaLinks.facebook = objectInfo.company.social_links.facebook;
-              }
-              if (objectInfo.company.social_links.instagram) {
-                this.socialMediaLinks.instagram = objectInfo.company.social_links.instagram;
-              }
-              if (objectInfo.company.social_links.x) {
-                this.socialMediaLinks.twitter = objectInfo.company.social_links.x;
-              }
-              if (objectInfo.company.social_links.linkedin) {
-                this.socialMediaLinks.linkedin = objectInfo.company.social_links.linkedin;
-              }
+            // Save overview data to service before navigating (for questions component to use)
+            if (objectInfo.company) {
+              this.assignmentStateService.setOverviewData(this.accessToken!, {
+                company: {
+                  theme: objectInfo.company.theme,
+                  logo_url: objectInfo.company.logo_url,
+                  name: objectInfo.company.name,
+                  title: objectInfo.company.title,
+                  social_links: objectInfo.company.social_links
+                }
+              });
             }
 
-            // Set website URL
-            this.websiteUrl = objectInfo.company.social_links?.website || null;
-          }
-        } else {
-          // If object_info is null, check again for error_handling (in case it wasn't caught earlier)
-          const errorHandlingRetry = response?.data?.error_handling || response?.error_handling;
+            // Check assignment status
+            const assignmentStatus = objectInfo.applicant_assignment?.status;
+            const isSubmitted = assignmentStatus &&
+              String(assignmentStatus).trim().toLowerCase() === 'submitted';
+            const isStarted = assignmentStatus &&
+              String(assignmentStatus).trim().toLowerCase() === 'started';
 
-          if (errorHandlingRetry && Array.isArray(errorHandlingRetry) && errorHandlingRetry.length > 0) {
-            this.errorHandling = errorHandlingRetry;
-            const errorMessages = errorHandlingRetry.map(err => err.error || err.message).filter(Boolean);
+            // If assignment is submitted, don't navigate - just show overview with submitted state
+            if (isSubmitted) {
+              this.isLoading = false;
+              return;
+            }
+
+            // Check if assignment is already started - navigate to questions
+
+            if (isStarted) {
+              this.router.navigate(['/assignment/questions'], { queryParams: { s: this.accessToken } });
+              this.isLoading = false;
+              return;
+            }
+
+            // Apply theme color from company data
+            if (objectInfo.company?.theme) {
+              this.themeService.setThemeColor(objectInfo.company.theme);
+            }
+
+            // Set up navbar and footer data
+            if (objectInfo.company) {
+              this.logoData = {
+                icon: objectInfo.company.logo_url || undefined,
+                companyName: objectInfo.company.name || undefined,
+                tagline: objectInfo.company.title || undefined
+              };
+
+              // Set up social media links
+              if (objectInfo.company.social_links) {
+                this.socialMediaLinks = {};
+                if (objectInfo.company.social_links.facebook) {
+                  this.socialMediaLinks.facebook = objectInfo.company.social_links.facebook;
+                }
+                if (objectInfo.company.social_links.instagram) {
+                  this.socialMediaLinks.instagram = objectInfo.company.social_links.instagram;
+                }
+                if (objectInfo.company.social_links.x) {
+                  this.socialMediaLinks.twitter = objectInfo.company.social_links.x;
+                }
+                if (objectInfo.company.social_links.linkedin) {
+                  this.socialMediaLinks.linkedin = objectInfo.company.social_links.linkedin;
+                }
+              }
+
+              // Set website URL
+              this.websiteUrl = objectInfo.company.social_links?.website || null;
+            }
+          } else {
+            // If object_info is null, check again for error_handling (in case it wasn't caught earlier)
+            const errorHandlingRetry = response?.data?.error_handling || response?.error_handling;
+
+            if (errorHandlingRetry && Array.isArray(errorHandlingRetry) && errorHandlingRetry.length > 0) {
+              this.errorHandling = errorHandlingRetry;
+              const errorMessages = errorHandlingRetry.map(err => err.error || err.message).filter(Boolean);
+              this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+              this.toastr.error(this.errorMessage || 'An error occurred');
+              this.assignmentData = null;
+            } else {
+              this.errorMessage = 'Invalid assignment data';
+              this.toastr.error('Invalid assignment data');
+            }
+          }
+
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.isLoading = false;
+
+          // Check if error response has error_handling array (check multiple possible locations)
+          const errorHandling = error.error?.data?.error_handling ||
+            error.error?.error_handling ||
+            error?.data?.error_handling ||
+            error?.error_handling;
+
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errorHandling = errorHandling;
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
             this.errorMessage = errorMessages.join('. ') || 'An error occurred';
             this.toastr.error(this.errorMessage || 'An error occurred');
-            this.assignmentData = null;
           } else {
-            this.errorMessage = 'Invalid assignment data';
-            this.toastr.error('Invalid assignment data');
+            // Also check if there's a message in error_handling format at root level
+            const rootErrorHandling = error?.error_handling || error.error?.error_handling;
+            if (rootErrorHandling && Array.isArray(rootErrorHandling) && rootErrorHandling.length > 0) {
+              this.errorHandling = rootErrorHandling;
+              const errorMessages = rootErrorHandling.map(err => err.error || err.message).filter(Boolean);
+              this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+              this.toastr.error(this.errorMessage || 'An error occurred');
+            } else {
+              this.errorMessage = error.error?.message || error.message || 'Failed to load assignment data';
+              this.toastr.error(this.errorMessage || 'Failed to load assignment data');
+            }
           }
+
+          this.assignmentData = null; // Ensure assignmentData is null when there are errors
+          console.error('Error loading assignment data:', error);
         }
+      });
+  }
 
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.isLoading = false;
-
-        // Check if error response has error_handling array (check multiple possible locations)
-        const errorHandling = error.error?.data?.error_handling ||
-          error.error?.error_handling ||
-          error?.data?.error_handling ||
-          error?.error_handling;
-
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.errorHandling = errorHandling;
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(this.errorMessage || 'An error occurred');
-        } else {
-          // Also check if there's a message in error_handling format at root level
-          const rootErrorHandling = error?.error_handling || error.error?.error_handling;
-          if (rootErrorHandling && Array.isArray(rootErrorHandling) && rootErrorHandling.length > 0) {
-            this.errorHandling = rootErrorHandling;
-            const errorMessages = rootErrorHandling.map(err => err.error || err.message).filter(Boolean);
-            this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-            this.toastr.error(this.errorMessage || 'An error occurred');
-          } else {
-            this.errorMessage = error.error?.message || error.message || 'Failed to load assignment data';
-            this.toastr.error(this.errorMessage || 'Failed to load assignment data');
-          }
-        }
-
-        this.assignmentData = null; // Ensure assignmentData is null when there are errors
-        console.error('Error loading assignment data:', error);
-      }
-    });
+  /**
+   * Handle time over confirmation
+   */
+  onTimeOverConfirm(): void {
+    // Reload the page
+    window.location.reload();
   }
 
   /**
@@ -464,34 +504,34 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
     this.assignmentService.startAssignment(this.accessToken)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (response) => {
-        // Check for error_handling array in response
-        const errorHandling = response?.data?.error_handling;
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          const errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(errorMessage);
-          this.isStartingAssignment = false;
-          return;
-        }
+        next: (response) => {
+          // Check for error_handling array in response
+          const errorHandling = response?.data?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            const errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(errorMessage);
+            this.isStartingAssignment = false;
+            return;
+          }
 
-        this.isStartingAssignment = false;
-        // Overview data is already saved in service from loadAssignmentData
-        this.router.navigate(['/assignment/questions'], { queryParams: { s: this.accessToken } });
-      },
-      error: (error) => {
-        this.isStartingAssignment = false;
-        // Check if error response has error_handling
-        const errorHandling = error.error?.data?.error_handling;
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          const errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(errorMessage);
-        } else {
-          this.toastr.error(error.error?.message || 'Failed to start assignment');
+          this.isStartingAssignment = false;
+          // Overview data is already saved in service from loadAssignmentData
+          this.router.navigate(['/assignment/questions'], { queryParams: { s: this.accessToken } });
+        },
+        error: (error) => {
+          this.isStartingAssignment = false;
+          // Check if error response has error_handling
+          const errorHandling = error.error?.data?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            const errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(errorMessage);
+          } else {
+            this.toastr.error(error.error?.message || 'Failed to start assignment');
+          }
+          console.error('Error starting assignment:', error);
         }
-        console.error('Error starting assignment:', error);
-      }
-    });
+      });
   }
 }

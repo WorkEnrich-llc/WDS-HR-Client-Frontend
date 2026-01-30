@@ -1,14 +1,21 @@
 @if (isOpen) {
-  <div class="modal-overlay" (click)="close.emit()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
       <h2 class="modal-title">{{ title }}</h2>
-      <p class="modal-paragraph">{{ paragraph1 }}</p>
-      <p class="modal-paragraph">{{ paragraph2 }}</p>
+      <button type="button" class="close-button" aria-label="Close" (click)="close.emit()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <p class="modal-paragraph">{{ paragraph1 }}</p>
+    <p class="modal-paragraph modal-paragraph--muted">{{ paragraph2 }}</p>
+    <div class="modal-body">
       <ng-content></ng-content>
-      <div class="modal-buttons">
-        <ng-content select="[modal-btn-left]"></ng-content>
-        <ng-content select="[modal-btn-right]"></ng-content>
-      </div>
+    </div>
+    <div class="modal-buttons">
+      <ng-content select="[modal-btn-left]"></ng-content>
+      <ng-content select="[modal-btn-right]"></ng-content>
     </div>
   </div>
+</div>
 }

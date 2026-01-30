@@ -151,7 +151,8 @@
           <td colspan="8" class="px-0 td">
             <div class="d-flex align-items-center main-row">
               <!-- Date Column (includes expand button) -->
-              <div class="d-flex align-items-center" [ngStyle]="{ width: columnWidths[0] }">
+              <div class="d-flex align-items-center" [ngStyle]="{ width: columnWidths[0] }"
+                [class.no-expand-btn]="emp.list_items?.length === 0">
                 @if(emp.list_items?.length > 0){
                 <div style="width: 40px">
                   <button class="btn btn-sm" (click)="toggleCollapse(emp)">

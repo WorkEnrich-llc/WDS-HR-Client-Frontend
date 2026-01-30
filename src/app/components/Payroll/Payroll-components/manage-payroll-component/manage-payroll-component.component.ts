@@ -45,6 +45,7 @@ export class ManagePayrollComponentComponent implements OnInit {
   payrollComponentStatus = PAYROLL_COMPONENT_STATUS;
   defaultValuePlaceholder: string = 'Enter Value';
   previousValidValue: number | null = null;
+  savedPortionValue: number | null = null; // Store portion value from component details
 
 
 
@@ -52,7 +53,6 @@ export class ManagePayrollComponentComponent implements OnInit {
 
   ngOnInit(): void {
     this.initFormModel();
-    this.loadSalaryPortions();
     this.checkModeAndLoadData();
     this.createPayrollForm.get('calculation')?.valueChanges.subscribe(value => {
       const portionControl = this.createPayrollForm.get('portion');
@@ -147,28 +147,23 @@ export class ManagePayrollComponentComponent implements OnInit {
       this.payrollService.getComponentById(this.id).subscribe({
         next: (data) => {
           const calculationId = data.calculation?.id ?? '';
-          const portionValue = data.salary_portion ?? data.portion?.index ?? '';
+          const portionValue = data.salary_portion ?? data.portion?.index ?? null;
 
           // Store component name for header display
           this.componentName = data.name || '';
+
+          // Store the portion value to set it after salary portions are loaded
+          this.savedPortionValue = portionValue !== null && portionValue !== undefined ? +portionValue : null;
 
           this.createPayrollForm.patchValue({
             code: data.code,
             name: data.name,
             component_type: data.component_type.id,
             classification: data.classification.id,
-            portion: data.salary_portion ?? data.portion?.index ?? '',
             calculation: calculationId,
             value: data.value,
             show_in_payslip: data.show_in_payslip
           });
-
-          // Ensure salary portion is set after salaryPortions are loaded
-          setTimeout(() => {
-            this.createPayrollForm.patchValue({
-              portion: data.salary_portion ?? data.portion?.index ?? ''
-            });
-          }, 0);
 
           // After patching, handle the calculation logic for portion and value fields
           const calcValue = +calculationId;
@@ -179,6 +174,7 @@ export class ManagePayrollComponentComponent implements OnInit {
           this.previousValidValue = data.value !== null && data.value !== undefined ? +data.value : null;
 
           if (calcValue === 1) { // RawValue
+            // For RawValue, portion is always 0 and disabled
             portionControl?.setValue(0, { emitEvent: false });
             portionControl?.disable({ emitEvent: false });
             portionControl?.clearValidators();
@@ -187,6 +183,8 @@ export class ManagePayrollComponentComponent implements OnInit {
             valueControl?.clearValidators();
             valueControl?.setValidators([Validators.min(0)]);
             valueControl?.updateValueAndValidity({ emitEvent: false });
+            // Clear saved portion value since RawValue always uses 0
+            this.savedPortionValue = null;
           } else if (calcValue === 2) { // Days
             portionControl?.enable({ emitEvent: false });
             portionControl?.setValidators([Validators.required]);
@@ -195,6 +193,7 @@ export class ManagePayrollComponentComponent implements OnInit {
             valueControl?.clearValidators();
             valueControl?.setValidators([Validators.min(0), Validators.max(31)]);
             valueControl?.updateValueAndValidity({ emitEvent: false });
+            // Portion value will be set after salary portions are loaded
           } else if (calcValue === 3) { // Percentage
             portionControl?.enable({ emitEvent: false });
             portionControl?.setValidators([Validators.required]);
@@ -203,28 +202,55 @@ export class ManagePayrollComponentComponent implements OnInit {
             valueControl?.clearValidators();
             valueControl?.setValidators([Validators.min(0), Validators.max(100)]);
             valueControl?.updateValueAndValidity({ emitEvent: false });
+            // Portion value will be set after salary portions are loaded
           }
 
           this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
           this.updatedDate = new Date(data.updated_at).toLocaleDateString('en-GB');
           this.isLoading = false;
+
+          // Load salary portions AFTER component details are loaded
+          this.loadSalaryPortions();
         },
         error: (err) => {
           console.error('Failed to load component', err);
           this.isLoading = false;
+          // Still load salary portions even if component details failed
+          this.loadSalaryPortions();
         }
       });
     }
     else {
       const today = new Date().toLocaleDateString('en-GB');
       this.createDate = today;
+      // In create mode, load salary portions immediately (no component details to wait for)
+      this.loadSalaryPortions();
     }
   }
 
   private loadSalaryPortions(): void {
     this.salaryPortionService.single({ request_in: 'payroll-components' }).subscribe({
       next: (data) => {
-        this.salaryPortions = data.settings
+        this.salaryPortions = data.settings;
+
+        // If in edit mode and we have a saved portion value, set it after salary portions are loaded
+        if (this.isEditMode && this.savedPortionValue !== null && this.savedPortionValue !== undefined) {
+          const portionControl = this.createPayrollForm.get('portion');
+          const calcValue = +this.createPayrollForm.get('calculation')?.value;
+
+          // Only set the portion value if calculation type is not RawValue (calcValue !== 1)
+          // For RawValue, portion is already set to 0 and disabled
+          if (calcValue !== 1) {
+            // Check if the saved portion value exists in the loaded salary portions
+            const portionExists = this.salaryPortions.some((p: any) => p.index === this.savedPortionValue);
+            if (portionExists) {
+              portionControl?.setValue(this.savedPortionValue, { emitEvent: false });
+            } else if (this.salaryPortions.length > 0) {
+              // If saved value doesn't exist, set to empty or first available
+              portionControl?.setValue('', { emitEvent: false });
+            }
+          }
+        }
       },
       error: (err) => console.error('Failed to load single salary portion', err)
     });
@@ -243,6 +269,7 @@ export class ManagePayrollComponentComponent implements OnInit {
   onValueInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const inputValue = input.value.trim();
+    const valueControl = this.createPayrollForm.get('value');
 
     // Allow empty input (for clearing the field)
     if (inputValue === '' || inputValue === null || inputValue === undefined) {
@@ -251,23 +278,35 @@ export class ManagePayrollComponentComponent implements OnInit {
     }
 
     const value = parseFloat(inputValue);
-    const maxValue = this.getMaxValue();
 
-    // If value is invalid or exceeds max, revert to previous valid value
-    if (isNaN(value) || (maxValue !== null && value > maxValue)) {
+    // Only prevent invalid numeric input (NaN), but allow values exceeding max
+    // The max validator will handle showing the error message
+    if (isNaN(value)) {
       // Revert to previous valid value if it exists, otherwise clear the input
       setTimeout(() => {
         if (this.previousValidValue !== null) {
           input.value = this.previousValidValue.toString();
-          this.createPayrollForm.get('value')?.setValue(this.previousValidValue, { emitEvent: false });
+          valueControl?.setValue(this.previousValidValue, { emitEvent: false });
         } else {
           input.value = '';
-          this.createPayrollForm.get('value')?.setValue(null, { emitEvent: false });
+          valueControl?.setValue(null, { emitEvent: false });
         }
       }, 0);
     } else {
-      // Value is valid, store it as the previous valid value
-      this.previousValidValue = value;
+      // Value is a valid number, allow it even if it exceeds max
+      // Update the form control value and let the validator handle max validation
+      valueControl?.setValue(value, { emitEvent: true });
+
+      // Mark as touched if value exceeds max to show validation message immediately
+      const maxValue = this.getMaxValue();
+      if (maxValue !== null && value > maxValue) {
+        valueControl?.markAsTouched();
+      }
+
+      // Only store as previous valid value if it doesn't exceed max
+      if (maxValue === null || value <= maxValue) {
+        this.previousValidValue = value;
+      }
     }
   }
 

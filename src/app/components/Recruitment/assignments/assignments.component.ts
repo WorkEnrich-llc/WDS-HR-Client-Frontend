@@ -6,7 +6,7 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
 import { TableComponent } from '../../shared/table/table.component';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, filter, takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-assignments',
@@ -56,7 +56,8 @@ export class AssignmentsComponent implements OnInit, OnDestroy {
                         this.pageSize,
                         trimmedQuery
                     );
-                })
+                }),
+                takeUntil(this.destroy$)
             )
             .subscribe({
                 next: (res) => {
@@ -74,7 +75,9 @@ export class AssignmentsComponent implements OnInit, OnDestroy {
 
     fetchAssignments(search: string = ''): void {
         this.isLoading = true;
-        this.jobOpeningsService.getAllAssignments(this.currentPage, this.pageSize, search).subscribe({
+        this.jobOpeningsService.getAllAssignments(this.currentPage, this.pageSize, search).pipe(
+            takeUntil(this.destroy$)
+        ).subscribe({
             next: (res) => {
                 const list = res?.data?.list_items ?? res?.list_items ?? [];
                 this.assignments = Array.isArray(list) ? list : [];

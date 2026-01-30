@@ -25,6 +25,9 @@ export class InterviewFeedbackComponent implements OnInit {
   // Hover state for stars (can be decimal for half stars)
   hoveredRating: number | null = null;
 
+  // Interview attendance state
+  didAttendInterview: boolean = true;
+
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
@@ -50,6 +53,22 @@ export class InterviewFeedbackComponent implements OnInit {
     });
   }
 
+  toggleInterviewAttendance(): void {
+    this.didAttendInterview = !this.didAttendInterview;
+
+    // If they didn't attend, clear and disable the form controls
+    if (!this.didAttendInterview) {
+      this.feedbackForm.get('rating')?.reset();
+      this.feedbackForm.get('comment')?.reset();
+      this.feedbackForm.get('rating')?.disable();
+      this.feedbackForm.get('comment')?.disable();
+    } else {
+      // If they did attend, enable the controls
+      this.feedbackForm.get('rating')?.enable();
+      this.feedbackForm.get('comment')?.enable();
+    }
+  }
+
   onSubmit(): void {
     // Prevent multiple submissions
     if (this.isSubmitting) {
@@ -72,8 +91,9 @@ export class InterviewFeedbackComponent implements OnInit {
 
     const rating = parseFloat(this.feedbackForm.value.rating);
     const comment = this.feedbackForm.value.comment;
+    const isMissed = !this.didAttendInterview;
 
-    this.interviewService.submitInterviewFeedback(this.token, rating, comment).subscribe({
+    this.interviewService.submitInterviewFeedback(this.token, rating, comment, isMissed).subscribe({
       next: (response) => {
         this.isSubmitted = true;
         this.isSubmitting = false;
@@ -81,7 +101,7 @@ export class InterviewFeedbackComponent implements OnInit {
         console.log('Interview feedback submitted successfully:', response);
       },
       error: (error) => {
-        this.isSubmitting = false
+        this.isSubmitting = false;
         console.error('Error submitting interview feedback:', error);
       }
     });

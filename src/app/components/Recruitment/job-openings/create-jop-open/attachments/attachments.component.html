@@ -16,7 +16,7 @@
           @for (entry of links; track entry; let i = $index) {
           <tr>
             <td>
-              <input type="text" [(ngModel)]="entry.value" class="form-control table-input"
+              <input type="text" [(ngModel)]="entry.value" (ngModelChange)="hasUserMadeChanges = true" class="form-control table-input"
                 [class.is-invalid]="isFormTouched && validationErrors.links[i]" placeholder="Enter Link URL" />
               @if (isFormTouched && validationErrors.links[i]) {
               <div class="text-danger small mt-1">
@@ -71,7 +71,7 @@
           @for (entry of Documents; track entry; let i = $index) {
           <tr>
             <td>
-              <input type="text" [(ngModel)]="entry.value" class="form-control table-input" [class.is-invalid]="
+              <input type="text" [(ngModel)]="entry.value" (ngModelChange)="hasUserMadeChanges = true" class="form-control table-input" [class.is-invalid]="
                   isFormTouched && validationErrors.documents[i]
                 " placeholder="Enter Document Name" />
               @if (isFormTouched && validationErrors.documents[i]) {

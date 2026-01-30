@@ -10,10 +10,11 @@ import { BranchesService } from 'app/core/services/od/branches/branches.service'
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { DecimalPipe } from '@angular/common';
+import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-interview',
-  imports: [FormsModule, OverlayFilterBoxComponent, PopupComponent, DecimalPipe],
+  imports: [FormsModule, OverlayFilterBoxComponent, PopupComponent, DecimalPipe, DatePickerComponent],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.css',
 })
@@ -97,6 +98,8 @@ export class InterviewComponent implements OnChanges {
 
   // Validation errors
   validationErrors: {
+    department?: string;
+    section?: string;
     interviewer?: string;
     date?: string;
     time_from?: string;
@@ -260,6 +263,12 @@ export class InterviewComponent implements OnChanges {
   closeAllOverlays(): void {
     this.filterBox?.closeOverlay();
     this.jobBox?.closeOverlay();
+  }
+
+  /** Reset interview form and close overlay when user discards. */
+  discardInterviewAndClose(): void {
+    this.resetInterviewForm();
+    this.closeAllOverlays();
   }
 
   addAsCandidate(): void {
@@ -465,6 +474,8 @@ export class InterviewComponent implements OnChanges {
     this.sections = [];
     this.interviewer = null;
     this.employees = [];
+    this.clearValidationError('section');
+    this.clearValidationError('interviewer');
 
     if (!this.department) {
       return;
@@ -495,6 +506,7 @@ export class InterviewComponent implements OnChanges {
     // Clear interviewer when section changes
     this.interviewer = null;
     this.employees = [];
+    this.clearValidationError('interviewer');
 
     if (!this.section) {
       return;
@@ -568,6 +580,16 @@ export class InterviewComponent implements OnChanges {
       }
     }
 
+    if (!this.department) {
+      this.validationErrors.department = 'Please select a department';
+      hasErrors = true;
+    }
+
+    if (!this.section) {
+      this.validationErrors.section = 'Please select a section';
+      hasErrors = true;
+    }
+
     if (!this.interviewer) {
       this.validationErrors.interviewer = 'Please select an interviewer';
       hasErrors = true;
@@ -627,6 +649,7 @@ export class InterviewComponent implements OnChanges {
           this.closeAllOverlays();
           this.resetInterviewForm();
           this.applicationRefreshed.emit();
+          this.toasterService.showSuccess('Interview rescheduled successfully');
         },
         error: () => {
           this.submitting = false;
@@ -702,6 +725,17 @@ export class InterviewComponent implements OnChanges {
     if (this.validationErrors.noChanges) {
       delete this.validationErrors.noChanges;
     }
+  }
+
+  onInterviewDateChange(dateValue: string): void {
+    if (dateValue) {
+      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.date = dateOnly;
+    } else {
+      this.date = '';
+    }
+    this.clearValidationError('date');
+    this.onInterviewFormChange();
   }
 
   onInterviewTypeChange(): void {
@@ -956,7 +990,7 @@ export class InterviewComponent implements OnChanges {
 
     // If Job Offer Sent status (status code 3), use the new job offer accept API
     if (this.status === 'Job Offer Sent' && this.jobOfferId) {
-      this.svc.acceptJobOffer(this.jobOfferId, this.applicationId).subscribe({
+      this.svc.acceptJobOffer(this.jobOfferId).subscribe({
         next: () => {
           this.submitting = false;
           this.applicationRefreshed.emit();
@@ -1146,7 +1180,7 @@ export class InterviewComponent implements OnChanges {
     });
   }
 
-  revertToJobOffer(): void {
+  revertToCandidate(): void {
     this.isRevertModalOpen = true;
   }
 
@@ -1157,8 +1191,8 @@ export class InterviewComponent implements OnChanges {
   confirmRevert(): void {
     if (!this.applicationId) return;
     this.submitting = true;
-    // Status 5 = Job Offer Sent
-    this.svc.updateApplicationStatus(this.applicationId, 5).subscribe({
+    // Status 2 = Candidate
+    this.svc.updateApplicationStatus(this.applicationId, 2).subscribe({
       next: () => {
         this.submitting = false;
         this.isRevertModalOpen = false;

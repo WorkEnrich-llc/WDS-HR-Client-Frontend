@@ -89,7 +89,7 @@ export class TaxesService {
         status: status
       }
     };
-    return this.http.put<any>(`${this.url}/${id}/status`, requestData);
+    return this.http.patch<any>(`${this.url}/${id}/status`, requestData);
   }
 
 }

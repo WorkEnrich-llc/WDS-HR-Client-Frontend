@@ -5,6 +5,8 @@ import { environment } from '../../../environments/environment';
 import { CompanySettingsResponse } from '../models/company-settings.model';
 import { JobListingResponse, JobDetailsResponse } from '../models/job-listing.model';
 
+type JobDetailsEventType = 'job_detail' | 'apply_click';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -143,15 +145,18 @@ export class ClientJobBoardService {
   }
 
   /**
-   * Get single job details by ID
+   * Get single job details by ID and report how the details were requested
    * @param jobId The ID of the job to fetch
+   * @param eventType Indicates how the job details were triggered
    */
-  getJobDetails(jobId: number): Observable<JobDetailsResponse> {
+  getJobDetails(jobId: number, eventType: JobDetailsEventType = 'job_detail'): Observable<JobDetailsResponse> {
     const headers = this.buildHeaders();
+    const params = new HttpParams().set('event_type', eventType);
     const url = `${this.apiBaseUrl}job-landing/jobs/${jobId}/`;
 
     return this.http.get<JobDetailsResponse>(url, {
       headers,
+      params,
       withCredentials: true
     });
   }

@@ -63,20 +63,48 @@
 
             <!-- Feedback Form -->
             <form [formGroup]="feedbackForm" (ngSubmit)="onSubmit()" class="feedback-form">
+                <!-- Interview Attendance Toggle -->
+                <div class="form-group interview-toggle-group">
+                    <label class="form-label">
+                        Did you attend the interview? <span class="required">*</span>
+                    </label>
+                    <div class="toggle-container">
+                        <div class="toggle-wrapper">
+                            <input type="checkbox" id="interviewToggle" class="toggle-input"
+                                [checked]="didAttendInterview" (change)="toggleInterviewAttendance()"
+                                aria-label="Did you attend the interview">
+                            <label for="interviewToggle" class="toggle-label">
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">{{ didAttendInterview ? 'Yes, I attended' : 'No, I missed it'
+                                    }}</span>
+                            </label>
+                        </div>
+                        @if (!didAttendInterview) {
+                        <div class="missed-interview-notice">
+                            <svg class="notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>We've noted that you missed the interview.</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
                 <!-- Rating Field -->
-                <div class="form-group">
-                    <label for="rating" class="form-label">
+                <div class="form-group" [class.disabled-group]="!didAttendInterview">
+                    <label for="rating" class="form-label" [class.disabled-label]="!didAttendInterview">
                         Overall Rating <span class="required">*</span>
                     </label>
-                    <div class="rating-container">
+                    <div class="rating-container" [class.disabled-rating]="!didAttendInterview">
                         <!-- Star Rating Visual -->
                         <div class="star-rating" role="radiogroup" aria-label="Rating" (mouseleave)="onStarLeave()">
                             @for (star of getStars(); track star) {
-                            <button type="button" class="star-btn" 
-                                (click)="setRating(star, $event)"
-                                (mouseenter)="onStarHover(star, $event)"
-                                (mousemove)="onStarHover(star, $event)"
-                                [class.filled]="getStarState(star) === 'filled'"
+                            <button type="button" class="star-btn" (click)="setRating(star, $event)"
+                                (mouseenter)="onStarHover(star, $event)" (mousemove)="onStarHover(star, $event)"
+                                [disabled]="!didAttendInterview" [class.filled]="getStarState(star) === 'filled'"
                                 [class.half]="getStarState(star) === 'half'"
                                 [class.hover]="getStarState(star) === 'hover'"
                                 [class.half-hover]="getStarState(star) === 'half-hover'"
@@ -92,7 +120,7 @@
                         <input type="hidden" formControlName="rating" />
                     </div>
 
-                    @if (rating?.invalid && rating?.touched) {
+                    @if (rating?.invalid && rating?.touched && didAttendInterview) {
                     <div class="error-message">
                         @if (rating?.errors?.['required']) {
                         <small>Rating is required</small>
@@ -105,15 +133,17 @@
                 </div>
 
                 <!-- Comment Field -->
-                <div class="form-group">
-                    <label for="comment" class="form-label">
+                <div class="form-group" [class.disabled-group]="!didAttendInterview">
+                    <label for="comment" class="form-label" [class.disabled-label]="!didAttendInterview">
                         Your Feedback <span class="required">*</span>
                     </label>
                     <textarea id="comment" formControlName="comment" class="form-textarea"
                         placeholder="Please share your thoughts about the interview experience (minimum 10 characters)..."
-                        rows="6" [class.error]="comment?.invalid && comment?.touched" aria-required="true"></textarea>
+                        rows="6" [disabled]="!didAttendInterview"
+                        [class.error]="comment?.invalid && comment?.touched && didAttendInterview"
+                        aria-required="true"></textarea>
 
-                    @if (comment?.invalid && comment?.touched) {
+                    @if (comment?.invalid && comment?.touched && didAttendInterview) {
                     <div class="error-message">
                         @if (comment?.errors?.['required']) {
                         <small>Feedback is required</small>
@@ -126,8 +156,7 @@
                     }
                 </div>
 
-                <button type="submit" class="btn btn-submit" [disabled]="isSubmitting"
-                    aria-label="Send feedback">
+                <button type="submit" class="btn btn-submit" [disabled]="isSubmitting" aria-label="Send feedback">
                     @if (isSubmitting) {
                     <div class="bubble-loader">
                         <span class="bubble"></span>
@@ -153,8 +182,8 @@
         <div class="card-container">
             <!-- Enhanced Success SVG Illustration -->
             <div class="illustration-wrapper">
-                <svg class="illustration success-illustration" viewBox="0 0 400 350" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    role="img" aria-label="Feedback submitted successfully">
+                <svg class="illustration success-illustration" viewBox="0 0 400 350" fill="none"
+                    xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Feedback submitted successfully">
                     <!-- Animated Success Circle Background -->
                     <circle cx="200" cy="160" r="110" fill="#D1FAE5" opacity="0.6" />
                     <circle cx="200" cy="160" r="90" fill="#A7F3D0" opacity="0.8" />
@@ -167,9 +196,12 @@
                     <!-- Message/Feedback Icon -->
                     <circle cx="260" cy="120" r="25" fill="#34D399" opacity="0.9" />
                     <rect x="245" y="115" width="30" height="20" rx="3" fill="white" opacity="0.9" />
-                    <line x1="250" y1="120" x2="270" y2="120" stroke="#34D399" stroke-width="2" stroke-linecap="round" />
-                    <line x1="250" y1="125" x2="265" y2="125" stroke="#34D399" stroke-width="2" stroke-linecap="round" />
-                    <line x1="250" y1="130" x2="260" y2="130" stroke="#34D399" stroke-width="2" stroke-linecap="round" />
+                    <line x1="250" y1="120" x2="270" y2="120" stroke="#34D399" stroke-width="2"
+                        stroke-linecap="round" />
+                    <line x1="250" y1="125" x2="265" y2="125" stroke="#34D399" stroke-width="2"
+                        stroke-linecap="round" />
+                    <line x1="250" y1="130" x2="260" y2="130" stroke="#34D399" stroke-width="2"
+                        stroke-linecap="round" />
 
                     <!-- Star Rating Icon -->
                     <circle cx="140" cy="120" r="20" fill="#FCD34D" />
@@ -206,11 +238,14 @@
             <div class="text-content">
                 <h1 class="main-title success-title">Feedback Submitted Successfully! 🎉</h1>
                 <p class="description">
-                    Thank you <strong>{{ applicantName }}</strong> for taking the time to share your valuable feedback with us!
+                    Thank you <strong>{{ applicantName }}</strong> for taking the time to share your valuable feedback
+                    with us!
                 </p>
                 <p class="description-secondary">
-                    Your insights help us continuously improve our interview process and create a better experience for future candidates.
-                    We truly appreciate your thoughtful input and hope to have the opportunity to work with you in the future!
+                    Your insights help us continuously improve our interview process and create a better experience for
+                    future candidates.
+                    We truly appreciate your thoughtful input and hope to have the opportunity to work with you in the
+                    future!
                 </p>
             </div>
 

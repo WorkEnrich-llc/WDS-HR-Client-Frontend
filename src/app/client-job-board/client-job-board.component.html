@@ -8,7 +8,121 @@
 </app-navbar>
 }
 
-<div class="content-wrapper">
+<!-- Error State - Centered Full Screen -->
+@if (hasError && errorMessage) {
+<div class="error-container">
+  <div
+    role="alert"
+    aria-live="assertive"
+    class="error-card-centered"
+    aria-describedby="error-description"
+  >
+    <div class="error-illustration-wrapper">
+      <svg
+        width="280"
+        height="200"
+        viewBox="0 0 280 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+        class="error-illustration"
+      >
+        <!-- Background Circle -->
+        <circle cx="140" cy="100" r="80" fill="url(#errorGradient)" opacity="0.1"/>
+        
+        <!-- Main Error Icon -->
+        <g transform="translate(100, 60)">
+          <!-- Circle Background -->
+          <circle cx="40" cy="40" r="36" fill="url(#errorGradient)" opacity="0.15"/>
+          <circle cx="40" cy="40" r="28" fill="url(#errorGradient)" opacity="0.25"/>
+          
+          <!-- Exclamation Mark -->
+          <path
+            d="M40 20C42.7614 20 45 22.2386 45 25V35C45 37.7614 42.7614 40 40 40C37.2386 40 35 37.7614 35 35V25C35 22.2386 37.2386 20 40 20Z"
+            fill="#DC2626"
+          />
+          <circle cx="40" cy="50" r="3" fill="#DC2626"/>
+        </g>
+        
+        <!-- Decorative Elements -->
+        <circle cx="60" cy="40" r="3" fill="#FCA5A5" opacity="0.6"/>
+        <circle cx="220" cy="40" r="3" fill="#FCA5A5" opacity="0.6"/>
+        <circle cx="60" cy="160" r="3" fill="#FCA5A5" opacity="0.6"/>
+        <circle cx="220" cy="160" r="3" fill="#FCA5A5" opacity="0.6"/>
+        
+        <!-- Gradient Definition -->
+        <defs>
+          <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FEE2E2;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FECACA;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    
+    <div class="error-content">
+      <h2 class="error-title-centered">
+        Oops! We couldn't load the job board
+      </h2>
+      <p id="error-description" class="error-description-centered">
+        {{ errorMessage }}
+      </p>
+    </div>
+    
+    <div class="error-actions-centered">
+      <button
+        type="button"
+        class="error-retry-button-centered"
+        (click)="retryLoadSettings()"
+        aria-label="Try again to load the job board"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C10.6781 16.5 12.2225 15.9258 13.4419 14.9419L12.375 12.375"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M16.5 9C16.5 4.85786 13.1421 1.5 9 1.5C7.32187 1.5 5.77754 2.07422 4.55812 3.05812L5.625 5.625"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M5.625 5.625L8.25 3L5.625 0.375"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M12.375 12.375L9.75 15L12.375 17.625"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Try Again
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<div class="content-wrapper" [class.hidden]="hasError">
   <router-outlet (activate)="onChildActivate($event)"></router-outlet>
 </div>
 

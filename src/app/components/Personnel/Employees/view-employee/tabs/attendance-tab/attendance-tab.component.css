@@ -203,6 +203,11 @@
   padding-inline-start: var(--spacing-20);
 }
 
+/* When there's no expand button, add left padding to the date cell to compensate for the missing 40px button width */
+.main-row .no-expand-btn .date-cell {
+  padding-left: calc(16px);
+}
+
 .td {
   padding: 0 !important;
   position: relative;

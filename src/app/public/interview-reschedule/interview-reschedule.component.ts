@@ -4,16 +4,17 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute } from '@angular/router';
 import { InterviewService } from '../../core/services/recruitment/interview.service';
 import { ToastrService } from 'ngx-toastr';
+import { DatePickerComponent } from '../../components/shared/date-picker/date-picker.component';
 
 @Component({
-  selector: 'app-interview-rejected',
+  selector: 'app-interview-reschedule',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule],
-  templateUrl: './interview-rejected.component.html',
-  styleUrls: ['./interview-rejected.component.css']
+  imports: [FormsModule, ReactiveFormsModule, DatePickerComponent],
+  templateUrl: './interview-reschedule.component.html',
+  styleUrls: ['./interview-reschedule.component.css']
 })
-export class InterviewRejectedComponent implements OnInit {
-  rejectForm!: FormGroup;
+export class InterviewRescheduleComponent implements OnInit {
+  rescheduleForm!: FormGroup;
   isSubmitting = false;
   isSubmitted = false;
   errorMessage: string | null = null;
@@ -32,7 +33,7 @@ export class InterviewRejectedComponent implements OnInit {
   ngOnInit(): void {
     // Get token and applicant info from URL query params
     this.route.queryParams.subscribe(params => {
-      this.token = params['s'] || null; // Changed from 'token' to 's'
+      this.token = params['s'] || null;
       this.applicantName = params['name'] || 'Candidate';
 
       if (!this.token) {
@@ -41,14 +42,19 @@ export class InterviewRejectedComponent implements OnInit {
     });
 
     // Initialize form
-    this.rejectForm = this.fb.group({
-      reason: ['', [Validators.required, Validators.minLength(10)]]
+    this.rescheduleForm = this.fb.group({
+      rescheduleDate: ['', [Validators.required]]
     });
   }
 
   onSubmit(): void {
-    if (this.rejectForm.invalid) {
-      this.rejectForm.markAllAsTouched();
+    // Prevent multiple submissions
+    if (this.isSubmitting) {
+      return;
+    }
+
+    if (this.rescheduleForm.invalid) {
+      this.rescheduleForm.markAllAsTouched();
       return;
     }
 
@@ -61,25 +67,26 @@ export class InterviewRejectedComponent implements OnInit {
     this.isSubmitting = true;
     this.errorMessage = null;
 
-    const reason = this.rejectForm.value.reason;
+    const rescheduleDate = this.rescheduleForm.value.rescheduleDate;
 
-    this.interviewService.rejectInterview(this.token, reason).subscribe({
+    this.interviewService.rescheduleInterview(this.token, rescheduleDate).subscribe({
       next: (response) => {
         this.isSubmitted = true;
         this.isSubmitting = false;
-        this.toastr.success('Your response has been submitted successfully');
-        console.log('Interview rejected successfully:', response);
+        this.toastr.success('Your interview has been rescheduled successfully!');
+        console.log('Interview rescheduled successfully:', response);
       },
       error: (error) => {
         this.isSubmitting = false;
-        const errorMsg = error?.error?.message;
+        const errorMsg = error?.error?.message || 'Failed to reschedule the interview. Please try again.';
         this.errorMessage = errorMsg;
-        console.error('Error rejecting interview:', error);
+        this.toastr.error(errorMsg);
+        console.error('Error rescheduling interview:', error);
       }
     });
   }
 
-  get reason() {
-    return this.rejectForm.get('reason');
+  get rescheduleDate() {
+    return this.rescheduleForm.get('rescheduleDate');
   }
 }

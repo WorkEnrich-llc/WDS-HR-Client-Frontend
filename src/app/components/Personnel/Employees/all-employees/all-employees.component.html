@@ -148,7 +148,18 @@
             </div>
 
             <div class="mb-2 text-center d-flex align-items-center justify-content-center gap-2">
-              @if (employee.employeeStatus ==='New Joiner') {
+              @if (employee.contractExpired) {
+              <span class="badge-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M12 6v6l4 2" />
+                  </g>
+                </svg>
+                <span>Expired</span>
+              </span>
+              }
+              @if (!employee.contractExpired && employee.employeeStatus ==='New Joiner') {
               <span class="badge-newjoiner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -162,7 +173,7 @@
                 <span>New Joiner</span>
               </span>
               }
-              @if (employee.employeeStatus ==='New Employee') {
+              @if (!employee.contractExpired && employee.employeeStatus ==='New Employee') {
               <span class="badge-newemployee">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -177,7 +188,7 @@
                 <span>New Employee</span>
               </span>
               }
-              @if (employee.employeeStatus ==='Employed') {
+              @if (!employee.contractExpired && employee.employeeStatus ==='Employed') {
               <span class="badge-success">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -192,7 +203,7 @@
                 <span>Employed</span>
               </span>
               }
-              @if (employee.employeeStatus ==='Termination Pending') {
+              @if (!employee.contractExpired && employee.employeeStatus ==='Termination Pending') {
               <span class="badge-gray">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -203,7 +214,7 @@
                 <span>Termination Pending</span>
               </span>
               }
-              @if (employee.employeeStatus ==='Terminated') {
+              @if (!employee.contractExpired && employee.employeeStatus ==='Terminated') {
               <span class="badge-danger">
                 <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -219,7 +230,7 @@
                 <span>Terminated</span>
               </span>
               }
-              @if (employee.employeeStatus ==='In Notice Period') {
+              @if (!employee.contractExpired && employee.employeeStatus ==='In Notice Period') {
               <span class="badge-warning">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -372,7 +383,17 @@
         </span>
       </td>
       <td>
-        @if (employee.employeeStatus ==='New Joiner') {
+        @if (employee.contractExpired) {
+        <span class="badge-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M12 6v6l4 2" />
+            </g>
+          </svg>
+          <span>Expired</span>
+        </span>
+        } @if (!employee.contractExpired && employee.employeeStatus ==='New Joiner') {
         <span class="badge-newjoiner">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -385,7 +406,7 @@
           </svg>
           <span>New Joiner</span>
         </span>
-        } @if (employee.employeeStatus ==='New Employee') {
+        } @if (!employee.contractExpired && employee.employeeStatus ==='New Employee') {
         <span class="badge-newemployee">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -398,7 +419,7 @@
           </svg>
           <span>New Employee</span>
         </span>
-        } @if (employee.employeeStatus ==='Employed') {
+        } @if (!employee.contractExpired && employee.employeeStatus ==='Employed') {
         <span class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -411,7 +432,7 @@
           </svg>
           <span>Employed</span>
         </span>
-        } @if (employee.employeeStatus ==='Termination Pending') {
+        } @if (!employee.contractExpired && employee.employeeStatus ==='Termination Pending') {
         <span class="badge-gray">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -421,7 +442,7 @@
           </svg>
           <span>Termination Pending</span>
         </span>
-        } @if (employee.employeeStatus ==='Terminated') {
+        } @if (!employee.contractExpired && employee.employeeStatus ==='Terminated') {
         <span class="badge-danger">
           <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -436,7 +457,7 @@
           </svg>
           <span>Terminated</span>
         </span>
-        } @if (employee.employeeStatus ==='In Notice Period') {
+        } @if (!employee.contractExpired && employee.employeeStatus ==='In Notice Period') {
         <span class="badge-probation">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -446,7 +467,7 @@
           </svg>
           <span>In Notice Period</span>
         </span>
-        } @if (employee.employeeStatus ==='Resigned') {
+        } @if (!employee.contractExpired && employee.employeeStatus ==='Resigned') {
         <span class="badge-danger">
           <svg width="17" height="17" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

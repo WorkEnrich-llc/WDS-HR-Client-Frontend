@@ -37,6 +37,7 @@ export class ClientJobBoardComponent implements OnInit {
 
     // Error state to hide navbar
     hasError: boolean = false;
+    errorMessage: string = '';
 
     ngOnInit(): void {
         this.initForm();
@@ -48,60 +49,72 @@ export class ClientJobBoardComponent implements OnInit {
             next: (response) => {
                 const objectInfo = response.data?.object_info;
 
-                if (objectInfo) {
-                    // Update logo data - only set if values exist
-                    this.logoData = {};
-                    if (objectInfo.logo) {
-                        this.logoData.icon = objectInfo.logo;
-                    }
-                    if (objectInfo.name) {
-                        this.logoData.companyName = objectInfo.name;
-                    }
-                    if (objectInfo.title) {
-                        this.logoData.tagline = objectInfo.title;
-                    }
-
-                    // Update social media links - only set if values exist
-                    this.socialMediaLinks = {};
-                    if (objectInfo.social_links) {
-                        if (objectInfo.social_links.facebook) {
-                            this.socialMediaLinks.facebook = objectInfo.social_links.facebook;
-                        }
-                        if (objectInfo.social_links.instagram) {
-                            this.socialMediaLinks.instagram = objectInfo.social_links.instagram;
-                        }
-                        if (objectInfo.social_links.x) {
-                            this.socialMediaLinks.twitter = objectInfo.social_links.x;
-                        }
-                        if (objectInfo.social_links.linkedin) {
-                            this.socialMediaLinks.linkedin = objectInfo.social_links.linkedin;
-                        }
-                    }
-
-                    // Update website URL - only set if exists
-                    this.websiteUrl = objectInfo.social_links?.website || null;
-
-                    // Update about section data for child components
-                    this.aboutTitle = objectInfo.title || null;
-                    this.aboutDescription = objectInfo.description || null;
-
-                    // Pass data to child component if it's already activated
-                    this.passDataToChild();
-
-                    // Apply theme color dynamically
-                    if (objectInfo.theme_color) {
-                        this.themeService.setThemeColor(objectInfo.theme_color);
-                    } else {
-                        console.warn('No theme_color found in API response');
-                    }
-
-                    // Update SEO meta tags based on company settings
-                    this.metaTagsService.updateMetaTags(objectInfo, 'Open Positions');
+                // Check if response contains error details or object_info is null
+                if (response.details || !objectInfo) {
+                    // Treat as error condition even though it's a successful HTTP response
+                    this.errorMessage = response.details || 'We encountered an issue while loading the job board. Please try again in a moment.';
+                    this.hasError = true;
+                    return;
                 }
+
+                // Success case - company data is available
+                // Update logo data - only set if values exist
+                this.logoData = {};
+                if (objectInfo.logo) {
+                    this.logoData.icon = objectInfo.logo;
+                }
+                if (objectInfo.name) {
+                    this.logoData.companyName = objectInfo.name;
+                }
+                if (objectInfo.title) {
+                    this.logoData.tagline = objectInfo.title;
+                }
+
+                // Update social media links - only set if values exist
+                this.socialMediaLinks = {};
+                if (objectInfo.social_links) {
+                    if (objectInfo.social_links.facebook) {
+                        this.socialMediaLinks.facebook = objectInfo.social_links.facebook;
+                    }
+                    if (objectInfo.social_links.instagram) {
+                        this.socialMediaLinks.instagram = objectInfo.social_links.instagram;
+                    }
+                    if (objectInfo.social_links.x) {
+                        this.socialMediaLinks.twitter = objectInfo.social_links.x;
+                    }
+                    if (objectInfo.social_links.linkedin) {
+                        this.socialMediaLinks.linkedin = objectInfo.social_links.linkedin;
+                    }
+                }
+
+                // Update website URL - only set if exists
+                this.websiteUrl = objectInfo.social_links?.website || null;
+
+                // Update about section data for child components
+                this.aboutTitle = objectInfo.title || null;
+                this.aboutDescription = objectInfo.description || null;
+
+                // Pass data to child component if it's already activated
+                this.passDataToChild();
+
+                // Apply theme color dynamically
+                if (objectInfo.theme_color) {
+                    this.themeService.setThemeColor(objectInfo.theme_color);
+                } else {
+                    console.warn('No theme_color found in API response');
+                }
+
+                // Update SEO meta tags based on company settings
+                this.metaTagsService.updateMetaTags(objectInfo, 'Open Positions');
             },
             error: (error) => {
                 console.error('Error loading company settings:', error);
-                // Keep empty values on error - navbar will not display anything
+                // Extract error message from response - check details first, then message
+                this.errorMessage = error?.error?.details ||
+                    error?.error?.message ||
+                    error?.message ||
+                    'We encountered an issue while loading the job board. Please try again in a moment.';
+                this.hasError = true;
             }
         });
     }
@@ -191,5 +204,14 @@ export class ClientJobBoardComponent implements OnInit {
         if (this.activeChildComponent && typeof this.activeChildComponent.setAboutData === 'function') {
             this.activeChildComponent.setAboutData(this.aboutTitle, this.aboutDescription);
         }
+    }
+
+    /**
+     * Retry loading company settings after an error
+     */
+    retryLoadSettings(): void {
+        this.errorMessage = '';
+        this.hasError = false;
+        this.loadCompanySettings();
     }
 }

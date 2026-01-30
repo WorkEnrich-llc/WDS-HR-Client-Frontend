@@ -343,25 +343,33 @@
       </div>
       <div class="input">
         <label for="emptype">Employment Type<span>*</span></label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <select
-              name="emptype"
-              formControlName="employmentType"
-              id="emptype"
-              class="form-select"
-            >
-              <option value="" disabled selected hidden>Select Type</option>
-              <option value="1">Full-Time</option>
-              <option value="2">Part-Time</option>
-              <option value="3">Per Hour</option>
-              <option value="4">Freelance</option>
-            </select>
-          </div>
+        <div class="employment-multi-select form-outline w-100 position-relative custom-date-wrapper">
+          <button
+            type="button"
+            id="emptype"
+            class="employment-trigger form-control custom-date-input text-start d-flex align-items-center justify-content-between gap-2"
+            [class.is-invalid]="leaveType1.get('employmentType')?.touched && leaveType1.get('employmentType')?.errors?.['required']"
+            (click)="openEmploymentDropdown()"
+          >
+            <span class="employment-trigger-text">{{ getEmploymentDisplay() }}</span>
+            <svg class="employment-chevron" [class.open]="employmentDropdownOpen" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          @if (employmentDropdownOpen) {
+            <div class="employment-dropdown" (click)="$event.stopPropagation()">
+              @for (opt of employmentOptions; track opt.id) {
+                <label class="employment-option">
+                  <input type="checkbox" [checked]="isEmploymentSelected(opt.id)" (change)="toggleEmploymentOption(opt.id)" />
+                  <span>{{ opt.name }}</span>
+                </label>
+              }
+            </div>
+          }
         </div>
         @if (leaveType1.get('employmentType')?.touched &&
         leaveType1.get('employmentType')?.errors?.['required']) {
-        <p class="error-msg">Employment Type is required.</p>
+        <p class="error-msg">Employment Type is required. Select at least one.</p>
         }
       </div>
     </form>

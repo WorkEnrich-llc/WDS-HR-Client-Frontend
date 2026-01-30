@@ -256,6 +256,7 @@ export class CreateWorkScheduleComponent {
     from: new FormControl(''),
     to: new FormControl(''),
     max_check_out: new FormControl(''),
+    allowed_break_minutes: new FormControl('', [Validators.min(0)]),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
   }, {
     validators: [this.shiftRangeValidator.bind(this)]
@@ -455,6 +456,7 @@ export class CreateWorkScheduleComponent {
             to: this.workSchadule2.get('to')?.value
           },
           max_check_out: this.workSchadule2.get('max_check_out')?.value,
+          allowed_break_minutes: Number(this.workSchadule2.get('allowed_break_minutes')?.value) || 0,
           terms_and_rules: this.workSchadule2.get('terms')?.value
         }
       }

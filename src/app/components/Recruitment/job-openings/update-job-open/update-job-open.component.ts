@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { DatePipe, NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,6 +30,7 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private datePipe = inject(DatePipe);
+  private cdr = inject(ChangeDetectorRef);
 
   todayFormatted: string = '';
   errMsg: string = '';
@@ -66,15 +67,19 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
     // Always start from main-information tab
     this.activeTab = 'main-information';
 
-    // Subscribe to form data changes
+    // Subscribe to form data changes - defer to avoid change detection errors
     this.dataSubscription = this.jobCreationDataService.jobData$.subscribe(() => {
-      this.checkForChanges();
+      setTimeout(() => {
+        this.checkForChanges();
+      }, 0);
     });
 
     // Periodically check for changes (especially for attachments component)
     this.changeCheckInterval = setInterval(() => {
       if (!this.isLoading) {
-        this.checkForChanges();
+        setTimeout(() => {
+          this.checkForChanges();
+        }, 0);
       }
     }, 500);
   }
@@ -161,32 +166,40 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
   }
 
   checkForChanges(): void {
-    if (!this.initialFormData) {
-      this.hasChanges = false;
-      return;
-    }
-
-    // Compare service data
-    const currentData = this.jobCreationDataService.getCurrentData();
-    const serviceDataChanged = !this.deepEqual(currentData, this.initialFormData);
-
-    // Compare attachments if component exists and initial attachments are stored
-    let attachmentsChanged = false;
-    if (this.attachmentsComponent && this.initialAttachments) {
-      try {
-        const currentLinks = JSON.stringify(this.attachmentsComponent.links || []);
-        const currentDocuments = JSON.stringify(this.attachmentsComponent.Documents || []);
-        const initialLinks = JSON.stringify(this.initialAttachments.links || []);
-        const initialDocuments = JSON.stringify(this.initialAttachments.documents || []);
-
-        attachmentsChanged = currentLinks !== initialLinks || currentDocuments !== initialDocuments;
-      } catch (error) {
-        // If comparison fails, assume no change
-        attachmentsChanged = false;
+    // Defer to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+    Promise.resolve().then(() => {
+      if (!this.initialFormData) {
+        this.hasChanges = false;
+        return;
       }
-    }
 
-    this.hasChanges = serviceDataChanged || attachmentsChanged;
+      // Compare service data
+      const currentData = this.jobCreationDataService.getCurrentData();
+      const serviceDataChanged = !this.deepEqual(currentData, this.initialFormData);
+
+      // Compare attachments if component exists and initial attachments are stored
+      let attachmentsChanged = false;
+      if (this.attachmentsComponent && this.initialAttachments) {
+        try {
+          const currentLinks = JSON.stringify(this.attachmentsComponent.links || []);
+          const currentDocuments = JSON.stringify(this.attachmentsComponent.Documents || []);
+          const initialLinks = JSON.stringify(this.initialAttachments.links || []);
+          const initialDocuments = JSON.stringify(this.initialAttachments.documents || []);
+
+          attachmentsChanged = currentLinks !== initialLinks || currentDocuments !== initialDocuments;
+        } catch (error) {
+          // If comparison fails, assume no change
+          attachmentsChanged = false;
+        }
+      }
+
+      const newHasChanges = serviceDataChanged || attachmentsChanged;
+
+      // Only update if value changed to minimize change detection cycles
+      if (this.hasChanges !== newHasChanges) {
+        this.hasChanges = newHasChanges;
+      }
+    });
   }
 
   private deepEqual(obj1: any, obj2: any): boolean {

@@ -108,6 +108,232 @@
     padding: 0;
 }
 
+/* Notes tab styling */
+.notes-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.notes-header>div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.notes-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notes-selected {
+    font-size: 13px;
+    color: var(--color-neutral-500);
+}
+
+.notes-multi-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 16px;
+    border: 1px solid transparent;
+    background: #fff0f0;
+    color: #dc2626;
+    font-weight: 500;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.notes-multi-delete.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.notes-multi-delete:hover:not(.disabled) {
+    background: #fee2e2;
+}
+
+.notes-add-btn {
+    color: #377afd;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.notes-add-btn:hover {
+    color: #1d4ed8;
+}
+
+.notes-add-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+.notes-summary {
+    font-size: 13px;
+    color: var(--color-neutral-500);
+    font-weight: 500;
+}
+
+.notes-multi-delete {
+    min-width: 160px;
+}
+
+.notes-loading {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.note-card {
+    padding: 22px;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 80%);
+    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+.note-card.loading {
+    border: 1px dashed var(--color-neutral-200);
+    background: var(--color-neutral-50);
+}
+
+.note-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.note-select {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid var(--color-neutral-300);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.note-select input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    margin: 0;
+}
+
+.note-select span {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--color-neutral-400);
+}
+
+.note-select input:checked+span {
+    background: var(--color-primary-600);
+    border-color: var(--color-primary-600);
+}
+
+.note-summary {
+    flex: 1;
+}
+
+.note-created-by {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+}
+
+.note-created-at {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--color-neutral-500);
+}
+
+.note-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.note-id {
+    font-size: 12px;
+    color: var(--color-neutral-500);
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--color-neutral-100);
+    margin-left: auto;
+}
+
+.icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-neutral-200);
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.icon-btn:hover {
+    border-color: var(--color-neutral-400);
+    background: var(--color-neutral-50);
+}
+
+.note-body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--color-secondary-800);
+    white-space: pre-line;
+    min-height: 68px;
+}
+
+.notes-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 28px 0;
+    border-radius: 12px;
+    border: 1px dashed var(--color-neutral-200);
+    background: var(--color-neutral-50);
+    color: var(--color-neutral-500);
+    text-align: center;
+}
+
 /* Feedback styling in tab */
 .feedbacks .feed {
     padding: 0;
@@ -391,6 +617,25 @@
     margin-bottom: 4px;
 }
 
+.assignment-status-container {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    gap: 8px;
+}
+
+.assignment-status-icon {
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.assignment-status-text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 /* Interviews list styling */
 .interviews-list {
     width: 100%;
@@ -538,23 +783,21 @@
 
 .assignment-status-reviewed {
     font-size: 14px;
-    color: #10B981;
+    color: #377AFD;
     font-weight: 500;
 }
 
 .assignment-questions-count {
     font-size: 13px;
-    color: #9CA3AF;
-    margin-top: 2px;
-    margin-left: 26px;
+    color: #F59E0B;
+    margin: 0;
 }
 
 .assignment-score {
     font-size: 16px;
     font-weight: 600;
-    color: #1F2937;
-    margin-top: 2px;
-    margin-left: 26px;
+    color: #377AFD;
+    margin: 0;
 }
 
 .assignment-date {
@@ -699,4 +942,424 @@
 
 .new-job-offer-btn {
     cursor: pointer;
+}
+
+/* Interview Section Styles - Redesigned to match Figma */
+.interviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.interview-entry {
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.interview-entry.last-item {
+    border-bottom: none;
+}
+
+/* Interview Header Row */
+.interview-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.interview-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.interview-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.view-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-link:hover {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.view-icon-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    transition: all 0.2s ease;
+}
+
+.view-link:hover .view-icon-circle {
+    background-color: #dbeafe;
+}
+
+.interview-datetime {
+    display: flex;
+    align-items: center;
+}
+
+.date-time-text {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+/* Status Section */
+.interview-status-section {
+    margin-top: 12px;
+}
+
+.status-indicator-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    box-shadow: none;
+    margin-top: 0;
+}
+
+.status-icon-circle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.status-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.status-text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-text-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-icon,
+.status-checkmark {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+}
+
+/* Interviewer row (all statuses) */
+.interviewer-display-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.interviewer-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.interviewer-name {
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* Feedback section toggle (Figma) */
+.feedback-section-toggle-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 8px;
+}
+
+.feedback-section-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.feedback-section-toggle-btn:hover {
+    background: transparent;
+}
+
+.feedback-section-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feedback-section-chevron .chevron-icon {
+    transition: transform 0.2s ease;
+}
+
+.feedback-section-chevron .chevron-icon.rotated {
+    transform: rotate(-180deg);
+}
+
+/* Completed Status Styles */
+.completed-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.overall-rating {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 0;
+    color: #000;
+}
+
+.feedback-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.feedback-item-wrapper {
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.feedback-item-wrapper:last-child {
+    border-bottom: none;
+}
+
+.feedback-toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.2s ease;
+}
+
+.feedback-toggle-btn:hover {
+    background-color: transparent;
+}
+
+.chevron-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 40px;
+}
+
+.chevron-icon {
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+    transition: transform 0.2s ease;
+    border: none;
+    box-shadow: none;
+}
+
+.chevron-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.feedback-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.feedback-title-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.feedback-interviewer-name {
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.feedback-rating {
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.feedback-expanded-content {
+    padding: 12px 0 12px 28px;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 8px;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+.feedback-comment {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.feedback-date {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.edit-feedback-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid #3b82f6;
+    border-radius: 6px;
+    color: #3b82f6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.edit-feedback-btn:hover {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.edit-feedback-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Rejected Status Styles */
+.rejected-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rejection-date {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+
+.rejection-message {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0;
+    padding-left: 12px;
+    border-left: 3px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Accepted Status Styles */
+.accepted-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.accepted-date {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+
+/* Reschedule Status Styles */
+.reschedule-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reschedule-date {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+
+.reschedule-available {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Expired Status Styles */
+.expired-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.expired-date {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
 }

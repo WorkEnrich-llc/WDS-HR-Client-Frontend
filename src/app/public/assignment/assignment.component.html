@@ -1,25 +1,36 @@
 @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
 assignmentData) {
-<app-navbar
-  [logo]="logoData"
-  [socialMediaLinks]="socialMediaLinks"
-  [websiteUrl]="websiteUrl"
-  [showVisitWebsite]="true"
->
+<app-navbar [logo]="logoData" [socialMediaLinks]="socialMediaLinks" [websiteUrl]="websiteUrl" [showVisitWebsite]="true">
 </app-navbar>
 }
 
 <div class="content-wrapper">
-  <app-assignment-overview
-    [assignmentData]="assignmentData"
-    [isLoading]="isLoading"
-    [errorMessage]="errorMessage"
-    [errorHandling]="errorHandling"
-    [isStartingAssignment]="isStartingAssignment"
-    (proceedToAssignment)="onProceedToAssignment()"
-  >
+  <app-assignment-overview [assignmentData]="assignmentData" [isLoading]="isLoading" [errorMessage]="errorMessage"
+    [errorHandling]="errorHandling" [isStartingAssignment]="isStartingAssignment"
+    (proceedToAssignment)="onProceedToAssignment()">
   </app-assignment-overview>
 </div>
+
+<!-- Time Over Overlay (displayed from child component via service) -->
+@if (showTimeOverlay) {
+<div class="time-over-backdrop"></div>
+<div class="time-over-popup">
+  <div class="popup-header">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </svg>
+    <h3>Time's Up!</h3>
+  </div>
+  <div class="popup-body">
+    <p>Your assignment time has ended. Your answers have been automatically submitted.</p>
+  </div>
+  <div class="popup-footer">
+    <button class="btn-ok" (click)="onTimeOverConfirm()">OK</button>
+  </div>
+</div>
+}
 
 @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
 assignmentData) {

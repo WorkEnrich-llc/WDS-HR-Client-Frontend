@@ -18,7 +18,7 @@ export class AttendanceLogService {
   }
 
   createAttendance(data: AttendanceLog): Observable<AttendanceLog> {
-    const url = `${this.apiBaseUrl}personnel/attendance-create`;
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance-create`;
     const formData = new FormData();
     formData.append('employee_id', data.employee_id?.toString() || '');
     formData.append('date', data.date);

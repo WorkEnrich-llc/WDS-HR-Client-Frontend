@@ -11,7 +11,7 @@ import { JobItem } from '../../models/job-listing.model';
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [RouterLink, FormsModule, OverlayFilterBoxComponent],
+  imports: [RouterLink, FormsModule],
   templateUrl: './job-details.component.html',
   styleUrl: './job-details.component.css'
 })
@@ -55,38 +55,36 @@ export class JobDetailsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.jobBoardService.getJobDetails(jobId).subscribe({
+    this.jobBoardService.getJobDetails(jobId, 'job_detail').subscribe({
       next: (response) => {
         this.isLoading = false;
         const jobData = response.data?.object_info;
 
-        if (jobData) {
-          this.job = jobData;
-          this.jobTitle = this.getName(jobData.job_title);
-          // Load related jobs
-          this.loadRelatedJobs(jobData.id);
-          // Update meta tags for SEO
-          this.updateMetaTags(jobData);
-        } else {
-          this.errorMessage = 'Job not found';
+        // Check if response contains error details or object_info is null
+        if (response.details || !jobData) {
+          // Treat as error condition even though it's a successful HTTP response
+          this.errorMessage = response.details || 'Job not found';
+          return;
         }
+
+        // Success case - job data is available
+        this.job = jobData;
+        this.jobTitle = this.getName(jobData.job_title);
+        // Load related jobs
+        this.loadRelatedJobs(jobData.id);
+        // Update meta tags for SEO
+        this.updateMetaTags(jobData);
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'We encountered an issue while fetching job details. Please try again in a moment.';
+        // Extract error message from response - check details first, then message
+        this.errorMessage = error.error?.details ||
+          error.error?.message ||
+          error?.message ||
+          'We encountered an issue while fetching job details. Please try again in a moment.';
         console.error('Error loading job details:', error);
       }
     });
-  }
-
-  /**
-   * Retry loading job details after an error
-   */
-  retryLoadJobDetails(): void {
-    if (this.jobId) {
-      this.errorMessage = '';
-      this.loadJobDetails(parseInt(this.jobId, 10));
-    }
   }
 
   /**
@@ -321,7 +319,6 @@ export class JobDetailsComponent implements OnInit {
       },
       error: (error) => {
         this.submitting = false;
-        this.toastr.error(error.error?.message || 'Failed to submit feedback');
       }
     });
   }

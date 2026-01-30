@@ -6,14 +6,23 @@
   ]" [title]="isEditMode ? 'Edit Attendance Log ' : 'Create New Attendance Log'" [create]="createDate"
   [update]="updatedDate">
 
-  <button class="btn btn-lg btn-success w-auto" (click)="save()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-      <g fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-      </g>
-    </svg>
-    <span>{{isEditMode ? 'Save Changes' : 'Create Attendance Log'}}</span>
+  <button class="btn btn-lg btn-success w-auto d-flex align-items-center gap-2" (click)="save()" [disabled]="isSubmitting">
+    @if (isSubmitting) {
+      <div class="bubble-loader" aria-hidden="true">
+        <span class="bubble"></span>
+        <span class="bubble"></span>
+        <span class="bubble"></span>
+      </div>
+      <span>{{ isEditMode ? 'Saving...' : 'Creating...' }}</span>
+    } @else {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+        </g>
+      </svg>
+      <span>{{ isEditMode ? 'Save Changes' : 'Create Attendance Log' }}</span>
+    }
   </button>
 
 
@@ -60,30 +69,15 @@
       </div>
 
           <div class="input">
-            <label for="date">Select a date<span>*</span></label>
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input type="text" id="date" class="form-control custom-date-input" placeholder="Select a Day or More"
-                formControlName="date" appDateInput [max]="maxDate" />
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <g fill="none" stroke-width="1.5">
-                    <path stroke-linecap="round"
-                      d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                      <circle cx="18" cy="18" r="3" />
-                      <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                    </g>
-                  </svg>
-                </div>
-                @if (newLogForm.get('date')?.touched && newLogForm.get('date')?.errors?.['required']) {
-                  <p class="error-msg">
-                    Date is required.
-                  </p>
-                }
-                @if (newLogForm.get('date')?.touched && newLogForm.get('date')?.errors?.['futureDate']) {
-                  <p class="error-msg">
-                    Cannot select a future date. Attendance logs can only be created for today or past dates.
-                  </p>
-                }
-              </div>
+            <app-date-picker
+              label="Select a date"
+              placeholder="Select a date"
+              [required]="true"
+              [disableBeforeDate]="false"
+              [maxDate]="maxDate"
+              [errorMessage]="dateErrorMessage"
+              formControlName="date" />
+          </div>
 
               <div class="input gap-3">
                 <label for="start">Logged hours<span>*</span></label>

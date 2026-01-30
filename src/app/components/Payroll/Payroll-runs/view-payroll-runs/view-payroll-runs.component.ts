@@ -528,6 +528,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
   refreshPayrollRunDetails(): void {
     if (this.payrollRunId) {
+      this.loadData = true;
       const sub = this.payrollRunService.getPayrollRunById(this.payrollRunId).subscribe({
         next: (data) => {
           this.payRollRunData = data;
@@ -537,6 +538,12 @@ export class ViewPayrollRunsComponent implements OnDestroy {
           // Auto-select related sheet if available
           if (this.relatedSheetId) {
             this.selectedSheetId = this.relatedSheetId;
+          }
+          // Also refresh the employees/sheets list if we have a selected sheet
+          if (this.selectedSheetId || this.relatedSheetId) {
+            this.fetchEmployees();
+          } else {
+            this.loadData = false;
           }
         },
         error: () => {

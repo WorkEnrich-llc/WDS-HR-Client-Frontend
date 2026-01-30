@@ -534,6 +534,18 @@
       </div>
 
       <div class="input">
+        <label for="allowedBreak">Allowed Break Minutes</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" formControlName="allowed_break_minutes" id="allowedBreak"
+            class="form-control custom-date-input" min="0" step="1" placeholder="Allowed break minutes" />
+        </div>
+        @if (workSchadule2.get('allowed_break_minutes')?.touched &&
+        workSchadule2.get('allowed_break_minutes')?.errors?.['min']) {
+        <p class="error-msg">Allowed Break Minutes must be zero or above.</p>
+        }
+      </div>
+
+      <div class="input">
         <label for="shiftTerms">Work Schedule Terms & Rules</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <textarea type="text" formControlName="terms" id="shiftTerms" class="form-control custom-date-input"

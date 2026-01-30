@@ -1,4 +1,6 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
+import { Subject, forkJoin, of } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
@@ -11,6 +13,7 @@ import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/j
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { DatePickerComponent } from '../../shared/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-applicant-detais',
@@ -26,18 +29,25 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
     NgClass,
     RouterLink,
     NgxDocViewerModule,
-    PopupComponent
+    PopupComponent,
+    DatePickerComponent
   ],
   providers: [DatePipe],
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
 })
-export class ApplicantDetaisComponent implements OnInit {
+export class ApplicantDetaisComponent implements OnInit, OnDestroy {
+  private readonly tabSwitch$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
+
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
+  @ViewChild('notesOverlay') notesOverlay!: OverlayFilterBoxComponent;
   @ViewChild('assignmentSelectionOverlay') assignmentSelectionOverlay!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
+  @ViewChild('interviewViewOverlay') interviewViewOverlay!: OverlayFilterBoxComponent;
+  @ViewChild('interviewCmp') interviewComponent!: InterviewComponent;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
@@ -63,11 +73,33 @@ export class ApplicantDetaisComponent implements OnInit {
   // Job Offers
   jobOffers: any[] = [];
   isJobOffersLoading: boolean = false;
+  // Notes
+  notes: any[] = [];
+  isNotesLoading: boolean = false;
+  notesPage: number = 1;
+  notesPerPage: number = 10;
+  notesTotal: number = 0;
+  noteText: string = '';
+  isNoteSubmitting: boolean = false;
+  notesSelection = new Set<number>();
+  notesPendingDelete: number[] = [];
+  isDeleteSubmitting: boolean = false;
+  editingNoteId: number | null = null;
+  noteOverlayTitle: string = 'Add Note';
+  isDeletePopupOpen: boolean = false;
+
+  get notesSelectedCount(): number {
+    return this.notesSelection.size;
+  }
   // pending resend target
   pendingResendOfferId: number | null = null;
   // popup state for resend confirmation
   resendPopupOpen: boolean = false;
   isResendLoading: boolean = false;
+  // Assignment resend state
+  pendingResendAssignmentId: number | null = null;
+  resendAssignmentPopupOpen: boolean = false;
+  isResendAssignmentLoading: boolean = false;
   // Job offer overlay state
   overlayTitle: string = 'Job Offer';
   // Job offer validation errors
@@ -95,6 +127,14 @@ export class ApplicantDetaisComponent implements OnInit {
   contractEndDate: string = '';
   // currently selected interview for feedback or view
   currentInterviewForFeedback: any = null;
+  // currently selected interview for view overlay (full details)
+  currentInterviewForView: any = null;
+  interviewViewDetails: any = null;
+  interviewViewLoading: boolean = false;
+  // Track expanded feedback items (by feedback id or composite key)
+  expandedFeedbackInterviews: Set<number | string> = new Set();
+  // Track expanded feedback section per interview (toggle for rating + list; default collapsed)
+  expandedFeedbackSectionByInterview: Set<number | string> = new Set();
 
   // Assignment Selection
   availableAssignments: any[] = [];
@@ -118,6 +158,19 @@ export class ApplicantDetaisComponent implements OnInit {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  // Handle date change from date picker
+  onAssignmentExpirationDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Extract date part (YYYY-MM-DD) from ISO format (YYYY-MM-DDTHH:mm:ss.sssZ)
+      // Handle both ISO format and YYYY-MM-DD format
+      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.assignmentExpirationDate = dateOnly;
+    } else {
+      this.assignmentExpirationDate = '';
+    }
+    this.assignmentExpirationDateTouched = true;
   }
 
   // Tab management
@@ -148,10 +201,15 @@ export class ApplicantDetaisComponent implements OnInit {
 
   // Set current tab
   setCurrentTab(tab: string): void {
+    this.tabSwitch$.next();
     this.currentTab = tab;
     // Always fetch feedback when feedback tab is opened
     if (tab === 'feedback') {
       this.fetchFeedbacks();
+    }
+    // Always fetch notes when Notes tab is opened
+    if (tab === 'notes') {
+      this.fetchNotes();
     }
     // Always fetch previous applications when tab is opened
     if (tab === 'previous-applications') {
@@ -165,21 +223,67 @@ export class ApplicantDetaisComponent implements OnInit {
     if (tab === 'interviews') {
       this.fetchInterviews();
     }
-    // Always fetch job offers when job-offers tab is opened
+    // Always fetch job offers when Job Offers tab is opened
     if (tab === 'job-offers') {
       this.fetchJobOffers();
     }
   }
 
-  // Fetch interviews for current application
+  // Fetch interviews for current application (and application + per-interview feedbacks, then merge)
   fetchInterviews(): void {
-    if (!this.applicationId) { this.interviews = []; this.isInterviewsLoading = false; return; }
+    const appId = this.applicationId;
+    if (!appId) { this.interviews = []; this.isInterviewsLoading = false; return; }
     this.isInterviewsLoading = true;
-    this.jobOpeningsService.getInterviews(this.applicationId, 1, 10).subscribe({
+    this.jobOpeningsService.getInterviews(appId, 1, 10).pipe(takeUntil(this.tabSwitch$)).subscribe({
       next: (res) => {
-        const list = res?.data?.list_items ?? res?.list_items ?? [];
-        this.interviews = Array.isArray(list) ? list : [];
-        this.isInterviewsLoading = false;
+        const raw = res?.data?.list_items ?? res?.list_items ?? [];
+        const list = Array.isArray(raw) ? raw.map((it: any) => this.normaliseInterviewListItem(it)) : [];
+        this.jobOpeningsService.getApplicationFeedbacks(appId, 1, 50).pipe(takeUntil(this.tabSwitch$)).subscribe({
+          next: (fbRes) => {
+            const fbList = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
+            const feedbacks = Array.isArray(fbList) ? fbList : [];
+            let merged = this.mergeFeedbacksIntoInterviews(list, feedbacks);
+            const noFb = merged.filter((m) => this.getFeedbacksList(m).length === 0 && m.id != null);
+            if (noFb.length === 0) {
+              this.interviews = merged;
+              this.isInterviewsLoading = false;
+              return;
+            }
+            const requests = noFb.map((inv) =>
+              this.jobOpeningsService.getFeedbacksForInterview(inv.id!).pipe(
+                catchError(() => of({ data: { list_items: [] }, list_items: [] }))
+              )
+            );
+            forkJoin(requests).pipe(takeUntil(this.tabSwitch$)).subscribe({
+              next: (fbResponses) => {
+                const byId = new Map<number, any[]>();
+                noFb.forEach((inv, i) => {
+                  const arr = fbResponses[i]?.data?.list_items ?? fbResponses[i]?.list_items ?? [];
+                  byId.set(inv.id, Array.isArray(arr) ? arr : []);
+                });
+                merged = merged.map((m) => {
+                  const extra = byId.get(m.id);
+                  if (!extra?.length) return m;
+                  const existing = this.getFeedbacksList(m);
+                  const combined = existing.length
+                    ? [...existing, ...extra.filter((f) => !existing.some((e: any) => e.id != null && e.id === f.id))]
+                    : extra;
+                  return { ...m, feedbacks: combined };
+                });
+                this.interviews = merged;
+                this.isInterviewsLoading = false;
+              },
+              error: () => {
+                this.interviews = merged;
+                this.isInterviewsLoading = false;
+              }
+            });
+          },
+          error: () => {
+            this.interviews = list;
+            this.isInterviewsLoading = false;
+          }
+        });
       },
       error: () => {
         this.interviews = [];
@@ -188,21 +292,105 @@ export class ApplicantDetaisComponent implements OnInit {
     });
   }
 
+  /**
+   * Merge application feedbacks into interviews by interview_id
+   */
+  private mergeFeedbacksIntoInterviews(interviews: any[], applicationFeedbacks: any[]): any[] {
+    const byInterviewId = new Map<number | string, any[]>();
+    for (const fb of applicationFeedbacks) {
+      const id = fb.interview_id ?? fb.interview?.id;
+      if (id != null && id !== '') {
+        const arr = byInterviewId.get(id) ?? [];
+        arr.push(fb);
+        byInterviewId.set(id, arr);
+      }
+    }
+    return interviews.map((inv) => {
+      const id = inv.id ?? inv.interview?.id;
+      const fromApi = (id != null ? (byInterviewId.get(id) ?? []) : []).slice();
+      const existing = Array.isArray(inv.feedbacks) ? inv.feedbacks : [];
+      const combined = existing.length
+        ? [...existing, ...fromApi.filter((f) => !existing.some((e: any) => e.id != null && e.id === f.id))]
+        : fromApi;
+      return { ...inv, feedbacks: combined };
+    });
+  }
+
+  /**
+   * Normalise list item so interviewer/feedbacks are at top level (API may nest under .interview)
+   */
+  private normaliseInterviewListItem(it: any): any {
+    if (!it) return it;
+    const interview = it.interview ?? it;
+    const rawFb = it.feedbacks ?? it.feedback ?? interview.feedbacks ?? interview.feedback;
+    const feedbacks = Array.isArray(rawFb) ? rawFb : (rawFb && typeof rawFb === 'object' ? [rawFb] : []);
+    return {
+      ...interview,
+      id: interview.id ?? it.id,
+      title: interview.title ?? it.title,
+      status: interview.status ?? it.status,
+      date: interview.date ?? it.date,
+      time_from: interview.time_from ?? it.time_from,
+      time_to: interview.time_to ?? it.time_to,
+      interviewer: interview.interviewer ?? it.interviewer,
+      interviewer_name: interview.interviewer_name ?? it.interviewer_name ?? interview.interviewer?.name ?? it.interviewer?.name,
+      feedbacks,
+      rejected_at: interview.rejected_at ?? it.rejected_at,
+      rejection_notes: interview.rejection_notes ?? it.rejection_notes,
+      rejection_message: interview.rejection_message ?? it.rejection_message,
+      accepted_at: interview.accepted_at ?? it.accepted_at,
+      reschedule_request_at: interview.reschedule_request_at ?? it.reschedule_request_at,
+      reschedule_available_at: interview.reschedule_available_at ?? it.reschedule_available_at,
+      expiration_date: interview.expiration_date ?? it.expiration_date
+    };
+  }
+
   // Fetch job offers for current application
   fetchJobOffers(): void {
     if (!this.applicationId) { this.jobOffers = []; this.isJobOffersLoading = false; return; }
     this.isJobOffersLoading = true;
-    this.jobOpeningsService.getJobOffers(this.applicationId, 1, 10).subscribe({
-      next: (res) => {
-        const list = res?.data?.list_items ?? res?.list_items ?? [];
-        this.jobOffers = Array.isArray(list) ? list : [];
-        this.isJobOffersLoading = false;
-      },
-      error: () => {
-        this.jobOffers = [];
-        this.isJobOffersLoading = false;
-      }
-    });
+    this.jobOpeningsService.getJobOffers(this.applicationId, 1, 10)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const list = res?.data?.list_items ?? res?.list_items ?? [];
+          this.jobOffers = Array.isArray(list) ? list : [];
+          this.isJobOffersLoading = false;
+        },
+        error: () => {
+          this.jobOffers = [];
+          this.isJobOffersLoading = false;
+        }
+      });
+  }
+
+  // Fetch notes linked to the current application
+  fetchNotes(): void {
+    const appId = this.applicationId;
+    if (!appId) { this.notes = []; this.notesTotal = 0; this.isNotesLoading = false; return; }
+    this.isNotesLoading = true;
+    this.jobOpeningsService.getApplicationNotes(appId, this.notesPage, this.notesPerPage)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const payload = res?.data ?? res;
+          const list = payload?.list_items ?? res?.list_items ?? [];
+          this.notes = Array.isArray(list) ? list : [];
+          this.notesTotal = payload?.total_items ?? this.notes.length;
+          this.isNotesLoading = false;
+          const currentIds = new Set(this.notes.map((note: any) => note.id));
+          Array.from(this.notesSelection).forEach((id) => {
+            if (!currentIds.has(id)) {
+              this.notesSelection.delete(id);
+            }
+          });
+        },
+        error: () => {
+          this.notes = [];
+          this.notesTotal = 0;
+          this.isNotesLoading = false;
+        }
+      });
   }
 
   // Open feedback overlay for a specific interview
@@ -214,16 +402,271 @@ export class ApplicantDetaisComponent implements OnInit {
     this.feedbackOverlay?.openOverlay();
   }
 
-  // Stub: view interview details (could navigate or open modal)
+  // Open interview view overlay with disabled inputs
   viewInterview(interview: any): void {
-    // For now we'll navigate to interview detail if route exists, otherwise open details in overlay
-    // Placeholder: show toast
-    this.toasterService.showInfo('Opening interview details');
+    if (!interview?.id) return;
+    this.currentInterviewForView = interview;
+    this.interviewViewDetails = null;
+    this.interviewViewLoading = true;
+    this.interviewViewOverlay?.openOverlay();
+
+    this.jobOpeningsService.getInterviewById(interview.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.interviewViewDetails = res?.data?.object_info ?? res?.object_info ?? res;
+        this.interviewViewLoading = false;
+      },
+      error: () => {
+        // Fallback: use list item data if API fails (e.g. backend uses application-id only)
+        this.interviewViewDetails = {
+          title: interview.title,
+          date: interview.date,
+          time_from: interview.time_from,
+          time_to: interview.time_to,
+          status: interview.status,
+          department: interview.department,
+          section: interview.section,
+          interviewer: interview.interviewer,
+          location: interview.location,
+          interview_type: interview.interview_type ?? 1
+        };
+        this.interviewViewLoading = false;
+      }
+    });
+  }
+
+  closeInterviewViewOverlay(): void {
+    this.interviewViewOverlay?.closeOverlay();
+    this.currentInterviewForView = null;
+    this.interviewViewDetails = null;
+  }
+
+  // Check if interview is completed
+  isInterviewCompleted(interview: any): boolean {
+    return interview?.status === 'Completed' || interview?.status === 'completed' || interview?.is_completed === true;
+  }
+
+  // Check if interview is rejected
+  isInterviewRejected(interview: any): boolean {
+    return interview?.status === 'Rejected' || interview?.status === 'rejected' || interview?.is_rejected === true;
+  }
+
+  // Check if interview is expired
+  isInterviewExpired(interview: any): boolean {
+    return interview?.status === 'Expired' || interview?.status === 'expired' || interview?.is_expired === true;
+  }
+
+  // Check if interview is sent
+  isInterviewSent(interview: any): boolean {
+    return interview?.status === 'Sent' || interview?.status === 'sent';
+  }
+
+  // Check if interview is accepted
+  isInterviewAccepted(interview: any): boolean {
+    return interview?.status === 'Accepted' || interview?.status === 'accepted';
+  }
+
+  // Check if interview is reschedule
+  isInterviewReschedule(interview: any): boolean {
+    return interview?.status === 'Reschedule' || interview?.status === 'reschedule';
+  }
+
+  /**
+   * Get status icon and color for interview
+   */
+  getInterviewStatusConfig(status: string): { icon: string; color: string; bgColor: string } {
+    const normalizedStatus = status?.toLowerCase() || '';
+
+    switch (normalizedStatus) {
+      case 'completed':
+        return {
+          icon: 'check-circle',
+          color: '#3B82F6', // Blue
+          bgColor: '#DBEAFE'
+        };
+      case 'rejected':
+        return {
+          icon: 'times-circle',
+          color: '#EF4444', // Red
+          bgColor: '#FEE2E2'
+        };
+      case 'accepted':
+        return {
+          icon: 'check-circle',
+          color: '#10B981', // Green
+          bgColor: '#D1FAE5'
+        };
+      case 'reschedule':
+        return {
+          icon: 'calendar-alt',
+          color: '#F59E0B', // Orange/Amber
+          bgColor: '#FEF3C7'
+        };
+      case 'expired':
+        return {
+          icon: 'clock',
+          color: '#6B7280', // Gray
+          bgColor: '#F3F4F6'
+        };
+      case 'sent':
+        return {
+          icon: 'paper-plane',
+          color: '#3B82F6', // Blue
+          bgColor: '#DBEAFE'
+        };
+      default:
+        return {
+          icon: 'circle',
+          color: '#6B7280',
+          bgColor: '#F3F4F6'
+        };
+    }
+  }
+
+  /**
+   * Calculate overall rating from feedbacks
+   */
+  getOverallRating(feedbacks: any[]): number {
+    if (!feedbacks || feedbacks.length === 0) return 0;
+    const sum = feedbacks.reduce((acc, fb) => acc + (fb.rating || 0), 0);
+    return sum / feedbacks.length;
+  }
+
+  /**
+   * Get interviewer display from feedback (reviewer.name, created_by, or interviewer)
+   */
+  getFeedbackInterviewerDisplay(fb: any): string {
+    if (!fb) return '—';
+    return fb.reviewer?.name ?? fb.created_by ?? fb.interviewer?.name ?? fb.interviewer ?? '—';
+  }
+
+  /**
+   * Get role/title display for feedback (title, role, or section)
+   */
+  getFeedbackRoleDisplay(fb: any): string {
+    if (!fb) return '—';
+    return fb.title ?? fb.role ?? fb.section?.name ?? fb.section ?? '—';
+  }
+
+  /**
+   * Get interviewer display from interview item (interviewer on the interview itself)
+   */
+  getInterviewInterviewerDisplay(item: any): string {
+    if (!item) return '—';
+    const name = item.interviewer_name ?? item.interviewerName;
+    if (name && typeof name === 'string') return name;
+    const inv = item.interviewer;
+    if (!inv) return '—';
+    return (typeof inv === 'object' && inv !== null && inv.name) ? inv.name : String(inv);
+  }
+
+  /**
+   * Normalise feedback list from response (feedbacks array, feedback array, or single feedback)
+   */
+  getFeedbacksList(item: any): any[] {
+    if (!item) return [];
+    const fb = item.feedbacks ?? item.feedback ?? item.interview_feedbacks ?? item.interview?.feedbacks ?? item.interview?.feedback;
+    if (Array.isArray(fb)) return fb;
+    if (fb && typeof fb === 'object') return [fb];
+    return [];
+  }
+
+  /**
+   * Get status label for display (e.g. "Completed" -> "Interview Completed")
+   */
+  getInterviewStatusDisplayLabel(status: string): string {
+    const s = (status || '').toLowerCase();
+    if (s === 'completed') return 'Interview Completed';
+    if (s === 'rejected') return 'Interview Rejected';
+    return status || '—';
+  }
+
+  /**
+   * Format date and time for display
+   */
+  formatInterviewDateTime(date: string, timeFrom: string, timeTo: string): string {
+    if (!date) return '';
+    const dateObj = new Date(date);
+    const formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    if (timeFrom) {
+      const timeFromFormatted = this.formatTime(timeFrom);
+      const timeToFormatted = timeTo ? this.formatTime(timeTo) : '';
+      return `${formattedDate} ${timeFromFormatted}${timeToFormatted ? ' - ' + timeToFormatted : ''}`;
+    }
+
+    return formattedDate;
+  }
+
+  /**
+   * Format time string (HH:mm:ss) to readable format
+   */
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  }
+
+  /**
+   * Format time range (From - To) for display
+   */
+  formatTimeRange(timeFrom: string, timeTo: string): string {
+    if (!timeFrom && !timeTo) return '—';
+    const from = this.formatTime(timeFrom);
+    const to = timeTo ? this.formatTime(timeTo) : '';
+    return to ? `${from} - ${to}` : from;
+  }
+
+  /**
+   * Unique key for feedback expand state (id or composite when missing)
+   */
+  getFeedbackExpandKey(item: any, feedback: any, index: number): number | string {
+    return feedback?.id ?? `fb-${item?.id ?? ''}-${index}`;
+  }
+
+  /**
+   * Toggle feedback expansion for an interview
+   */
+  toggleFeedbackExpansion(key: number | string): void {
+    if (this.expandedFeedbackInterviews.has(key)) {
+      this.expandedFeedbackInterviews.delete(key);
+    } else {
+      this.expandedFeedbackInterviews.add(key);
+    }
+  }
+
+  /**
+   * Check if feedback is expanded for an interview
+   */
+  isFeedbackExpanded(key: number | string): boolean {
+    return this.expandedFeedbackInterviews.has(key);
+  }
+
+  /**
+   * Toggle feedback section (rating + list) for an interview – Figma design
+   */
+  toggleInterviewFeedbacksSection(item: any): void {
+    const key = item?.id ?? `inv-${JSON.stringify(item)}`;
+    if (this.expandedFeedbackSectionByInterview.has(key)) {
+      this.expandedFeedbackSectionByInterview.delete(key);
+    } else {
+      this.expandedFeedbackSectionByInterview.add(key);
+    }
+  }
+
+  /**
+   * Check if feedback section is expanded for an interview (default collapsed)
+   */
+  isInterviewFeedbacksSectionExpanded(item: any): boolean {
+    const key = item?.id ?? `inv-${JSON.stringify(item)}`;
+    return this.expandedFeedbackSectionByInterview.has(key);
   }
 
   // Stub: open create interview overlay
   openCreateInterviewOverlay(): void {
-    this.toasterService.showInfo('Open create interview dialog');
+    this.interviewComponent?.openInterviewOverlay();
   }
 
   // Open create job offer overlay (stub)
@@ -239,7 +682,7 @@ export class ApplicantDetaisComponent implements OnInit {
     this.jobBox?.openOverlay();
     this.jobOfferDetailsLoading = true;
 
-    this.jobOpeningsService.getJobOffer(offer.id).subscribe({
+    this.jobOpeningsService.getJobOffer(offer.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
         this.offerSalary = jobOffer.salary ?? null;
@@ -280,7 +723,7 @@ export class ApplicantDetaisComponent implements OnInit {
     if (!this.pendingResendOfferId) return;
     const offerId = this.pendingResendOfferId;
     this.isResendLoading = true;
-    this.jobOpeningsService.resendJobOffer(offerId).subscribe({
+    this.jobOpeningsService.resendJobOffer(offerId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isResendLoading = false;
         this.toasterService.showSuccess('Job offer resend initiated');
@@ -334,7 +777,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.jobOfferDetailsLoading = false;
       return;
     }
-    this.jobOpeningsService.getJobOffer(jobOfferIdToUse).subscribe({
+    this.jobOpeningsService.getJobOffer(jobOfferIdToUse).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
         this.offerSalary = jobOffer.salary ?? null;
@@ -359,6 +802,37 @@ export class ApplicantDetaisComponent implements OnInit {
         this.jobOfferDetailsLoading = false;
       }
     });
+  }
+
+  /**
+   * Handle join date change from date picker
+   */
+  onJoinDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Parse the date value (could be in different formats)
+      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.offerJoinDate = dateStr;
+      // Clear validation error when date changes
+      delete this.jobOfferValidationErrors.joinDate;
+      // Validate the new date
+      this.validateJoinDateField();
+    } else {
+      this.offerJoinDate = '';
+      delete this.jobOfferValidationErrors.joinDate;
+    }
+  }
+
+  /**
+   * Handle contract end date change from date picker
+   */
+  onContractEndDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Parse the date value (could be in different formats)
+      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.contractEndDate = dateStr;
+    } else {
+      this.contractEndDate = '';
+    }
   }
 
   validateJoinDateField(): void {
@@ -511,12 +985,14 @@ export class ApplicantDetaisComponent implements OnInit {
         this.offerJoinDate,
         this.offerDetails,
         this.noticePeriod != null ? Number(this.noticePeriod) : undefined
-      ).subscribe({
+      ).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.isLoading = false;
           this.jobBox?.closeOverlay();
           this.resetJobOfferForm();
           this.refreshApplication();
+          // Refresh job offers list after updating
+          this.fetchJobOffers();
         },
         error: () => {
           this.isLoading = false;
@@ -531,12 +1007,13 @@ export class ApplicantDetaisComponent implements OnInit {
       };
       if (this.withEndDate && this.contractEndDate) payload.end_contract = this.contractEndDate;
       if (this.noticePeriod) payload.notice_period = this.noticePeriod;
-      this.jobOpeningsService.sendJobOfferFull(payload).subscribe({
+      this.jobOpeningsService.sendJobOfferFull(payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.isLoading = false;
           this.jobBox?.closeOverlay();
           this.resetJobOfferForm();
           this.refreshApplication();
+          this.fetchJobOffers();
         },
         error: () => {
           this.isLoading = false;
@@ -612,7 +1089,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.applicationId,
       this.feedbackRating,
       this.feedbackComment
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isFeedbackSubmitting = false;
         this.feedbackOverlay?.closeOverlay();
@@ -678,9 +1155,10 @@ export class ApplicantDetaisComponent implements OnInit {
       this.applicationId,
       this.rejectionNotes || '',
       this.rejectionMailMessage.trim()
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isRejectSubmitting = false;
+        this.toasterService.showSuccess('Applicant rejected successfully');
         this.closeAllOverlays();
         this.refreshApplication();
       },
@@ -693,11 +1171,15 @@ export class ApplicantDetaisComponent implements OnInit {
   closeAllOverlays(): void {
     this.filterBox?.closeOverlay();
     this.jobBox?.closeOverlay();
+    this.interviewViewOverlay?.closeOverlay();
+    this.notesOverlay?.closeOverlay();
+    this.currentInterviewForView = null;
+    this.interviewViewDetails = null;
+    this.closeDeletePopup();
   }
 
   ngOnInit(): void {
-    // Subscribe to route param changes to load applicant data when ID changes
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const applicationIdParam = params.get('applicationId');
       const applicationId = applicationIdParam ? parseInt(applicationIdParam, 10) : NaN;
 
@@ -705,30 +1187,22 @@ export class ApplicantDetaisComponent implements OnInit {
         this.applicationId = applicationId;
         this.isLoading = true;
 
-        // Reset all cached data when navigating to a new applicant
         this.feedbacks = [];
         this.applicantApplications = [];
         this.assignments = [];
         this.applicantDetails = null;
         this.applicationDetails = null;
-
-        // Reset tab to CV when navigating
         this.currentTab = 'cv';
 
-        // Call application details API directly using application_id
-        this.jobOpeningsService.getApplicationDetails(applicationId).subscribe({
+        this.jobOpeningsService.getApplicationDetails(applicationId).pipe(takeUntil(this.destroy$)).subscribe({
           next: (appRes) => {
             this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
 
-            // Extract applicant details from application response
             if (this.applicationDetails) {
               const application = this.applicationDetails.application || this.applicationDetails;
               const applicant = this.applicationDetails.applicant || {};
-
-              // Extract name, email, phone from application_content if applicant object is empty
               const basicInfo = application.application_content?.['Personal Details']?.['Basic Info'] || [];
 
-              // Map applicant details from application response
               this.applicantDetails = {
                 id: applicant.id,
                 name: applicant.name || basicInfo.find((f: any) => f.name === 'Name')?.value || 'N/A',
@@ -741,9 +1215,7 @@ export class ApplicantDetaisComponent implements OnInit {
                 evaluation: applicant.evaluation
               };
 
-              // Fetch applications for this applicant
               if (applicant.id) {
-                // Store applicant ID for later use
                 this.applicantDetails.applicantId = applicant.id;
               }
             }
@@ -758,6 +1230,13 @@ export class ApplicantDetaisComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.tabSwitch$.next();
+    this.tabSwitch$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   getCvUrlFromApplication(): string | undefined {
     const files = this.applicationDetails?.application?.application_content?.Attachments?.files;
     if (Array.isArray(files)) {
@@ -770,25 +1249,123 @@ export class ApplicantDetaisComponent implements OnInit {
   fetchFeedbacks(): void {
     if (!this.applicationId) { this.isLoading = false; return; }
     this.isFeedbackLoading = true;
-    this.jobOpeningsService.getApplicationFeedbacks(this.applicationId, 1, 10).subscribe({
-      next: (fbRes) => {
-        const list = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
-        this.feedbacks = Array.isArray(list) ? list : [];
-        this.isFeedbackLoading = false;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.feedbacks = [];
-        this.isFeedbackLoading = false;
-        this.isLoading = false;
-      }
-    });
+    this.jobOpeningsService.getApplicationFeedbacks(this.applicationId, 1, 10)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (fbRes) => {
+          const list = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
+          this.feedbacks = Array.isArray(list) ? list : [];
+          this.isFeedbackLoading = false;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.feedbacks = [];
+          this.isFeedbackLoading = false;
+          this.isLoading = false;
+        }
+      });
+  }
+
+  openAddNoteOverlay(): void {
+    this.editingNoteId = null;
+    this.noteOverlayTitle = 'Add Note';
+    this.noteText = '';
+    this.notesOverlay?.openOverlay();
+  }
+
+  openEditNoteOverlay(note: any): void {
+    if (!note?.id) return;
+    this.editingNoteId = note.id;
+    this.noteOverlayTitle = 'Edit Note';
+    this.noteText = note.note_text || '';
+    this.notesOverlay?.openOverlay();
+  }
+
+  submitNote(): void {
+    if (!this.applicationId || !this.noteText.trim()) return;
+
+    const trimmedText = this.noteText.trim();
+    this.isNoteSubmitting = true;
+    const request$ = this.editingNoteId
+      ? this.jobOpeningsService.updateApplicationNote(this.editingNoteId, trimmedText)
+      : this.jobOpeningsService.createApplicationNote(this.applicationId, trimmedText);
+
+    request$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          const action = this.editingNoteId ? 'updated' : 'added';
+          this.isNoteSubmitting = false;
+          this.notesOverlay?.closeOverlay();
+          this.noteText = '';
+          this.editingNoteId = null;
+          this.noteOverlayTitle = 'Add Note';
+          this.notesPage = 1;
+          this.selectedNotesClear();
+          this.fetchNotes();
+        },
+        error: (err: any) => {
+          this.isNoteSubmitting = false;
+          const errorMessage = err?.error?.details ?? 'Failed to save note';
+          this.toasterService.showError(errorMessage);
+        }
+      });
+  }
+
+  toggleNoteSelection(noteId: number, checked: boolean): void {
+    if (!noteId) return;
+    if (checked) {
+      this.notesSelection.add(noteId);
+    } else {
+      this.notesSelection.delete(noteId);
+    }
+  }
+
+  isNoteSelected(noteId: number): boolean {
+    return this.notesSelection.has(noteId);
+  }
+
+  selectedNotesClear(): void {
+    this.notesSelection.clear();
+  }
+
+  openDeleteNotesOverlay(noteIds?: number[]): void {
+    const selected = noteIds && noteIds.length ? noteIds : Array.from(this.notesSelection);
+    if (!selected.length) return;
+    this.notesPendingDelete = selected;
+    this.isDeletePopupOpen = true;
+  }
+
+  confirmDeleteNotes(): void {
+    if (!this.notesPendingDelete.length) return;
+    this.isDeleteSubmitting = true;
+    this.jobOpeningsService.deleteApplicationNotes(this.notesPendingDelete)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isDeleteSubmitting = false;
+          this.closeDeletePopup();
+          this.selectedNotesClear();
+          this.notesPage = 1;
+          this.fetchNotes();
+        },
+        error: (err: any) => {
+          this.isDeleteSubmitting = false;
+          const errorMessage = err?.error?.details ?? 'Failed to delete note(s)';
+          this.toasterService.showError(errorMessage);
+        }
+      });
+  }
+
+  closeDeletePopup(): void {
+    this.isDeletePopupOpen = false;
+    this.notesPendingDelete = [];
   }
 
   refreshApplication(): void {
     if (!this.applicationId) return;
     this.isLoading = true;
-    this.jobOpeningsService.getApplicationDetails(this.applicationId).subscribe({
+    this.jobOpeningsService.getApplicationDetails(this.applicationId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (appRes) => {
         this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
         // Update applicant details status from application
@@ -804,7 +1381,7 @@ export class ApplicantDetaisComponent implements OnInit {
   }
 
   private fetchApplicantApplications(applicantId: number): void {
-    this.jobOpeningsService.getApplicationsByApplicantId(applicantId).subscribe({
+    this.jobOpeningsService.getApplicationsByApplicantId(applicantId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const applications = res?.data?.list_items ?? res?.list_items ?? [];
         this.applicantApplications = Array.isArray(applications) ? applications : [];
@@ -818,33 +1395,37 @@ export class ApplicantDetaisComponent implements OnInit {
   fetchPreviousApplications(): void {
     if (!this.applicantDetails?.applicantId) { return; }
     this.isApplicationsLoading = true;
-    this.jobOpeningsService.getApplicationsByApplicantId(this.applicantDetails.applicantId).subscribe({
-      next: (res) => {
-        const applications = res?.data?.list_items ?? res?.list_items ?? [];
-        this.applicantApplications = Array.isArray(applications) ? applications : [];
-        this.isApplicationsLoading = false;
-      },
-      error: () => {
-        this.applicantApplications = [];
-        this.isApplicationsLoading = false;
-      }
-    });
+    this.jobOpeningsService.getApplicationsByApplicantId(this.applicantDetails.applicantId)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const applications = res?.data?.list_items ?? res?.list_items ?? [];
+          this.applicantApplications = Array.isArray(applications) ? applications : [];
+          this.isApplicationsLoading = false;
+        },
+        error: () => {
+          this.applicantApplications = [];
+          this.isApplicationsLoading = false;
+        }
+      });
   }
 
   fetchAssignments(): void {
     if (!this.applicationId) { return; }
     this.isAssignmentsLoading = true;
-    this.jobOpeningsService.getApplicantAssignments(this.applicationId, 1, 10).subscribe({
-      next: (res) => {
-        const assignmentsList = res?.data?.list_items ?? res?.list_items ?? [];
-        this.assignments = Array.isArray(assignmentsList) ? assignmentsList : [];
-        this.isAssignmentsLoading = false;
-      },
-      error: () => {
-        this.assignments = [];
-        this.isAssignmentsLoading = false;
-      }
-    });
+    this.jobOpeningsService.getApplicantAssignments(this.applicationId, 1, 10)
+      .pipe(takeUntil(this.tabSwitch$))
+      .subscribe({
+        next: (res) => {
+          const assignmentsList = res?.data?.list_items ?? res?.list_items ?? [];
+          this.assignments = Array.isArray(assignmentsList) ? assignmentsList : [];
+          this.isAssignmentsLoading = false;
+        },
+        error: () => {
+          this.assignments = [];
+          this.isAssignmentsLoading = false;
+        }
+      });
   }
 
   getStatusBadgeForApp(status: string): { class: string; label: string } {
@@ -895,7 +1476,7 @@ export class ApplicantDetaisComponent implements OnInit {
 
     this.isNextApplicationLoading = true;
 
-    this.jobOpeningsService.getNextApplication(this.applicationId).subscribe({
+    this.jobOpeningsService.getNextApplication(this.applicationId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.isNextApplicationLoading = false;
 
@@ -945,7 +1526,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.assignmentCurrentPage,
       this.assignmentPageSize,
       this.assignmentSearchTerm
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const list = res?.data?.list_items ?? res?.list_items ?? [];
         this.availableAssignments = Array.isArray(list) ? list : [];
@@ -1026,7 +1607,7 @@ export class ApplicantDetaisComponent implements OnInit {
       this.selectedAssignmentId,
       this.applicationId,
       expirationDateTime
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isAssignmentSubmitting = false;
         this.assignmentSelectionOverlay?.closeOverlay();
@@ -1054,5 +1635,42 @@ export class ApplicantDetaisComponent implements OnInit {
     }
     const startItem = (this.assignmentCurrentPage - 1) * this.assignmentPageSize + 1;
     return `${startItem} from ${this.assignmentTotalCount}`;
+  }
+
+  // Resend assignment email
+  resendAssignment(item: any): void {
+    if (!item || !item.id) return;
+    this.pendingResendAssignmentId = item.id;
+    this.resendAssignmentPopupOpen = true;
+  }
+
+  // Confirm resend assignment and call API
+  confirmResendAssignment(): void {
+    if (!this.pendingResendAssignmentId || this.isResendAssignmentLoading) return;
+
+    const assignmentId = this.pendingResendAssignmentId;
+    this.isResendAssignmentLoading = true;
+
+    this.jobOpeningsService.resendAssignment(assignmentId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.isResendAssignmentLoading = false;
+        this.pendingResendAssignmentId = null;
+        this.resendAssignmentPopupOpen = false;
+        this.fetchAssignments();
+      },
+      error: (err) => {
+        this.isResendAssignmentLoading = false;
+        const msg = err?.error?.message || 'Failed to resend assignment email';
+        this.toasterService.showError(msg);
+        this.pendingResendAssignmentId = null;
+        this.resendAssignmentPopupOpen = false;
+      }
+    });
+  }
+
+  // Close assignment resend popup
+  closeResendAssignmentPopup(): void {
+    this.resendAssignmentPopupOpen = false;
+    this.pendingResendAssignmentId = null;
   }
 }
