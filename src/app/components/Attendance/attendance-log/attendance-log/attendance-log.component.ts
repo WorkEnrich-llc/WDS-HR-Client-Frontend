@@ -825,7 +825,7 @@ export class AttendanceLogComponent implements OnDestroy {
       next: () => {
         attendance.canceled = true;
         this.isLoading = false;
-        this.toasterService.showSuccess('Attendance log canceled successfully.');
+        // this.toasterService.showSuccess('Attendance log canceled successfully.');
         // Refresh current page to reflect changes
         this.getAllAttendanceLog({
           page: this.currentPage,
@@ -927,7 +927,8 @@ export class AttendanceLogComponent implements OnDestroy {
       employeeName: emp?.employee?.name,
       date: emp?.date,
       status: attendance?.status,
-      times_object: attendance?.times_object
+      times_object: attendance?.times_object,
+      canceled: attendance?.canceled || false
     };
     this.isModalOpen = true;
   }
