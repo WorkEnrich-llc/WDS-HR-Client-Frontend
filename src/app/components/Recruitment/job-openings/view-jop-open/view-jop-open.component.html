@@ -2325,9 +2325,6 @@
         [errorMessage]="jobOfferValidationErrors.joinDate || null" (dateChange)="onJoinDateChange($event)"
         (blur)="validateJoinDateField()">
       </app-date-picker>
-      @if (jobOfferValidationErrors.joinDate) {
-      <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
-      }
     </div>
     <div class="input d-flex align-items-center gap-2">
       <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate">
