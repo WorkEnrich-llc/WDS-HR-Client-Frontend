@@ -190,10 +190,11 @@
         </div>
         } @if(!getDataLoad){
         <div>
+          @if(alerts && alerts.length) {
           @for (alert of alerts; track $index) {
           <div class="alert" (click)="onAlertClick(alert)" role="button" tabindex="0"
             (keydown.enter)="onAlertClick(alert)" style="cursor: pointer">
-            <div class="icon">    
+            <div class="icon">
               @if(alert.number) {
               <span>{{ alert.number }}</span>
               } @else {
@@ -211,6 +212,27 @@
                 <h6>{{ alert.title }}</h6>
               </div>
               <p class="m-0">{{ alert.content }}</p>
+            </div>
+          </div>
+          }
+
+          } @else {
+          <!-- Empty state when there are no alerts -->
+          <div class="d-flex flex-column align-items-center justify-content-center" style="min-height:160px; gap:10px;">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.477 2 12" stroke="#377AFD" stroke-opacity="0.15" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 22c5.523 0 10-4.477 10-10" stroke="#377AFD" stroke-opacity="0.15" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 8v5" stroke="#377AFD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="12" cy="16.2" r="0.7" fill="#377AFD" />
+            </svg>
+            <div class="setup-done-title">No alerts</div>
+            <div class="setup-done-sub" style="text-align:center; max-width:220px;">You're all caught up — there are no
+              alerts right now.</div>
+            <div style="margin-top:8px;">
+              <a role="button" class="setup-step-link" (click)="getDashboardData()">Refresh</a>
             </div>
           </div>
           }
