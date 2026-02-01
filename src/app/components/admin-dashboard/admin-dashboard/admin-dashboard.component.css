@@ -241,6 +241,51 @@ hr {
   text-transform: uppercase;
 }
 
+/* make alerts list scroll when content exceeds available height */
+.content-box.alerts .alerts-list {
+  /* allow the list to grow/shrink within the flex column and take remaining space */
+  flex: 1 1 auto;
+  min-height: 0;
+  /* necessary to allow flex children to properly scroll in some browsers */
+  overflow-y: auto;
+  padding-right: 6px;
+  /* avoid content under scrollbar */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* optional: nicer thin scrollbar on supported browsers */
+.content-box.alerts .alerts-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.content-box.alerts .alerts-list::-webkit-scrollbar-thumb {
+  background: rgba(44, 67, 93, 0.08);
+  border-radius: 8px;
+}
+
+.content-box.alerts .alerts-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* fix alerts card height so it doesn't resize with content */
+.content-box.alerts {
+  display: flex;
+  flex-direction: column;
+  /* fixed height - adjust as needed to match your layout */
+  height: 480px;
+  max-height: 640px;
+}
+
+/* in smaller viewports let it become auto-sized */
+@media (max-width: 768px) {
+  .content-box.alerts {
+    height: auto;
+    max-height: none;
+  }
+}
+
 /* -----------------------------
    System Setup Board (Dashboard)
 ------------------------------ */
