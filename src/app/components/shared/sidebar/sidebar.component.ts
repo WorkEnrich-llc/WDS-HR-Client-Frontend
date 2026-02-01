@@ -151,36 +151,71 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Parse ISO-like timestamps into a local Date using the numeric components.
+   * Handles strings with or without timezone offset. If parsing fails, returns null.
+   *
+   * Examples handled:
+   * - 2026-01-31T12:29:01.580243
+   * - 2026-01-31T12:29:01.580Z
+   * - 2026-01-31T12:29:01+02:00
+   */
+  private parseIsoToLocal(dateString: string | null | undefined): Date | null {
+    if (!dateString) return null;
+    try {
+      const s = String(dateString).trim();
+      // If string contains timezone offset or Z, let Date parse it (it will handle offsets)
+      if (/[zZ]|[+-]\d{2}:\d{2}$/.test(s)) {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) return d;
+      }
+
+      // Fallback: parse components manually and construct a local date
+      // Split date and time
+      const [datePart, timePart] = s.split('T');
+      if (!datePart) return null;
+      const [year, month, day] = datePart.split('-').map(Number);
+      if (!timePart) {
+        const d = new Date(year, (month || 1) - 1, day || 1);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      }
+      // Remove fractional seconds and timezone if present
+      const cleanTime = timePart.split(/[\+\-Zz]/)[0];
+      const timeParts = cleanTime.split(':').map(p => p.replace(/\D/g, ''));
+      const hour = Number(timeParts[0] || 0);
+      const minute = Number(timeParts[1] || 0);
+      const second = Number((timeParts[2] || '0').split('.')[0] || 0);
+      const milliMatch = (cleanTime.match(/\.(\d+)/) || [])[1] || '';
+      const ms = milliMatch ? Number((milliMatch + '000').slice(0, 3)) : 0;
+
+      const d = new Date(year, (month || 1) - 1, day || 1, hour, minute, second, ms);
+      return d;
+    } catch (e) {
+      return null;
+    }
+  }
+
   getTimeAgo(dateString: string | null | undefined): string {
     if (!dateString) return 'N/A';
-
-    const date = new Date(dateString);
+    const date = this.parseIsoToLocal(dateString);
+    if (!date) return 'N/A';
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) {
-      return 'Just now';
-    }
+    if (diffInSeconds < 60) return 'Just now';
 
     const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} ${diffInMinutes === 1 ? 'min' : 'mins'} ago`;
-    }
+    if (diffInMinutes < 60) return `${diffInMinutes} ${diffInMinutes === 1 ? 'min' : 'mins'} ago`;
 
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) {
-      return `${diffInHours} ${diffInHours === 1 ? 'hr' : 'hrs'} ago`;
-    }
+    if (diffInHours < 24) return `${diffInHours} ${diffInHours === 1 ? 'hr' : 'hrs'} ago`;
 
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 30) {
-      return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
-    }
+    if (diffInDays < 30) return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
 
     const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths < 12) {
-      return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
-    }
+    if (diffInMonths < 12) return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
 
     const diffInYears = Math.floor(diffInDays / 365);
     return `${diffInYears} ${diffInYears === 1 ? 'year' : 'years'} ago`;

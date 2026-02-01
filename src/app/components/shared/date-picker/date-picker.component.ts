@@ -190,7 +190,10 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
             } else {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                this.minDateValue = today.toISOString().split('T')[0];
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const d = String(today.getDate()).padStart(2, '0');
+                this.minDateValue = `${y}-${m}-${d}`;
             }
         } else {
             this.minDateValue = this.minDate || '';

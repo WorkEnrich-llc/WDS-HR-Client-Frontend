@@ -535,11 +535,9 @@
       <label for="probation" class="m-0">Include Probation Period</label>
     </div>
     <div class="input">
-      <label for="joinDate">Join Date</label>
-      <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
-        placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
-        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
-        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      <app-date-picker label="Join Date" placeholder="dd/mm/yyyy" [(ngModel)]="offerJoinDate" name="joinDate"
+        [errorMessage]="jobOfferValidationErrors.joinDate || null" (ngModelChange)="validateJoinDateField()">
+      </app-date-picker>
       @if (jobOfferValidationErrors.joinDate) {
       <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
       }
@@ -551,8 +549,9 @@
     @if (withEndDate){
     <div class="input">
       <label for="contractEndDate">Contract End Date</label>
-      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
-        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      <app-date-picker label="Contract End Date" placeholder="Select date" [(ngModel)]="contractEndDate"
+        name="contractEndDate">
+      </app-date-picker>
     </div>
     }
     <div class="input">
@@ -615,19 +614,10 @@
       <label for="newJoinDate">New Join Date</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" id="newJoinDate" class="form-control custom-date-input"
-            [class.is-invalid]="editJoinDateValidationErrors.joinDate" placeholder="Select Join Date"
-            [(ngModel)]="editJoinDateInput" name="newJoinDate" (change)="validateEditJoinDateField()"
-            (ngModelChange)="validateEditJoinDateField()"
-            style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
+          <app-date-picker label="New Join Date" placeholder="Select Join Date" [(ngModel)]="editJoinDateInput"
+            name="newJoinDate" [errorMessage]="editJoinDateValidationErrors.joinDate || null"
+            (dateChange)="validateEditJoinDateField()">
+          </app-date-picker>
         </div>
       </div>
       @if (editJoinDateValidationErrors.joinDate) {

@@ -241,6 +241,24 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     return `${year}-${month}-${day}`;
   }
 
+  /**
+   * Parse a date-only string (YYYY-MM-DD) into a local Date at midnight.
+   * This avoids timezone issues when constructing with new Date('YYYY-MM-DD').
+   */
+  private parseDateOnly(dateStr: string): Date | null {
+    if (!dateStr || typeof dateStr !== 'string') return null;
+    const parts = dateStr.split('-');
+    if (parts.length < 3) return null;
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null;
+    // monthIndex is zero-based
+    const d = new Date(year, month - 1, day);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
   // Mark as Called modal states
   showMarkAsCalledModal: boolean = false;
   selectedApplicationForMarkAsCalled: Applicant | null = null;
@@ -2121,14 +2139,18 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       this.jobOfferValidationErrors.joinDate = 'Please select a join date';
       hasErrors = true;
     } else {
-      // Validate join date is today or in the future
+      // Validate join date is today or in the future (parse as local date)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const joinDate = new Date(this.offerJoinDate);
-      joinDate.setHours(0, 0, 0, 0);
-      if (joinDate < today) {
-        this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+      const joinDate = this.parseDateOnly(this.offerJoinDate);
+      if (!joinDate) {
+        this.jobOfferValidationErrors.joinDate = 'Invalid join date';
         hasErrors = true;
+      } else {
+        if (joinDate.getTime() < today.getTime()) {
+          this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+          hasErrors = true;
+        }
       }
     }
 
@@ -2176,9 +2198,17 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   onJoinDateChange(dateValue: string): void {
     if (dateValue) {
-      // Parse the date value (could be in different formats)
-      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
-      this.offerJoinDate = dateStr;
+      // Convert emitted value (ISO or YYYY-MM-DD) into a local YYYY-MM-DD date string.
+      const parsed = new Date(dateValue);
+      if (!isNaN(parsed.getTime())) {
+        const y = parsed.getFullYear();
+        const m = String(parsed.getMonth() + 1).padStart(2, '0');
+        const d = String(parsed.getDate()).padStart(2, '0');
+        this.offerJoinDate = `${y}-${m}-${d}`;
+      } else {
+        // Fallback for plain YYYY-MM-DD strings
+        this.offerJoinDate = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      }
       // Clear validation error when date changes
       delete this.jobOfferValidationErrors.joinDate;
       // Validate the new date
@@ -2214,9 +2244,12 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const joinDate = new Date(this.offerJoinDate);
-    joinDate.setHours(0, 0, 0, 0);
-    if (joinDate < today) {
+    const joinDate = this.parseDateOnly(this.offerJoinDate);
+    if (!joinDate) {
+      this.jobOfferValidationErrors.joinDate = 'Invalid join date';
+      return;
+    }
+    if (joinDate.getTime() < today.getTime()) {
       this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
     }
   }
