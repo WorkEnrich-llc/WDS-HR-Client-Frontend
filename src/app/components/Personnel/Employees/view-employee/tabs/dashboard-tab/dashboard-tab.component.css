@@ -1,0 +1,115 @@
+.dashboard-tab-content {
+    padding: 24px 0;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+.chart-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.select-inner .form-select {
+    padding: var(--spacing-8) var(--spacing-16);
+    padding-inline-end: var(--spacing-32);
+    font-size: var(--font-size-b3);
+    border-radius: var(--border-radius-45) !important;
+    -webkit-border-radius: var(--border-radius-45) !important;
+    -moz-border-radius: var(--border-radius-45) !important;
+    -ms-border-radius: var(--border-radius-45) !important;
+    -o-border-radius: var(--border-radius-45) !important;
+}
+
+.sticker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+}
+
+.sticker .number {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a1a;
+    min-width: 30px;
+    text-align: right;
+}
+
+.sticker .label-color {
+    width: 32px;
+    height: 18px;
+    border-radius: 45px;
+    flex-shrink: 0;
+}
+
+.sticker p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.legend-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 8px 0;
+}
+
+.sticker.total p {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.sticker.total .number {
+    color: #377afd;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-card {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.chart-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.chart-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.chart-card:nth-child(3) {
+    animation-delay: 0.3s;
+}

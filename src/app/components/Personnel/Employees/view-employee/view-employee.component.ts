@@ -19,6 +19,7 @@ import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.compon
 import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance-tab.component';
 import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.component';
 import { ScheduleTabComponent } from './tabs/schedule-tab/schedule-tab.component';
+import { DashboardTabComponent } from './tabs/dashboard-tab/dashboard-tab.component';
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
@@ -40,6 +41,7 @@ import { DatePipe, NgClass } from '@angular/common';
     LeaveBalanceTabComponent,
     CustomInfoComponent,
     ScheduleTabComponent,
+    DashboardTabComponent,
     TableComponent,
     OnboardingChecklistComponent,
     ReactiveFormsModule
@@ -638,7 +640,7 @@ export class ViewEmployeeComponent implements OnInit {
 
 
   // Tab management
-  currentTab: 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
+  currentTab: 'dashboard' | 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'dashboard';
   devices: any[] = [];
   devicesLoading = false;
   devicesLoaded = false;
@@ -742,7 +744,7 @@ export class ViewEmployeeComponent implements OnInit {
     // Restore tab from query params (primary `tab`, fallback `tap` for compatibility)
     this.route.queryParamMap.subscribe(q => {
       const tabParam = q.get('tab') || q.get('tap');
-      const allowed = ['attendance', 'schedule', 'requests', 'documents', 'contracts', 'leave-balance', 'custom-info', 'devices'];
+      const allowed = ['dashboard', 'attendance', 'schedule', 'requests', 'documents', 'contracts', 'leave-balance', 'custom-info', 'devices'];
       if (tabParam && allowed.includes(tabParam)) {
         this.setCurrentTab(tabParam as any, false);
       }
@@ -1119,7 +1121,7 @@ export class ViewEmployeeComponent implements OnInit {
   // }
 
   // Tab management method
-  setCurrentTab(tab: 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices', updateQuery: boolean = true): void {
+  setCurrentTab(tab: 'dashboard' | 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices', updateQuery: boolean = true): void {
     if (tab === 'devices') {
       this.loadEmployeeDevices(!this.devicesAttempted);
     }

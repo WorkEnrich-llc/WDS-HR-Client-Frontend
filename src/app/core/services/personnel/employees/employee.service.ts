@@ -389,4 +389,9 @@ export class EmployeeService {
     };
     return this.http.put<any>(url, payload);
   }
+  // Get employee dashboard data
+  getEmployeeDashboard(employeeId: number, params: any = {}): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-dashboard/${employeeId}/`;
+    return this.http.get<any>(url, { params });
+  }
 }
