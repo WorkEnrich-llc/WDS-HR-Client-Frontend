@@ -564,8 +564,12 @@
 .flags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.flags-section-compact {
+  max-width: 100%;
 }
 
 .pill-base {
@@ -583,6 +587,7 @@
   color: #4b5563;
   cursor: default;
   border: 1px solid transparent;
+  padding-right: 8px;
 }
 
 .flag-pill:hover {
@@ -591,6 +596,26 @@
   border-color: var(--color-primary-200, #bee3f8);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.flag-delete-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.4;
+  transition: opacity 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.flag-delete-btn:hover {
+  opacity: 1 !important;
+  transform: scale(1.2);
+  color: #ef4444 !important;
 }
 
 .flag-more {
@@ -613,7 +638,7 @@
   background-color: var(--color-primary-50, #ebf8ff);
   color: var(--color-primary-600, #3182ce);
   border-color: var(--color-primary-200, #bee3f8);
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .flag-more-wrapper {
@@ -937,4 +962,9 @@
     stroke-dasharray: 90, 150;
     stroke-dashoffset: -124;
   }
+}
+
+.tab-content {
+  min-height: 400px;
+  width: 100%;
 }

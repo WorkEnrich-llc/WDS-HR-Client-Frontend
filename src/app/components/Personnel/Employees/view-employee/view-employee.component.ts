@@ -18,6 +18,7 @@ import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.compon
 import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.component';
 import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance-tab.component';
 import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.component';
+import { ScheduleTabComponent } from './tabs/schedule-tab/schedule-tab.component';
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
@@ -38,6 +39,7 @@ import { DatePipe, NgClass } from '@angular/common';
     ContractsTabComponent,
     LeaveBalanceTabComponent,
     CustomInfoComponent,
+    ScheduleTabComponent,
     TableComponent,
     OnboardingChecklistComponent,
     ReactiveFormsModule
@@ -140,6 +142,42 @@ export class ViewEmployeeComponent implements OnInit {
     this.saveNewFlag();
   }
 
+  // Flag deletion
+  flagToDelete: string | null = null;
+  isDeleteFlagModalOpen = false;
+
+  openDeleteFlagModal(flag: string): void {
+    this.flagToDelete = flag;
+    this.isDeleteFlagModalOpen = true;
+  }
+
+  closeDeleteFlagModal(): void {
+    this.flagToDelete = null;
+    this.isDeleteFlagModalOpen = false;
+  }
+
+  confirmDeleteFlag(): void {
+    if (!this.flagToDelete || !this.employee) return;
+
+    const updatedFlags = (this.employee.flags || []).filter(f => f !== this.flagToDelete);
+    this.isSavingFlags = true;
+
+    this.employeeService.updateEmployeeFlags(this.employee.id, updatedFlags).subscribe({
+      next: () => {
+        if (this.employee) {
+          this.employee.flags = updatedFlags;
+        }
+        this.closeDeleteFlagModal();
+      },
+      error: (err) => {
+        console.error('Error deleting flag:', err);
+      },
+      complete: () => {
+        this.isSavingFlags = false;
+      }
+    });
+  }
+
   saveNewFlag(): void {
     const newFlag = this.flagInput.value?.trim();
     if (!newFlag || !this.employee) return;
@@ -203,8 +241,8 @@ export class ViewEmployeeComponent implements OnInit {
 
   calculateDates(list: any[]) {
     if (!list || list.length === 0) {
-      this.firstContractDate = 'N/A';
-      this.lastContractDate = 'N/A';
+      this.firstContractDate = null;
+      this.lastContractDate = null;
       return;
     }
 
@@ -600,7 +638,7 @@ export class ViewEmployeeComponent implements OnInit {
 
 
   // Tab management
-  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
+  currentTab: 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
   devices: any[] = [];
   devicesLoading = false;
   devicesLoaded = false;
@@ -704,7 +742,7 @@ export class ViewEmployeeComponent implements OnInit {
     // Restore tab from query params (primary `tab`, fallback `tap` for compatibility)
     this.route.queryParamMap.subscribe(q => {
       const tabParam = q.get('tab') || q.get('tap');
-      const allowed = ['attendance', 'requests', 'documents', 'contracts', 'leave-balance', 'custom-info', 'devices'];
+      const allowed = ['attendance', 'schedule', 'requests', 'documents', 'contracts', 'leave-balance', 'custom-info', 'devices'];
       if (tabParam && allowed.includes(tabParam)) {
         this.setCurrentTab(tabParam as any, false);
       }
@@ -907,7 +945,7 @@ export class ViewEmployeeComponent implements OnInit {
         // fetch documents
         this.loadEmployeeDocuments();
         this.updateProfileImageFromResponse(response);
-        this.subscription = response.data.subscription;
+        this.subscription = response.data.subscription || ((response.data as any).plan ? response.data as any : null);
         this.loading = false;
         // Restore tab if it was set before loading
         if (keepTab) {
@@ -1081,7 +1119,7 @@ export class ViewEmployeeComponent implements OnInit {
   // }
 
   // Tab management method
-  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices', updateQuery: boolean = true): void {
+  setCurrentTab(tab: 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices', updateQuery: boolean = true): void {
     if (tab === 'devices') {
       this.loadEmployeeDevices(!this.devicesAttempted);
     }
@@ -1089,6 +1127,7 @@ export class ViewEmployeeComponent implements OnInit {
 
     // Update query param to persist selected tab in URL
     if (updateQuery) {
+      const scrollPos = window.scrollY;
       try {
         // Persist using `tab` query param (preferred). Keep other params unchanged.
         this.router.navigate([], {
@@ -1096,6 +1135,8 @@ export class ViewEmployeeComponent implements OnInit {
           queryParams: { tab: tab },
           queryParamsHandling: 'merge',
           replaceUrl: true
+        }).then(() => {
+          window.scrollTo(0, scrollPos);
         });
       } catch (e) {
         // ignore navigation errors
