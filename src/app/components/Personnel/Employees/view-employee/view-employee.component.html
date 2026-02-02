@@ -85,7 +85,7 @@
   <div class="d-flex align-items-stretch gap-4">
     <!-- Contact Info Skeleton -->
     <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box contact-info-card d-flex flex-column gap-3 h-100">
+      <div class="info-card-base contact-info-card d-flex flex-column gap-3 h-100">
         <div class="skeleton-loading skeleton-title"></div>
         <div class="skeleton-loading skeleton-profile"></div>
         <div class="skeleton-info-item">
@@ -113,7 +113,7 @@
 
     <!-- Job Info Skeleton -->
     <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box d-flex flex-column gap-3 h-100">
+      <div class="info-card-base d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
           <div class="skeleton-loading skeleton-title"></div>
           <div class="skeleton-loading skeleton-badge"></div>
@@ -147,7 +147,7 @@
 
     <!-- Account Info Skeleton -->
     <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box d-flex flex-column gap-3 h-100">
+      <div class="info-card-base d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
           <div class="skeleton-loading skeleton-title"></div>
           <div class="skeleton-loading skeleton-badge"></div>
@@ -201,7 +201,7 @@
   <!-- 3 cards -->
   <div class="d-flex align-items-stretch gap-4">
     <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box contact-info-card d-flex flex-column gap-3 h-100">
+      <div class="info-card-base contact-info-card d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Contact Info</h2>
 
@@ -309,21 +309,21 @@
           <span>{{ employee.contact_info.email || "N/A" }}</span>
         </div>
         <div
-          class="contact-info-collapsible"
+          class="collapsible-container contact-info-collapsible"
           [class.expanded]="contactInfoExpanded"
         >
-          <div class="info">
+          <div class="info stagger-1">
             <h6>Date of Birth</h6>
             <span>{{
               (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") ||
                 "N/A"
             }}</span>
           </div>
-          <div class="info">
+          <div class="info stagger-2">
             <h6>Address</h6>
             <span>{{ employee.contact_info.address || "N/A" }}</span>
           </div>
-          <div class="info">
+          <div class="info stagger-3">
             <h6>Marital Status</h6>
             <span>{{ employee.contact_info.marital_status.name }}</span>
           </div>
@@ -331,7 +331,7 @@
 
         <!-- Collapsible fields (Custom Fields only) -->
         <div
-          class="contact-info-collapsible"
+          class="collapsible-container contact-info-collapsible"
           [class.expanded]="contactInfoExpanded"
         >
           @if (isLoading) {
@@ -350,7 +350,7 @@
           </div>
           } @else { @for(item of customFieldValues; track item.id) {
           @if(item.custom_field.pinned === true && item.value.value) {
-          <div class="info">
+          <div class="info stagger-1">
             <h6 [title]="item.custom_field.input_option.label">
               {{ item.custom_field.input_option.label }}
             </h6>
@@ -364,7 +364,7 @@
           @if (employee.flags && employee.flags.length > 0) {
           <div class="flags-container">
             @for(flag of employee.flags.slice(0, 4); track $index) {
-            <span class="flag-pill">{{ flag }}</span>
+            <span class="pill-base flag-pill">{{ flag }}</span>
             } @if (employee.flags.length > 4) {
             <div class="flag-more-wrapper">
               <span class="flag-more" (click)="isFlagsPopupOpen = !isFlagsPopupOpen">
@@ -379,7 +379,7 @@
                   </div>
                   <div class="flags-cloud-body">
                     @for(flag of employee.flags; track $index) {
-                      <span class="flag-pill">{{ flag }}</span>
+                      <span class="pill-base flag-pill">{{ flag }}</span>
                     }
                   </div>
                   <div class="flags-cloud-arrow"></div>
@@ -402,7 +402,7 @@
 
                 @if (isSearchingFlags) {
                 <div class="flag-loader">
-                  <svg class="spinner" viewBox="0 0 50 50">
+                  <svg class="spinner-base spinner" viewBox="0 0 50 50">
                     <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
                   </svg>
                 </div>
@@ -410,7 +410,7 @@
 
                 <button class="flag-save-btn" (click)="saveNewFlag()" [disabled]="isSavingFlags || !flagInput.value">
                   @if (isSavingFlags) {
-                  <svg class="spinner-sm" viewBox="0 0 50 50">
+                  <svg class="spinner-base spinner-sm" viewBox="0 0 50 50">
                     <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
                   </svg>
                   } @else {
@@ -457,7 +457,7 @@
                 
                 @if (isSearchingFlags) {
                 <div class="flag-loader">
-                  <svg class="spinner" viewBox="0 0 50 50">
+                  <svg class="spinner-base spinner" viewBox="0 0 50 50">
                     <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
                   </svg>
                 </div>
@@ -465,7 +465,7 @@
 
                 <button class="flag-save-btn" (click)="saveNewFlag()" [disabled]="isSavingFlags || !flagInput.value">
                   @if (isSavingFlags) {
-                  <svg class="spinner-sm" viewBox="0 0 50 50">
+                  <svg class="spinner-base spinner-sm" viewBox="0 0 50 50">
                     <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
                   </svg>
                   } @else {
@@ -494,7 +494,7 @@
     </div>
 
     <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box d-flex flex-column gap-3 h-100">
+      <div class="info-card-base d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Job Info</h2>
           @if (employeeData.employeeStatus ==='New Employee') {
@@ -857,7 +857,7 @@
     </div>
 
     <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box d-flex flex-column gap-3 h-100">
+      <div class="info-card-base d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Account Info</h2>
           @if (isEmployeeActive) {
@@ -934,11 +934,11 @@
           </span>
           }
         </div>
-        <div class="info">
+        <div class="info stagger-1">
           <h6>Company Email</h6>
           <span>{{ employee.contact_info.email || "N/A" }}</span>
         </div>
-        <div class="info">
+        <div class="info stagger-2">
           <h6>Created Date</h6>
           <!-- <h6>Join Date</h6> -->
           <span>
@@ -1085,24 +1085,24 @@
 
           <!-- All fields collapsible - hidden by default -->
           <div
-            class="device-info-collapsible"
+            class="collapsible-container device-info-collapsible"
             [class.expanded]="deviceInfoExpanded"
           >
-            <div class="info">
+            <div class="info stagger-1">
               <h6>TYPE</h6>
               <span class="text-capitalize">{{
                 employee.device.device_type || "—"
               }}</span>
             </div>
-            <div class="info">
+            <div class="info stagger-2">
               <h6>BRAND</h6>
               <span>{{ employee.device.device_family || "—" }}</span>
             </div>
-            <div class="info">
+            <div class="info stagger-3">
               <h6>MODEL</h6>
               <span>{{ employee.device.device_model || "—" }}</span>
             </div>
-            <div class="info">
+            <div class="info stagger-4">
               <h6>LANGUAGE</h6>
               <span class="text-uppercase">{{
                 employee.device.device_ln || "—"
@@ -1273,7 +1273,7 @@
 
   <div class="row mt-4">
     <div class="col-12">
-      <div class="content-box d-flex flex-column gap-3 w-100">
+      <div class="info-card-base d-flex flex-column gap-3 w-100">
         <!-- Tab Navigation -->
         <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
           <li
