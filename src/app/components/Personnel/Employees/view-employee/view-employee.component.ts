@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild, HostListener } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, switchMap, finalize, of } from 'rxjs';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -37,7 +39,8 @@ import { DatePipe, NgClass } from '@angular/common';
     LeaveBalanceTabComponent,
     CustomInfoComponent,
     TableComponent,
-    OnboardingChecklistComponent
+    OnboardingChecklistComponent,
+    ReactiveFormsModule
   ],
   providers: [DatePipe],
   templateUrl: './view-employee.component.html',
@@ -63,8 +66,110 @@ export class ViewEmployeeComponent implements OnInit {
   isOnboardingModalOpen = false;
   loadingChecklistItemTitle: string | null = null;
 
-  // Contact Info collapse state
+  // Flags popup state
+  isFlagsPopupOpen = false;
+
+  openFlagsPopup(): void {
+    this.isFlagsPopupOpen = true;
+  }
+
+  closeFlagsPopup(): void {
+    this.isFlagsPopupOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+
+    // Close interests cloud if clicking outside the cloud and the toggle button
+    if (this.isFlagsPopupOpen && !target.closest('.flag-more-wrapper')) {
+      this.isFlagsPopupOpen = false;
+    }
+
+    // Close add flag input if clicking outside the input wrapper and not clicking the empty state trigger
+    if (this.isAddingFlag && !target.closest('.flag-add-wrapper') && !target.closest('.empty-placeholder')) {
+      this.isAddingFlag = false;
+    }
+  }
+
   contactInfoExpanded = false;
+
+  // Flag Adding state
+  isAddingFlag = false;
+  flagInput = new FormControl('');
+  flagSuggestions: string[] = [];
+  isSearchingFlags = false;
+  isSavingFlags = false;
+
+  private setupFlagSearchDebounce(): void {
+    this.flagInput.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        if (!value || value.length < 1) {
+          this.flagSuggestions = [];
+          return of(null);
+        }
+        this.isSearchingFlags = true;
+        return this.employeeService.getFlagSuggestions(value).pipe(
+          finalize(() => this.isSearchingFlags = false)
+        );
+      })
+    ).subscribe(response => {
+      if (response && response.data && response.data.object_info) {
+        this.flagSuggestions = response.data.object_info.flags || [];
+      }
+    });
+  }
+
+  toggleAddFlag(): void {
+    this.isAddingFlag = !this.isAddingFlag;
+    if (this.isAddingFlag) {
+      this.flagInput.setValue('');
+      this.flagSuggestions = [];
+      setTimeout(() => {
+        const inputEl = document.getElementById('newFlagInput');
+        if (inputEl) inputEl.focus();
+      }, 100);
+    }
+  }
+
+  selectSuggestion(suggestion: string): void {
+    this.flagInput.setValue(suggestion);
+    this.flagSuggestions = [];
+    this.saveNewFlag();
+  }
+
+  saveNewFlag(): void {
+    const newFlag = this.flagInput.value?.trim();
+    if (!newFlag || !this.employee) return;
+
+    const currentFlags = this.employee.flags || [];
+    if (currentFlags.includes(newFlag)) {
+      this.toasterMessageService.showWarning('Flag already exists', 'Warning');
+      return;
+    }
+
+    this.isSavingFlags = true;
+    const updatedFlags = [...currentFlags, newFlag];
+
+    this.employeeService.updateEmployeeFlags(this.employee.id, updatedFlags).subscribe({
+      next: (res) => {
+        if (this.employee) {
+          this.employee.flags = updatedFlags;
+        }
+        this.isAddingFlag = false;
+        this.flagInput.setValue('');
+      },
+      error: (err) => {
+        console.error('Error updating flags:', err);
+        this.toasterMessageService.showError('Failed to update flags', 'Error');
+      },
+      complete: () => {
+        this.isSavingFlags = false;
+      }
+    });
+  }
 
 
 
@@ -613,6 +718,7 @@ export class ViewEmployeeComponent implements OnInit {
     });
     this.loadCustomValues();
     this.loadEmployeeContracts();
+    this.setupFlagSearchDebounce();
   }
 
   get onboardingCompleted(): number {
