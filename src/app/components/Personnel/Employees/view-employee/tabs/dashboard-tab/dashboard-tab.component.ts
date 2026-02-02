@@ -4,6 +4,7 @@ import { EmployeeService } from '../../../../../../core/services/personnel/emplo
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { LeaveBalanceService } from '../../../../../../core/services/attendance/leave-balance/leave-balance.service';
+import { ChartsService } from '../../../../../../core/services/od/charts/charts.service';
 
 @Component({
     selector: 'app-dashboard-tab',
@@ -16,9 +17,14 @@ export class DashboardTabComponent implements OnInit {
     @Input() employeeId!: number;
     private employeeService = inject(EmployeeService);
     private leaveBalanceService = inject(LeaveBalanceService);
+    private chartsService = inject(ChartsService);
 
     isLoading = true;
     dashboardData: any[] = [];
+    companyStructure: any[] = [];
+    isOrgChartModalOpen = false;
+    isLoadingOrgChart = true;
+    readonly defaultImage: string = './images/profile-defult.jpg';
     months: { value: number, label: string }[] = [];
     years: { value: string, label: string }[] = [];
     leaveTypes: any[] = [];
@@ -96,6 +102,29 @@ export class DashboardTabComponent implements OnInit {
         if (this.employeeId) {
             this.loadDashboardData();
         }
+        this.loadCompanyStructure();
+    }
+
+    loadCompanyStructure(): void {
+        this.isLoadingOrgChart = true;
+        this.chartsService.jobsChart().subscribe({
+            next: (res) => {
+                this.companyStructure = res.data.list_items || [];
+                this.isLoadingOrgChart = false;
+            },
+            error: (err) => {
+                console.error('Error loading company structure:', err);
+                this.isLoadingOrgChart = false;
+            }
+        });
+    }
+
+    openOrgChartModal(): void {
+        this.isOrgChartModalOpen = true;
+    }
+
+    closeOrgChartModal(): void {
+        this.isOrgChartModalOpen = false;
     }
 
     initializeFilters(): void {
@@ -197,5 +226,33 @@ export class DashboardTabComponent implements OnInit {
     getSectionValues(title: string): any[] {
         const section = this.dashboardData.find(item => item.title === title);
         return section ? section.value.filter((v: any) => v.label) : [];
+    }
+
+    getEmployeeHierarchy(): any[] {
+        const employees: any[] = [];
+
+        const processNode = (node: any, level: number) => {
+            employees.push({
+                code: node.job_title_code,
+                name: node.name,
+                position: node.position,
+                level: level,
+                avatar: null,
+                highlighted: employees.length === 2 // Highlight the 3rd item
+            });
+
+            // Recursively process children
+            if (node.children && node.children.length > 0) {
+                node.children.forEach((child: any) => processNode(child, level + 1));
+            }
+        };
+
+        // Process job titles structure
+        this.companyStructure.forEach(root => {
+            processNode(root, 0);
+        });
+
+        // Return only first 5 employees like in the image
+        return employees.slice(0, 5);
     }
 }
