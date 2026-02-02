@@ -220,6 +220,19 @@
   pointer-events: none;
 }
 
+.content-hug {
+  overflow-x: hidden;
+}
+
+/* --- Tabs & Navigation --- */
+.nav-item {
+  cursor: pointer;
+}
+
+.nav-link {
+  cursor: pointer;
+}
+
 /* --- Document Management --- */
 .action-btn-doc {
   background-color: transparent;
