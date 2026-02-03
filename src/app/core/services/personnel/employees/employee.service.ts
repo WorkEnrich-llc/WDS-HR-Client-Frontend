@@ -368,4 +368,30 @@ export class EmployeeService {
 
     return this.http.put(`${this.apiBaseUrl}personnel/employees/change-picture/${employeeId}/`, formData);
   }
+
+  // Get flag suggestions for employees
+  getFlagSuggestions(search: string): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees/flags`;
+    let params = new HttpParams();
+    if (search) {
+      params = params.append('search', search);
+    }
+    return this.http.get<any>(url, { params });
+  }
+
+  // Update employee flags/interests
+  updateEmployeeFlags(id: number, flags: string[]): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees/update-flags/${id}/`;
+    const payload = {
+      request_data: {
+        flags: flags
+      }
+    };
+    return this.http.put<any>(url, payload);
+  }
+  // Get employee dashboard data
+  getEmployeeDashboard(employeeId: number, params: any = {}): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-dashboard/${employeeId}/`;
+    return this.http.get<any>(url, { params });
+  }
 }

@@ -1,0 +1,104 @@
+<div class="schedule-tab-content">
+  @if (isLoading) {
+    <div class="skeleton-container d-flex flex-column gap-4">
+      <div class="skeleton-row d-flex gap-4">
+        <div class="skeleton-item" style="width: 200px; height: 24px;"></div>
+      </div>
+      <div class="skeleton-row d-flex gap-4">
+        <div class="skeleton-item" style="width: 150px; height: 16px;"></div>
+        <div class="skeleton-item" style="width: 100px; height: 16px;"></div>
+      </div>
+      <div class="skeleton-row d-flex gap-2">
+        <div class="skeleton-pill" *ngFor="let i of [1,2,3,4,5,6,7]"></div>
+      </div>
+      <div class="skeleton-row d-flex gap-3">
+        <div class="skeleton-card" style="flex: 1; height: 60px;"></div>
+        <div class="skeleton-card" style="flex: 1; height: 60px;"></div>
+        <div class="skeleton-card" style="flex: 1; height: 60px;"></div>
+        <div class="skeleton-card" style="flex: 1; height: 60px;"></div>
+      </div>
+    </div>
+  } @else if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  } @else if (!workScduleData) {
+    <div class="no-data">
+      <div class="no-data-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+      <p>No work schedule assigned to this employee.</p>
+    </div>
+  } @else {
+    <div class="schedule-details">
+      <div class="header-section mb-4">
+        <h3>Schedule</h3>
+        <div class="schedule-meta d-flex flex-column gap-2 mt-3">
+          <div class="meta-item d-flex">
+            <span class="label">Work Schedule Type</span>
+            <span class="value">
+              @if (workScduleData.system?.work_schedule_type === 1) { Fixed }
+              @else if (workScduleData.system?.work_schedule_type === 2) { Flexible }
+              @else if (workScduleData.system?.work_schedule_type === 3) { Remote }
+            </span>
+          </div>
+          <div class="meta-item d-flex">
+            <span class="label">Location</span>
+            <span class="value">{{ employee?.job_info?.work_mode?.name || 'N/A' }}</span>
+          </div>
+          <div class="meta-item d-flex">
+            <span class="label">Work Schedule</span>
+            <span class="value">{{ workScduleData.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="days-pills d-flex flex-wrap gap-2 mb-4">
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.sunday">Sun</div>
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.monday">Mon</div>
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.tuesday">Tue</div>
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.wednesday">Wed</div>
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.thursday">Thu</div>
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.friday">Fri</div>
+        <div class="day-pill" [class.active]="workScduleData.system?.days?.saturday">Sat</div>
+      </div>
+
+      <div class="schedule-grid row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="time-card">
+            <span class="card-label">From</span>
+            <span class="card-value">{{ formatTime(workScduleData.system?.shift_range?.from) || '--:--' }}</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="time-card">
+            <span class="card-label">To</span>
+            <span class="card-value">{{ formatTime(workScduleData.system?.shift_range?.to) || '--:--' }}</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="time-card">
+            <span class="card-label">Total Hours</span>
+            <span class="card-value">{{ workScduleData.system?.shift_hours || '0' }} Hours</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="time-card danger">
+            <span class="card-label">Max Check in</span>
+            <span class="card-value">{{ workScduleData.system?.max_check_out || '0' }} Hours</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="terms-section">
+        <div class="terms-card">
+          <span class="card-label">Terms & Conditions</span>
+          <p class="terms-text">{{ workScduleData.system?.terms_and_rules || 'No terms and conditions specified.' }}</p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

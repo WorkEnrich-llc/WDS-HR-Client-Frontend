@@ -1,0 +1,197 @@
+.schedule-tab-content {
+    padding: 1rem 0;
+}
+
+.schedule-details {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-secondary-900, #0f172a);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.schedule-meta {
+    max-width: 450px;
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+}
+
+.meta-item {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.meta-item .label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.meta-item .value {
+    font-size: 0.875rem;
+    color: #1e293b;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Day Pills */
+.days-pills {
+    margin-top: 1.5rem;
+}
+
+.day-pill {
+    width: calc(14.28% - 8px);
+    min-width: 50px;
+    flex: 1;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+    color: #64748b;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.day-pill.active {
+    background-color: #3b82f6;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Time Cards */
+.time-card {
+    padding: 1.25rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.time-card .card-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.time-card .card-value {
+    font-size: 1.125rem;
+    color: #1e293b;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.time-card.danger {
+    border-color: #fee2e2;
+    background-color: #fffbfa;
+}
+
+.time-card.danger .card-label {
+    color: #ef4444;
+}
+
+.time-card.danger .card-value {
+    color: #991b1b;
+}
+
+/* Terms Section */
+.terms-card {
+    padding: 1.25rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.terms-card .card-label {
+    font-size: 0.8125rem;
+    color: #64748b;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.terms-text {
+    font-size: 0.9375rem;
+    color: #334155;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Skeleton Loaders */
+.skeleton-pill {
+    width: 60px;
+    height: 40px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-item,
+.skeleton-card {
+    background: #f1f5f9;
+    border-radius: 8px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.no-data {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+}
+
+.no-data-icon {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .day-pill {
+        min-width: 45px;
+        font-size: 0.75rem;
+    }
+}

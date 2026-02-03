@@ -163,10 +163,22 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   // Handle date change from date picker
   onAssignmentExpirationDateChange(dateValue: string): void {
     if (dateValue) {
-      // Extract date part (YYYY-MM-DD) from ISO format (YYYY-MM-DDTHH:mm:ss.sssZ)
-      // Handle both ISO format and YYYY-MM-DD format
-      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
-      this.assignmentExpirationDate = dateOnly;
+      // The date picker emits an ISO string (toISOString) which is in UTC.
+      // Creating a Date and extracting the local year/month/day avoids accidentally using the UTC date.
+      if (dateValue.includes('T')) {
+        const d = new Date(dateValue);
+        if (!isNaN(d.getTime())) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          this.assignmentExpirationDate = `${y}-${m}-${day}`;
+        } else {
+          // Fallback to naive split if parsing fails
+          this.assignmentExpirationDate = dateValue.split('T')[0];
+        }
+      } else {
+        this.assignmentExpirationDate = dateValue;
+      }
     } else {
       this.assignmentExpirationDate = '';
     }

@@ -47,14 +47,14 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     selectedBranches: any[] = [];
     selectedCompanies: any[] = [];
     selectedSections: any[] = [];
-    
+
     // Temporary selections in modal (before confirm)
     tempSelectedDepartments: any[] = [];
     tempSelectedEmployees: any[] = [];
     tempSelectedBranches: any[] = [];
     tempSelectedCompanies: any[] = [];
     tempSelectedSections: any[] = [];
-    
+
     availableItems: any[] = [];
     availableDepartments: any[] = [];
     selectedDepartmentId: number | null = null;
@@ -283,7 +283,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.tempSelectedBranches = JSON.parse(JSON.stringify(this.selectedBranches));
         this.tempSelectedCompanies = JSON.parse(JSON.stringify(this.selectedCompanies));
         this.tempSelectedSections = JSON.parse(JSON.stringify(this.selectedSections));
-        
+
         this.departmentFilterBox.openOverlay();
         this.currentPage = 1;
 
@@ -478,10 +478,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
                     const normalized = Array.isArray(items) ? items.map((x: any) => {
                         // Extract employee name from contact_info first (API standard), then fallback to other fields
                         const contactName = x.object_info?.contact_info?.name;
-                        const name = contactName || 
-                                    x.object_info?.name || 
-                                    x.name || 
-                                    (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
+                        const name = contactName ||
+                            x.object_info?.name ||
+                            x.name ||
+                            (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
                         return {
                             id: x.object_info?.id ?? x.id,
                             code: x.object_info?.code ?? x.code ?? x.id,
@@ -523,7 +523,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             default: return this.tempSelectedDepartments;
         }
     }
-    
+
     /**
      * Get the permanent selected array (for outside display)
      */
@@ -611,14 +611,14 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.selectedBranches = [...this.tempSelectedBranches];
         this.selectedCompanies = [...this.tempSelectedCompanies];
         this.selectedSections = [...this.tempSelectedSections];
-        
+
         // Clear temporary selections
         this.tempSelectedDepartments = [];
         this.tempSelectedEmployees = [];
         this.tempSelectedBranches = [];
         this.tempSelectedCompanies = [];
         this.tempSelectedSections = [];
-        
+
         // Update the table display
         this.updateSelectedDepartmentsTable();
         this.departmentFilterBox.closeOverlay();
@@ -779,7 +779,8 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             }
             return [];
         } else {
-            const selectedArray = this.getSelectedArray();
+            // Use the permanent selected arrays (not the modal temporary selections)
+            const selectedArray = this.getPermanentSelectedArray();
             return selectedArray.map(item => item.id);
         }
     }

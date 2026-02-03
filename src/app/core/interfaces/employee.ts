@@ -207,6 +207,7 @@ export interface Employee {
     created_at: string;
     updated_at: string;
   };
+  flags?: string[];
 }
 
 // Subscription related interfaces
