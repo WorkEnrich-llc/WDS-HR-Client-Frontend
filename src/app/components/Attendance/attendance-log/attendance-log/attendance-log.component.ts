@@ -539,17 +539,87 @@ export class AttendanceLogComponent implements OnDestroy {
 
   // Check if a record has check-in
   hasCheckIn(record: any): boolean {
-    return record?.times_object?.actual_check_in && record?.times_object?.actual_check_in !== '00:00';
+    const checkIn = record?.times_object?.actual_check_in;
+    const status = record?.status;
+
+    if (!checkIn) return false;
+
+    // For certain statuses, "00:00" or "00:00:00" means no actual check-in
+    const noCheckInStatuses = ['Absent', 'On Leave', 'Holiday', 'Weekly leave'];
+    if (noCheckInStatuses.includes(status) && (checkIn === '00:00' || checkIn === '00:00:00')) {
+      return false;
+    }
+
+    // For Present or other statuses, any time value (including 00:00) is valid
+    return true;
   }
 
   // Check if a record has check-out
   hasCheckOut(record: any): boolean {
-    return record?.times_object?.working_check_out && record?.times_object?.working_check_out !== '00:00';
+    const checkOut = record?.times_object?.working_check_out;
+    const finished = record?.working_details?.finished;
+
+    if (!checkOut) return false;
+
+    // If not finished or time is 00:00, no valid check-out
+    if (finished === false || checkOut === '00:00' || checkOut === '00:00:00') {
+      return false;
+    }
+
+    // Any other time value is valid
+    return true;
   }
 
   // Check if a record has both check-in and check-out
   hasBothCheckInAndOut(record: any): boolean {
     return this.hasCheckIn(record) && this.hasCheckOut(record);
+  }
+
+  // Unified helpers for template action visibility
+  shouldShowActionMenu(record: any): boolean {
+    if (!record) return false;
+    // Do not show actions for certain statuses
+    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+
+    const hasIn = this.hasCheckIn(record);
+    const hasOut = this.hasCheckOut(record);
+    const hasDeduction = record?.hours_object?.total_deduction > 0;
+
+    // Show menu if there is any relevant action possible:
+    // - there's a check-in or check-out,
+    // - or there's a deduction to remove,
+    // - or neither check-in nor check-out exists (user can add a log)
+    return hasIn || hasOut || hasDeduction || (!hasIn && !hasOut);
+  }
+
+  shouldShowAddCheckIn(record: any): boolean {
+    if (!record) return false;
+    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    return !this.hasCheckIn(record);
+  }
+
+  shouldShowAddCheckOut(record: any): boolean {
+    if (!record) return false;
+    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    return this.hasCheckIn(record) && !this.hasCheckOut(record);
+  }
+
+  shouldShowEditCheckIn(record: any): boolean {
+    if (!record) return false;
+    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    return this.hasCheckIn(record) && !this.hasCheckOut(record);
+  }
+
+  shouldShowEditLog(record: any): boolean {
+    if (!record) return false;
+    if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    return this.hasBothCheckInAndOut(record) || (!this.hasCheckIn(record) && !this.hasCheckOut(record));
+  }
+
+  shouldShowCancelOrActivate(record: any): boolean {
+    if (!record) return false;
+    if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    return this.hasCheckIn(record) || this.hasCheckOut(record);
   }
 
   onSearchChange() {
