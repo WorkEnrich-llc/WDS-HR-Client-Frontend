@@ -925,21 +925,16 @@ export class AttendanceLogComponent implements OnDestroy {
     }
     this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
-        attendance.canceled = true;
+        const wasCanceled = attendance.canceled;
+        attendance.canceled = !wasCanceled;
         this.isLoading = false;
-        // this.toasterService.showSuccess('Attendance log canceled successfully.');
-        // Refresh current page to reflect changes
-        this.getAllAttendanceLog({
-          page: this.currentPage,
-          per_page: this.itemsPerPage,
-          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
-        });
-        // // show toast
-        // try { this.toasterService.showSuccess('Attendance log canceled successfully.'); } catch (e) { /* ignore */ }
+        const msg = wasCanceled ? 'Attendance log activated successfully.' : 'Attendance log canceled successfully.';
+        this.toasterService.showSuccess(msg);
+        // Refresh current page to reflect changes while preserving filters
+        this.loadFilteredAttendance();
       },
       error: (err: any) => {
-        this.toasterService.showError('Failed to cancel attendance log.');
+        this.toasterService.showError('Failed to update attendance log status.');
         this.isLoading = false;
         console.error(err);
       }
@@ -1171,22 +1166,33 @@ export class AttendanceLogComponent implements OnDestroy {
     }
 
     obs$.subscribe({
-      next: () => {
+      next: (res: any) => {
+        // Handle successful response (including 200, 201, 202 etc)
+        const successMsg = res?.details || res?.message || 'Attendance updated successfully.';
         this.closeEditModal();
         this.editModalLoading = false;
-        this.getAllAttendanceLog({
-          page: this.currentPage,
-          per_page: this.itemsPerPage,
-          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: '',
-          search: this.searchTerm || undefined
-        });
-        // Notify user of success
-        try { this.toasterService.showSuccess('Attendance updated successfully.'); } catch (e) { /* ignore */ }
+
+        // Refresh current day logs
+        this.loadFilteredAttendance();
+
+        // Success toasters are also handled by the global interceptor, 
+        // but we keep this here as a fallback or if the interceptor skips it.
+        this.toasterService.showSuccess(successMsg);
       },
-      error: (err) => {
-        this.closeEditModal();
+      error: (err: any) => {
         this.editModalLoading = false;
+        const errorBody = err.error || {};
+        const errorMessage = errorBody.details || errorBody.message || 'An error occurred. Please try again.';
+
+        // Critical fallback: If the interceptor logic failed or the status code was misleading
+        // but the message says 'successfully', treat it as a win.
+        if (errorMessage.toLowerCase().includes('successfully')) {
+          this.closeEditModal();
+          this.loadFilteredAttendance();
+          this.toasterService.showSuccess(errorMessage);
+        } else {
+          this.toasterService.showError(errorMessage);
+        }
       }
     });
   }
@@ -1209,18 +1215,13 @@ export class AttendanceLogComponent implements OnDestroy {
     const actionText = hasDeduction ? 'remove' : 'add';
     this._AttendanceLogService.toggleDeduction(id).subscribe({
       next: () => {
-        this.getAllAttendanceLog({
-          page: this.currentPage,
-          per_page: this.itemsPerPage,
-          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: '',
-          search: this.searchTerm || undefined
-        });
+        this.loadFilteredAttendance();
         this.closeDeductionModal();
-        try { this.toasterService.showSuccess('Deduction updated successfully.'); } catch (e) { /* ignore */ }
+        this.toasterService.showSuccess('Deduction updated successfully.');
       },
       error: () => {
         this.deductionModalLoading = false;
+        this.toasterService.showError('Failed to update deduction.');
       }
     });
   }
