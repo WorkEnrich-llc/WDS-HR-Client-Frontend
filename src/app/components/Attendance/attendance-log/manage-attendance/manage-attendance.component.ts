@@ -150,7 +150,14 @@ export class ManageAttendanceComponent {
     const startTime = this.normalizeTo24(raw.start);
     const endTime = this.normalizeTo24(raw.end);
 
-    const dateStr = typeof raw.date === 'string' && raw.date.includes('T') ? raw.date.split('T')[0]! : raw.date;
+    // Ensure we send a local YYYY-MM-DD date string.
+    // If the control returns a plain YYYY-MM-DD string, use it as-is.
+    // Otherwise (Date object or ISO string with timezone), format using local date parts
+    const dateStr = raw.date
+      ? (typeof raw.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.date)
+        ? raw.date
+        : this.formatLocalDate(raw.date))
+      : '';
     const attendance: AttendanceLog = {
       id: this.attendanceId,
       employee_id: raw.employee_id,
@@ -229,6 +236,18 @@ export class ManageAttendanceComponent {
     if (ampm === 'AM' && hour === 12) hour = 0;
     const hh = hour < 10 ? `0${hour}` : `${hour}`;
     return `${hh}:${minute}`;
+  }
+
+  /**
+   * Format a date (Date object or ISO string) as a local YYYY-MM-DD string.
+   * This avoids UTC conversions that can shift the date across timezones.
+   */
+  private formatLocalDate(dateInput: any): string {
+    const d = new Date(dateInput);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
 

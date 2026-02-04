@@ -903,6 +903,8 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
+        // show toast
+        try { this.toasterService.showSuccess('Attendance log canceled successfully.'); } catch (e) { /* ignore */ }
       },
       error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
@@ -1147,6 +1149,8 @@ export class AttendanceLogComponent implements OnDestroy {
           to_date: '',
           search: this.searchTerm || undefined
         });
+        // Notify user of success
+        try { this.toasterService.showSuccess('Attendance updated successfully.'); } catch (e) { /* ignore */ }
       },
       error: (err) => {
         this.closeEditModal();
@@ -1181,6 +1185,7 @@ export class AttendanceLogComponent implements OnDestroy {
           search: this.searchTerm || undefined
         });
         this.closeDeductionModal();
+        try { this.toasterService.showSuccess('Deduction updated successfully.'); } catch (e) { /* ignore */ }
       },
       error: () => {
         this.deductionModalLoading = false;

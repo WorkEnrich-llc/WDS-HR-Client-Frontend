@@ -148,7 +148,7 @@
             </div>
 
             <div class="mb-2 text-center d-flex align-items-center justify-content-center gap-2">
-              @if (employee.contractExpired) {
+              @if (employee.employeeStatus === 'Expired' || employee.employeeStatus === 'Contract Expired') {
               <span class="badge-danger">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -156,10 +156,9 @@
                     <path stroke-linecap="round" d="M12 6v6l4 2" />
                   </g>
                 </svg>
-                <span>Expired</span>
+                <span>{{ employee.employeeStatus }}</span>
               </span>
-              }
-              @if (!employee.contractExpired && employee.employeeStatus ==='New Joiner') {
+              } @if (employee.employeeStatus === 'New Joiner') {
               <span class="badge-newjoiner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -172,8 +171,7 @@
                 </svg>
                 <span>New Joiner</span>
               </span>
-              }
-              @if (!employee.contractExpired && employee.employeeStatus ==='New Employee') {
+              } @if (employee.employeeStatus === 'New Employee') {
               <span class="badge-newemployee">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -187,8 +185,7 @@
                 </svg>
                 <span>New Employee</span>
               </span>
-              }
-              @if (!employee.contractExpired && employee.employeeStatus ==='Employed') {
+              } @if (employee.employeeStatus === 'Employed') {
               <span class="badge-success">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -202,8 +199,7 @@
                 </svg>
                 <span>Employed</span>
               </span>
-              }
-              @if (!employee.contractExpired && employee.employeeStatus ==='Termination Pending') {
+              } @if (employee.employeeStatus === 'Termination Pending') {
               <span class="badge-gray">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -213,8 +209,7 @@
                 </svg>
                 <span>Termination Pending</span>
               </span>
-              }
-              @if (!employee.contractExpired && employee.employeeStatus ==='Terminated') {
+              } @if (employee.employeeStatus === 'Terminated') {
               <span class="badge-danger">
                 <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -229,16 +224,27 @@
                 </svg>
                 <span>Terminated</span>
               </span>
-              }
-              @if (!employee.contractExpired && employee.employeeStatus ==='In Notice Period') {
-              <span class="badge-warning">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              } @if (employee.employeeStatus === 'In Notice Period') {
+              <span class="badge-probation">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" d="M12 7v5l3 3" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M5.7664 2.47086e-07H5.86002C7.37032 -1.18229e-05 8.56227 -2.13906e-05 9.43044 0.114445C10.2838 0.226954 11.0505 0.474889 11.4146 1.18189C11.4671 1.28375 11.5113 1.38961 11.547 1.49846C11.7955 2.25669 11.4278 2.9729 10.9041 3.65077C10.3716 4.34013 9.52842 5.17508 8.46092 6.23218L6.61262 8.0625L8.46093 9.89283C9.52842 10.9499 10.3716 11.7849 10.9041 12.4742C11.4278 13.1521 11.7955 13.8683 11.547 14.6265C11.5113 14.7354 11.4671 14.8412 11.4146 14.9431C11.0505 15.6501 10.2838 15.898 9.43044 16.0106C8.56226 16.125 7.37031 16.125 5.86001 16.125H5.76641C4.25611 16.125 3.06416 16.125 2.19599 16.0106C1.34267 15.898 0.575959 15.6501 0.211827 14.9431C0.159365 14.8412 0.115085 14.7354 0.0794154 14.6265C-0.169032 13.8683 0.198633 13.1521 0.722295 12.4742C1.25484 11.7849 2.098 10.9499 3.1655 9.89283L5.0138 8.0625L3.1655 6.23218C2.09801 5.17508 1.25484 4.34013 0.722296 3.65077C0.198633 2.9729 -0.169032 2.2567 0.0794154 1.49847C0.115084 1.38961 0.159365 1.28376 0.211827 1.18189C0.575959 0.47489 1.34267 0.226954 2.19599 0.114445C3.06416 -2.13906e-05 4.2561 -1.18229e-05 5.7664 2.47086e-07ZM5.81321 7.27086L7.63569 5.46611C8.74413 4.36845 9.53273 3.58579 10.0138 2.96301C10.5094 2.32151 10.5363 2.02689 10.4779 1.84877C10.4609 1.79665 10.4396 1.7459 10.4145 1.697C10.3269 1.52706 10.0929 1.33652 9.28338 1.22979C8.4977 1.1262 7.38048 1.125 5.81321 1.125C4.24594 1.125 3.12872 1.1262 2.34304 1.22979C1.53356 1.33652 1.2995 1.52706 1.21197 1.697C1.18679 1.7459 1.16556 1.79665 1.14849 1.84877C1.09012 2.02689 1.11701 2.32151 1.61258 2.96301C2.09369 3.58579 2.88229 4.36845 3.99074 5.46612L5.81321 7.27086ZM5.81321 8.85414L3.99074 10.6589C2.88229 11.7565 2.09369 12.5392 1.61258 13.162C1.11701 13.8035 1.09012 14.0981 1.14849 14.2762C1.16556 14.3284 1.18679 14.3791 1.21197 14.428C1.2995 14.5979 1.53356 14.7885 2.34304 14.8952C3.12872 14.9988 4.24594 15 5.81321 15C7.38048 15 8.4977 14.9988 9.28338 14.8952C10.0929 14.7885 10.3269 14.5979 10.4145 14.428C10.4396 14.3791 10.4609 14.3284 10.4779 14.2762C10.5363 14.0981 10.5094 13.8035 10.0138 13.162C9.53273 12.5392 8.74413 11.7565 7.63568 10.6589L5.81321 8.85414ZM3.75071 3.1875C3.75071 2.87684 4.00255 2.625 4.31321 2.625H7.31321C7.62387 2.625 7.87571 2.87684 7.87571 3.1875C7.87571 3.49816 7.62387 3.75 7.31321 3.75H4.31321C4.00255 3.75 3.75071 3.49816 3.75071 3.1875ZM3.75071 12.9375C3.75071 12.6268 4.00255 12.375 4.31321 12.375H7.31321C7.62387 12.375 7.87571 12.6268 7.87571 12.9375C7.87571 13.2482 7.62387 13.5 7.31321 13.5H4.31321C4.00255 13.5 3.75071 13.2482 3.75071 12.9375Z" />
                   </g>
                 </svg>
                 <span>In Notice Period</span>
+              </span>
+              } @if (employee.employeeStatus === 'Resigned') {
+              <span class="badge-danger">
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M10.2715 3.97516e-07C9.24582 -1.4757e-05 8.41907 -2.6973e-05 7.76885 0.0873933C7.09377 0.178156 6.52536 0.372326 6.07392 0.823763C5.68023 1.21746 5.4813 1.70127 5.37687 2.26977C5.2754 2.82219 5.25599 3.49822 5.25147 4.30937C5.24974 4.62003 5.50018 4.87326 5.81083 4.87499C6.12149 4.87672 6.37473 4.62629 6.37646 4.31563C6.38102 3.49551 6.40232 2.9142 6.48336 2.47301C6.56145 2.0479 6.68683 1.80185 6.86942 1.61926C7.07699 1.41169 7.36842 1.27635 7.91875 1.20236C8.48526 1.1262 9.2361 1.125 10.3127 1.125H11.0627C12.1392 1.125 12.8901 1.1262 13.4566 1.20236C14.0069 1.27635 14.2983 1.41169 14.5059 1.61926C14.7135 1.82683 14.8488 2.11826 14.9228 2.66859C14.999 3.2351 15.0002 3.98594 15.0002 5.0625V11.0625C15.0002 12.1391 14.999 12.8899 14.9228 13.4564C14.8488 14.0067 14.7135 14.2982 14.5059 14.5057C14.2983 14.7133 14.0069 14.8487 13.4566 14.9226C12.8901 14.9988 12.1392 15 11.0627 15H10.3127C9.2361 15 8.48526 14.9988 7.91875 14.9226C7.36842 14.8487 7.07699 14.7133 6.86942 14.5057C6.68683 14.3232 6.56145 14.0771 6.48336 13.652C6.40232 13.2108 6.38102 12.6295 6.37646 11.8094C6.37473 11.4987 6.12149 11.2483 5.81083 11.25C5.50018 11.2517 5.24974 11.505 5.25147 11.8156C5.25599 12.6268 5.2754 13.3028 5.37687 13.8552C5.4813 14.4237 5.68023 14.9075 6.07392 15.3012C6.52536 15.7527 7.09377 15.9468 7.76885 16.0376C8.41907 16.125 9.24582 16.125 10.2715 16.125H11.1038C12.1295 16.125 12.9562 16.125 13.6065 16.0376C14.2816 15.9468 14.85 15.7527 15.3014 15.3012C15.7528 14.8498 15.947 14.2814 16.0378 13.6063C16.1252 12.9561 16.1252 12.1293 16.1252 11.1037V5.02135C16.1252 3.99566 16.1252 3.16891 16.0378 2.51869C15.947 1.84361 15.7528 1.2752 15.3014 0.823763C14.85 0.372326 14.2816 0.178156 13.6065 0.0873933C12.9563 -2.6973e-05 12.1295 -1.4757e-05 11.1038 3.97516e-07H10.2715Z"
+                    fill="#E04F5F" />
+                  <path
+                    d="M10.3125 7.5C10.6232 7.5 10.875 7.75184 10.875 8.0625C10.875 8.37316 10.6232 8.625 10.3125 8.625H2.08308L3.55357 9.88542C3.78944 10.0876 3.81676 10.4427 3.61458 10.6786C3.41241 10.9144 3.0573 10.9418 2.82143 10.7396L0.19643 8.48958C0.0717537 8.38272 0 8.22671 0 8.0625C0 7.89829 0.0717536 7.74228 0.19643 7.63542L2.82143 5.38542C3.0573 5.18324 3.41241 5.21056 3.61458 5.44643C3.81676 5.6823 3.78944 6.03741 3.55357 6.23958L2.08308 7.5H10.3125Z"
+                    fill="#E04F5F" />
+                </svg>
+                <span>Resigned</span>
               </span>
               }
             </div>
@@ -383,7 +389,7 @@
         </span>
       </td>
       <td>
-        @if (employee.contractExpired) {
+        @if (employee.employeeStatus === 'Expired' || employee.employeeStatus === 'Contract Expired') {
         <span class="badge-danger">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -391,9 +397,9 @@
               <path stroke-linecap="round" d="M12 6v6l4 2" />
             </g>
           </svg>
-          <span>Expired</span>
+          <span>{{ employee.employeeStatus }}</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='New Joiner') {
+        } @if (employee.employeeStatus === 'New Joiner') {
         <span class="badge-newjoiner">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -406,7 +412,7 @@
           </svg>
           <span>New Joiner</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='New Employee') {
+        } @if (employee.employeeStatus === 'New Employee') {
         <span class="badge-newemployee">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -419,7 +425,7 @@
           </svg>
           <span>New Employee</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='Employed') {
+        } @if (employee.employeeStatus === 'Employed') {
         <span class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -432,7 +438,7 @@
           </svg>
           <span>Employed</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='Termination Pending') {
+        } @if (employee.employeeStatus === 'Termination Pending') {
         <span class="badge-gray">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -442,7 +448,7 @@
           </svg>
           <span>Termination Pending</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='Terminated') {
+        } @if (employee.employeeStatus === 'Terminated') {
         <span class="badge-danger">
           <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -457,7 +463,7 @@
           </svg>
           <span>Terminated</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='In Notice Period') {
+        } @if (employee.employeeStatus === 'In Notice Period') {
         <span class="badge-probation">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -467,7 +473,7 @@
           </svg>
           <span>In Notice Period</span>
         </span>
-        } @if (!employee.contractExpired && employee.employeeStatus ==='Resigned') {
+        } @if (employee.employeeStatus === 'Resigned') {
         <span class="badge-danger">
           <svg width="17" height="17" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
