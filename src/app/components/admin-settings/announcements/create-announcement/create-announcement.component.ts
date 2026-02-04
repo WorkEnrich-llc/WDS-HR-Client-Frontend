@@ -10,8 +10,8 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { AnnouncementsService } from '../../../../core/services/admin-settings/announcements/announcements.service';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject, Subscription, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { NgClass } from '@angular/common';
 
 @Component({
@@ -75,6 +75,13 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     private searchSubject = new Subject<string>();
     private searchSubscription?: Subscription;
 
+    // Employee-specific debounced search (uses switchMap to cancel previous requests)
+    private employeeSearchSubject = new Subject<string>();
+    private employeeSearchSubscription?: Subscription;
+
+    // Track in-flight request so we can cancel it when overlays close
+    private currentRequestSub?: Subscription | null = null;
+
     // Selected table pagination (mirror create-integration)
     tableCurrentPage: number = 1;
     tableItemsPerPage: number = 10;
@@ -103,18 +110,64 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         if (this.searchSubscription) {
             this.searchSubscription.unsubscribe();
         }
+        if (this.employeeSearchSubscription) {
+            this.employeeSearchSubscription.unsubscribe();
+        }
+        // Cancel any in-flight requests
+        this.cancelCurrentRequest();
     }
 
     /**
      * Setup debounced search functionality
      */
     private setupSearchDebouncing(): void {
+        // General-purpose search (other entity types)
         this.searchSubscription = this.searchSubject.pipe(
             debounceTime(300),
             distinctUntilChanged()
         ).subscribe(searchTerm => {
             this.modalSearchTerm = searchTerm;
             this.performSearch();
+        });
+
+        // Employee-specific debounced search with switchMap to cancel previous HTTP calls
+        this.employeeSearchSubscription = this.employeeSearchSubject.pipe(
+            debounceTime(400),
+            distinctUntilChanged(),
+            switchMap((term: string) => {
+                // Cancel any previous explicit request
+                if (this.currentRequestSub) {
+                    this.currentRequestSub.unsubscribe();
+                    this.currentRequestSub = null;
+                }
+                this.isLoadingItems = true;
+                this.currentPage = 1;
+                // Use the employee service; ensure errors map to empty result
+                return this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, term).pipe(
+                    catchError(() => of({ data: { list_items: [], total_items: 0, total_pages: 1 } }))
+                );
+            })
+        ).subscribe((res: any) => {
+            // Normalize response similar to loadEntities employee branch
+            const items = (res?.data?.list_items ?? res?.list_items ?? res?.data ?? []) || [];
+            const normalized = Array.isArray(items) ? items.map((x: any) => {
+                const contactName = x.object_info?.contact_info?.name;
+                const name = contactName ||
+                    x.object_info?.name ||
+                    x.name ||
+                    (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
+                return {
+                    id: x.object_info?.id ?? x.id,
+                    code: x.object_info?.code ?? x.code ?? x.id,
+                    name: name,
+                    fullName: name
+                };
+            }).filter((emp: any) => emp.id && emp.name) : [];
+            this.availableItems = normalized;
+            this.totalItems = res?.data?.total_items ?? res?.total_items ?? normalized.length;
+            const computedPages = Math.ceil(this.totalItems / this.itemsPerPage);
+            this.totalPages = (res?.data?.total_pages ?? res?.total_pages ?? computedPages) || 1;
+            this.isLoadingItems = false;
         });
     }
 
@@ -431,7 +484,13 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      */
     onModalSearchInput(event: Event): void {
         const target = event.target as HTMLInputElement;
-        this.searchSubject.next(target.value);
+        // Route search terms to employee-specific debouncer when searching employees,
+        // otherwise use the generic debouncer.
+        if (this.selectedRecipientType === 'employee') {
+            this.employeeSearchSubject.next(target.value);
+        } else {
+            this.searchSubject.next(target.value);
+        }
     }
 
     /**
@@ -461,22 +520,29 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             this.isLoadingItems = false;
         };
 
+        // Cancel any previous request before issuing a new one (applies to departments/branches/employees)
+        if (this.currentRequestSub) {
+            this.currentRequestSub.unsubscribe();
+            this.currentRequestSub = null;
+        }
+
         if (this.selectedRecipientType === 'department') {
-            this.departmentsService.getAllDepartment(page, perPage, { search: search || undefined }).subscribe({
+            this.currentRequestSub = this.departmentsService.getAllDepartment(page, perPage, { search: search || undefined }).subscribe({
                 next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.name })),
-                error: () => this.isLoadingItems = false
+                error: () => { this.isLoadingItems = false; this.currentRequestSub = null; }
             });
         } else if (this.selectedRecipientType === 'branch') {
-            this.branchesService.getAllBranches(page, perPage, { search: search || undefined }).subscribe({
+            this.currentRequestSub = this.branchesService.getAllBranches(page, perPage, { search: search || undefined }).subscribe({
                 next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.name })),
-                error: () => this.isLoadingItems = false
+                error: () => { this.isLoadingItems = false; this.currentRequestSub = null; }
             });
         } else if (this.selectedRecipientType === 'employee') {
-            this.employeeService.getEmployees(page, perPage, search).subscribe({
+            // For employee searches triggered by typing, the employeeSearchSubject + switchMap handles cancellation.
+            // Here we still support explicit loads (e.g., pagination) and ensure previous request is cancelled.
+            this.currentRequestSub = this.employeeService.getEmployees(page, perPage, search).subscribe({
                 next: (res: any) => {
                     const items = (res?.data?.list_items ?? res?.list_items ?? res?.data ?? []) || [];
                     const normalized = Array.isArray(items) ? items.map((x: any) => {
-                        // Extract employee name from contact_info first (API standard), then fallback to other fields
                         const contactName = x.object_info?.contact_info?.name;
                         const name = contactName ||
                             x.object_info?.name ||
@@ -486,7 +552,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
                             id: x.object_info?.id ?? x.id,
                             code: x.object_info?.code ?? x.code ?? x.id,
                             name: name,
-                            fullName: name  // Ensure fullName is also set for display
+                            fullName: name
                         };
                     }).filter((emp: any) => emp.id && emp.name) : [];
                     this.availableItems = normalized;
@@ -494,8 +560,9 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
                     const computedPages = Math.ceil(this.totalItems / perPage);
                     this.totalPages = (res?.data?.total_pages ?? res?.total_pages ?? computedPages) || 1;
                     this.isLoadingItems = false;
+                    this.currentRequestSub = null;
                 },
-                error: () => this.isLoadingItems = false
+                error: () => { this.isLoadingItems = false; this.currentRequestSub = null; }
             });
         } else {
             finish({ data: { list_items: [], total_items: 0, total_pages: 1 } }, (x: any) => x);
@@ -598,6 +665,8 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.tempSelectedBranches = [];
         this.tempSelectedCompanies = [];
         this.tempSelectedSections = [];
+        // Cancel any in-flight requests related to the overlay
+        this.cancelCurrentRequest();
         this.departmentFilterBox.closeOverlay();
     }
 
@@ -621,6 +690,8 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
 
         // Update the table display
         this.updateSelectedDepartmentsTable();
+        // Cancel any in-flight overlay requests and close
+        this.cancelCurrentRequest();
         this.departmentFilterBox.closeOverlay();
     }
 
@@ -679,6 +750,19 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         }
         // small timeout to let UI refresh similarly to integration component UX
         setTimeout(() => (this.tableIsLoading = false));
+    }
+
+    /**
+     * Cancel any current in-flight overlay request.
+     */
+    private cancelCurrentRequest(): void {
+        if (this.currentRequestSub) {
+            try { this.currentRequestSub.unsubscribe(); } catch { /* ignore */ }
+            this.currentRequestSub = null;
+        }
+        // Also stop employee search pipeline's in-flight HTTP by triggering an empty term if needed
+        // (employeeSearchSubject uses switchMap which cancels automatically on next emission)
+        this.isLoadingItems = false;
     }
 
     /**
