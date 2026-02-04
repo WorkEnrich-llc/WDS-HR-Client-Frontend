@@ -1122,6 +1122,9 @@ export class ViewEmployeeComponent implements OnInit {
 
   // Tab management method
   setCurrentTab(tab: 'dashboard' | 'attendance' | 'schedule' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices', updateQuery: boolean = true): void {
+    // Save scroll position BEFORE switching tab to avoid potential height change issues
+    const scrollPos = window.scrollY;
+
     if (tab === 'devices') {
       this.loadEmployeeDevices(!this.devicesAttempted);
     }
@@ -1129,7 +1132,6 @@ export class ViewEmployeeComponent implements OnInit {
 
     // Update query param to persist selected tab in URL
     if (updateQuery) {
-      const scrollPos = window.scrollY;
       try {
         // Persist using `tab` query param (preferred). Keep other params unchanged.
         this.router.navigate([], {
@@ -1138,7 +1140,8 @@ export class ViewEmployeeComponent implements OnInit {
           queryParamsHandling: 'merge',
           replaceUrl: true
         }).then(() => {
-          window.scrollTo(0, scrollPos);
+          // Restore scroll position after navigation
+          window.scrollTo({ top: scrollPos, behavior: 'instant' });
         });
       } catch (e) {
         // ignore navigation errors
