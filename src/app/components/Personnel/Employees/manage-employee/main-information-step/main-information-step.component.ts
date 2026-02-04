@@ -5,10 +5,12 @@ import { ManageEmployeeSharedService } from '../services/manage-shared.service';
 import { Country } from '../countries-list';
 import { Validators } from '@angular/forms';
 
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+
 @Component({
   standalone: true,
   selector: 'app-main-information-step',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DatePickerComponent],
   templateUrl: './main-information-step.component.html',
   styleUrls: ['./main-information-step.component.css'],
   // removed viewProviders as using explicit [formGroup] in template

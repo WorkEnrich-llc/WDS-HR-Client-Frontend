@@ -268,7 +268,7 @@
                   [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   [ngModelOptions]="{ standalone: true }">
                   <option [ngValue]="null" disabled>Select Salary Portion</option>
-                  @for (portion of salaryPortions; track portion.index) {
+                  @for (portion of salaryPortions; track $index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
                     {{ portion.name }} ({{ portion.percentage }}%)
@@ -507,7 +507,7 @@
                   [attr.aria-invalid]="earlyLeaveValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   [ngModelOptions]="{ standalone: true }">
                   <option [ngValue]="null" disabled>Select Salary Portion</option>
-                  @for (portion of salaryPortions; track portion.index) {
+                  @for (portion of salaryPortions; track $index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
                     {{ portion.name }} ({{ portion.percentage }}%)
@@ -745,7 +745,7 @@
                   [attr.aria-invalid]="timeGapsValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   [ngModelOptions]="{ standalone: true }">
                   <option [ngValue]="null" disabled>Select Salary Portion</option>
-                  @for (portion of salaryPortions; track portion.index) {
+                  @for (portion of salaryPortions; track $index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
                     {{ portion.name }} ({{ portion.percentage }}%)
@@ -870,7 +870,7 @@
           </tr>
           }
           } @else {
-          @for (entry of absenceEntries; track entry; let i = $index) {
+          @for (entry of absenceEntries; track $index; let i = $index) {
           <tr>
             <td>{{ getOccurrenceLabel(i) }}</td>
             <td>
@@ -903,10 +903,10 @@
                   [attr.aria-invalid]="absenceValidationErrors[i].salaryPortion"
                   [attr.aria-describedby]="absenceValidationErrors[i].salaryPortion ? 'absence-salary-error-' + i : null"
                   [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel(i)" [attr.aria-required]="true"
-                  [disabled]="!entry.value && entry.value !== 0" [ngModelOptions]="{ standalone: true }">
-                  <option [ngValue]="null" [disabled]="entry.value != null && entry.value !== 0">Select Salary Portion
-                  </option>
-                  @for (portion of salaryPortions; track portion.index) {
+                  [disabled]="(!entry.value && entry.value !== 0) || salaryPortions.length === 0"
+                  [ngModelOptions]="{ standalone: true }">
+                  <option [ngValue]="null" [disabled]="salaryPortions.length === 0">Select Salary Portion</option>
+                  @for (portion of salaryPortions; track $index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
                     {{ portion.name }} ({{ portion.percentage }}%)
@@ -1018,7 +1018,7 @@
             <select id="flatRateSalaryPortion" [(ngModel)]="flatRateSalaryPortionIndex" class="form-select"
               [disabled]="!allowOvertime || !flatRateValue" [ngModelOptions]="{ standalone: true }">
               <option [ngValue]="null" [disabled]="flatRateValue">Select Salary Portion</option>
-              @for (portion of salaryPortions; track portion.index) {
+              @for (portion of salaryPortions; track $index) {
               <option [ngValue]="portion.index">
                 {{ portion.name }} ({{ portion.percentage }}%)
               </option>
@@ -1065,7 +1065,7 @@
                   [ngModelOptions]="{ standalone: true }">
                   <option [ngValue]="null" [disabled]="entry.rate != null && entry.rate !== 0">Select Salary Portion
                   </option>
-                  @for (portion of salaryPortions; track portion.index) {
+                  @for (portion of salaryPortions; track $index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
                       {{ portion.name }} ({{ portion.percentage }}%)
