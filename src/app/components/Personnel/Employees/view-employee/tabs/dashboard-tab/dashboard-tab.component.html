@@ -5,10 +5,13 @@
   </div>
   } @else {
   <div class="dashboard-grid">
-    <!-- Attendance Card -->
-    <div class="content-box chart-card">
+    <!-- Attendance Card (Full Width) -->
+    <div class="chart-card attendance-card">
       <div class="card-header d-flex align-items-center justify-content-between mb-4">
-        <h2>Attendance</h2>
+        <div class="header-title">
+          <h2>Attendance</h2>
+          <p class="text-muted small mb-0">Monthly attendance percentage tracking</p>
+        </div>
         <div class="form-outline select-inner">
           <select class="form-select" (change)="onParamChangeEvent('attendance_year', $event)">
             @for (y of years; track $index) {
@@ -17,13 +20,13 @@
           </select>
         </div>
       </div>
-      <div class="chart-container" style="height: 250px;">
+      <div class="chart-container" style="height: 320px; width: 100%;">
         <canvas baseChart [data]="attendanceData" [type]="'bar'" [options]="attendanceOptions"></canvas>
       </div>
     </div>
 
     <!-- Requests Card -->
-    <div class="content-box chart-card">
+    <div class="chart-card">
       <div class="card-header d-flex align-items-center justify-content-between mb-4">
         <h2>Requests</h2>
         <div class="form-outline select-inner">
@@ -34,24 +37,24 @@
           </select>
         </div>
       </div>
-      <div class="d-flex align-items-center gap-4">
-        <div class="chart-wrapper position-relative" style="width: 200px; height: 200px;">
+      <div class="d-flex flex-column align-items-center flex-xl-row gap-3">
+        <div class="chart-wrapper position-relative" style="width: 160px; height: 160px;">
           <canvas baseChart [data]="requestsData" [type]="'doughnut'" [options]="requestsOptions"></canvas>
         </div>
-        <div class="chart-legend flex-fill">
-          <div class="legend-list d-flex flex-column gap-2">
+        <div class="chart-legend w-100">
+          <div class="legend-list d-flex flex-column gap-1">
             @for (item of getSectionValues('Requests'); track $index) {
             <div class="sticker">
-              <div class="number">{{ item.value }}</div>
               <div class="label-color" [style.background-color]="item.color_code"></div>
-              <p>{{ item.label }}</p>
+              <p class="flex-grow-1">{{ item.label }}</p>
+              <div class="number text-end">{{ item.value }}</div>
             </div>
             }
             <div class="legend-divider"></div>
             <div class="sticker total">
-              <div class="number">{{ getSectionTotal('Requests') }}</div>
               <div class="label-color" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p class="flex-grow-1">Total</p>
+              <div class="number text-end">{{ getSectionTotal('Requests') }}</div>
             </div>
           </div>
         </div>
@@ -59,36 +62,36 @@
     </div>
 
     <!-- Leave Balance Card -->
-    <div class="content-box chart-card">
+    <div class="chart-card">
       <div class="card-header d-flex align-items-center justify-content-between mb-4">
         <h2>Leave Balance</h2>
-        <div class="form-outline select-inner">
+        <div class="form-outline select-inner" style="max-width: 140px;">
           <select class="form-select" (change)="onParamChangeEvent('leave_balance_leave_id', $event)">
-            <option value="">All Leave Types</option>
+            <option value="">All Types</option>
             @for (lt of leaveTypes; track $index) {
             <option [value]="lt.leave.id">{{ lt.leave.name }}</option>
             }
           </select>
         </div>
       </div>
-      <div class="d-flex align-items-center gap-4">
-        <div class="chart-wrapper position-relative" style="width: 200px; height: 200px;">
+      <div class="d-flex flex-column align-items-center flex-xl-row gap-3">
+        <div class="chart-wrapper position-relative" style="width: 160px; height: 160px;">
           <canvas baseChart [data]="leaveBalanceData" [type]="'doughnut'" [options]="leaveBalanceOptions"></canvas>
         </div>
-        <div class="chart-legend flex-fill">
-          <div class="legend-list d-flex flex-column gap-2">
+        <div class="chart-legend w-100">
+          <div class="legend-list d-flex flex-column gap-1">
             @for (item of getSectionValues('Leave Balance'); track $index) {
             <div class="sticker">
-              <div class="number">{{ item.value }}</div>
               <div class="label-color" [style.background-color]="item.color_code"></div>
-              <p>{{ item.label }}</p>
+              <p class="flex-grow-1">{{ item.label }}</p>
+              <div class="number text-end">{{ item.value }}</div>
             </div>
             }
             <div class="legend-divider"></div>
             <div class="sticker total">
-              <div class="number">{{ getSectionTotal('Leave Balance') }}</div>
               <div class="label-color" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p class="flex-grow-1">Total</p>
+              <div class="number text-end">{{ getSectionTotal('Leave Balance') }}</div>
             </div>
           </div>
         </div>
@@ -96,17 +99,16 @@
     </div>
 
     <!-- Organizational Chart Card -->
-    <div class="content-box chart-card org-chart-card">
+    <div class="chart-card org-chart-card">
       <div class="card-header d-flex align-items-center justify-content-between mb-4">
-        <h2>Company Structure</h2>
+        <h2>Structure</h2>
       </div>
 
       @if (isLoadingOrgChart) {
-      <!-- Skeleton Loader -->
       <div class="org-chart-wrapper">
         <div class="employee-hierarchy-list">
-          @for (i of [1,2,3,4,5]; track $index) {
-          <div class="employee-card skeleton">
+          @for (i of [1,2,3,4]; track $index) {
+          <div class="employee-card skeleton mb-2">
             <div class="hierarchy-arrow skeleton-arrow"></div>
             <div class="employee-avatar skeleton-avatar"></div>
             <div class="employee-info">
@@ -120,8 +122,8 @@
       } @else if (getEmployeeHierarchy().length > 0) {
       <div class="org-chart-wrapper">
         <div class="employee-hierarchy-list">
-          @for (emp of getEmployeeHierarchy(); track $index) {
-          <div class="employee-card" [class.highlighted]="emp.highlighted">
+          @for (emp of getEmployeeHierarchy().slice(0, 4); track $index) {
+          <div class="employee-card mb-1" [class.highlighted]="emp.highlighted">
             <div class="hierarchy-arrow" [style.margin-left.px]="emp.level * 20">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
                 <path d="M4 4 Q 4 16, 16 16 L 28 16" stroke="currentColor" stroke-width="2" fill="none" />
@@ -129,12 +131,12 @@
                   stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <div class="employee-avatar">
+            <div class="employee-avatar" style="width: 40px; height: 40px;">
               <img [src]="defaultImage" [alt]="emp.name" onerror="this.src='assets/images/default-avatar.png'">
             </div>
             <div class="employee-info">
               <div class="employee-id">{{ emp.code }}</div>
-              <div class="employee-name">{{ emp.name }}</div>
+              <div class="employee-name" style="font-size: 14px;">{{ emp.name }}</div>
             </div>
           </div>
           }
@@ -142,7 +144,7 @@
 
         <!-- View Full Chart Button -->
         <div class="view-full-chart">
-          <button class="btn-view-chart" (click)="openOrgChartModal()">
+          <button class="btn-view-chart" (click)="navigateToOrgChart()">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
               <path fill="currentColor"
                 d="M14 3v2h3.59l-9.83 9.83l1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2z" />
@@ -152,12 +154,8 @@
         </div>
       </div>
       } @else {
-      <div class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-          <path fill="currentColor" opacity="0.3"
-            d="M21 20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.49a1 1 0 0 1 .386-.79l8-6.222a1 1 0 0 1 1.228 0l8 6.222a1 1 0 0 1 .386.79z" />
-        </svg>
-        <p>No organizational data available</p>
+      <div class="empty-state py-4">
+        <p class="small text-muted mb-0">No organizational data available</p>
       </div>
       }
     </div>
