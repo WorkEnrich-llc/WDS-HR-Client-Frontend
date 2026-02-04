@@ -198,6 +198,8 @@ export class AttendanceLogComponent implements OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
   private toasterSubscription!: Subscription;
+  // Subscription for the current attendance API request so we can cancel when switching days/filters
+  private attendanceRequestSubscription?: Subscription;
   private destroy$ = new Subject<void>();
 
   employees: any[] = [];
@@ -427,9 +429,16 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
+    // Cancel any in-flight attendance request before starting a new one
+    if (this.attendanceRequestSubscription) {
+      try { this.attendanceRequestSubscription.unsubscribe(); } catch (e) { /* ignore */ }
+      this.attendanceRequestSubscription = undefined;
+    }
+
     this.loadData = true;
     this.isLoading = true;
-    this._AttendanceLogService.getAttendanceLog(filters).subscribe({
+
+    this.attendanceRequestSubscription = this._AttendanceLogService.getAttendanceLog(filters).subscribe({
       next: (data) => {
         const info = data.data.object_info;
         this.employees = info.list_items.map((emp: any) => ({
@@ -441,12 +450,15 @@ export class AttendanceLogComponent implements OnDestroy {
         this.totalPages = info.total_pages;
         this.loadData = false;
         this.isLoading = false;
-
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
         this.loadData = false;
         this.isLoading = false;
+      },
+      complete: () => {
+        // Clear reference when completed
+        this.attendanceRequestSubscription = undefined;
       }
     });
   }
@@ -578,6 +590,10 @@ export class AttendanceLogComponent implements OnDestroy {
   // Unified helpers for template action visibility
   shouldShowActionMenu(record: any): boolean {
     if (!record) return false;
+
+    // If the record is canceled, only show the action menu so the user can activate it.
+    if (record.canceled) return true;
+
     // Do not show actions for certain statuses
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
 
@@ -594,32 +610,48 @@ export class AttendanceLogComponent implements OnDestroy {
 
   shouldShowAddCheckIn(record: any): boolean {
     if (!record) return false;
+    // Do not allow adding check-in on canceled logs
+    if (record.canceled) return false;
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return !this.hasCheckIn(record);
   }
 
   shouldShowAddCheckOut(record: any): boolean {
     if (!record) return false;
+    // Do not allow adding check-out on canceled logs
+    if (record.canceled) return false;
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
   shouldShowEditCheckIn(record: any): boolean {
     if (!record) return false;
+    // Do not allow editing check-in on canceled logs
+    if (record.canceled) return false;
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
   shouldShowEditLog(record: any): boolean {
     if (!record) return false;
+    // Do not allow editing logs on canceled records
+    if (record.canceled) return false;
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasBothCheckInAndOut(record) || (!this.hasCheckIn(record) && !this.hasCheckOut(record));
   }
 
   shouldShowCancelOrActivate(record: any): boolean {
     if (!record) return false;
+    // If canceled, show the action so user can activate it.
+    if (record.canceled) return true;
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) || this.hasCheckOut(record);
+  }
+
+  // Show the "Activate" action when a log is canceled
+  shouldShowActivate(record: any): boolean {
+    if (!record) return false;
+    return !!record.canceled;
   }
 
   onSearchChange() {
@@ -903,8 +935,8 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        // show toast
-        try { this.toasterService.showSuccess('Attendance log canceled successfully.'); } catch (e) { /* ignore */ }
+        // // show toast
+        // try { this.toasterService.showSuccess('Attendance log canceled successfully.'); } catch (e) { /* ignore */ }
       },
       error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
@@ -1210,6 +1242,10 @@ export class AttendanceLogComponent implements OnDestroy {
     }
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
+    }
+    if (this.attendanceRequestSubscription) {
+      try { this.attendanceRequestSubscription.unsubscribe(); } catch (e) { /* ignore */ }
+      this.attendanceRequestSubscription = undefined;
     }
 
     // Complete the search subject
