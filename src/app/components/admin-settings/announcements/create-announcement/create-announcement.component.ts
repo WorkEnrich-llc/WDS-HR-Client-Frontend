@@ -711,6 +711,37 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         return `Showing ${startItem}-${endItem} from ${this.totalItems}`;
     }
 
+    /**
+     * Returns the appropriate empty message for the overlay modal table
+     * based on the currently selected recipient overlay and search state.
+     */
+    getModalEmptyMessage(): string {
+        // If still loading, let the table show the loader state instead of a message.
+        if (this.isLoadingItems) {
+            return 'Loading...';
+        }
+
+        const term = (this.modalSearchTerm || '').trim();
+
+        switch (this.selectedRecipientType) {
+            case 'department':
+                return term ? `No departments found for "${term}".` : 'No departments found.';
+            case 'section':
+                if (!this.selectedDepartmentId) {
+                    return 'Please select a department to view its sections.';
+                }
+                return term ? `No sections found for "${term}".` : 'No sections found for the selected department.';
+            case 'employee':
+                return term ? `No employees found for "${term}".` : 'No employees found.';
+            case 'branch':
+                return term ? `No branches found for "${term}".` : 'No branches found.';
+            case 'company':
+                return 'No companies found.';
+            default:
+                return 'No items found.';
+        }
+    }
+
     // Overlay table pagination handlers (mirror view-departments)
     onOverlayPageChange(page: number): void {
         this.currentPage = page;
