@@ -799,11 +799,25 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   addAbsenceRow() {
     this.absenceEntries.push({ value: null, salaryPortionIndex: null });
+    const newIndex = this.absenceEntries.length - 1;
+    this.absenceValidationErrors[newIndex] = { value: false, salaryPortion: false };
   }
 
   removeAbsenceRow(index: number) {
     if (this.absenceEntries.length > 1) {
       this.absenceEntries.splice(index, 1);
+
+      // Clean up and re-index validation errors
+      const newErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
+      Object.keys(this.absenceValidationErrors).forEach(key => {
+        const oldIndex = parseInt(key);
+        if (oldIndex < index) {
+          newErrors[oldIndex] = this.absenceValidationErrors[oldIndex];
+        } else if (oldIndex > index) {
+          newErrors[oldIndex - 1] = this.absenceValidationErrors[oldIndex];
+        }
+      });
+      this.absenceValidationErrors = newErrors;
     }
   }
   getOccurrenceLabel(index: number): string {

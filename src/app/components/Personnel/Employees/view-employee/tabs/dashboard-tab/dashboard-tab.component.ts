@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
 import { BaseChartDirective } from 'ng2-charts';
@@ -18,6 +19,7 @@ export class DashboardTabComponent implements OnInit {
     private employeeService = inject(EmployeeService);
     private leaveBalanceService = inject(LeaveBalanceService);
     private chartsService = inject(ChartsService);
+    private router = inject(Router);
 
     isLoading = true;
     dashboardData: any[] = [];
@@ -71,18 +73,19 @@ export class DashboardTabComponent implements OnInit {
 
     // Attendance Chart (Dummy Data)
     public attendanceData: ChartData<'bar'> = {
-        labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [
             {
-                data: [95, 75, 40, 60, 80, 90, 80, 98, 80],
+                data: [85, 70, 90, 95, 75, 40, 60, 80, 90, 80, 98, 80],
                 backgroundColor: '#FF8F8F',
                 borderRadius: 8,
-                barThickness: 15
+                maxBarThickness: 40
             }
         ]
     };
     public attendanceOptions: ChartConfiguration<'bar'>['options'] = {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
             y: {
                 beginAtZero: true,
@@ -254,5 +257,9 @@ export class DashboardTabComponent implements OnInit {
 
         // Return only first 5 employees like in the image
         return employees.slice(0, 5);
+    }
+
+    navigateToOrgChart(): void {
+        this.router.navigate(['/organizational-Chart/chart/company-chart']);
     }
 }

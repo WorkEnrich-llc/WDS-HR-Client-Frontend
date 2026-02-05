@@ -132,21 +132,23 @@ export const toastInterceptor: HttpInterceptorFn = (
     tap({
       next: (event) => {
         if (event instanceof HttpResponse && shouldShowToast) {
+          // Both 2xx and specific success messages in other codes should be handled
           if (event.status >= 200 && event.status < 300) {
             const responseBody = event.body;
             let message = '';
 
-            if (responseBody?.data?.details) {
-              message = responseBody.data.details;
-            }
-            else if (responseBody?.data?.message) {
-              message = responseBody.data.message;
+            // Prioritize root-level details/message as per user's API response
+            if (responseBody?.details) {
+              message = responseBody.details;
             }
             else if (responseBody?.message) {
               message = responseBody.message;
             }
-            else if (responseBody?.details) {
-              message = responseBody.details;
+            else if (responseBody?.data?.details) {
+              message = responseBody.data.details;
+            }
+            else if (responseBody?.data?.message) {
+              message = responseBody.data.message;
             }
             else if (typeof responseBody?.data === 'string') {
               message = responseBody.data;

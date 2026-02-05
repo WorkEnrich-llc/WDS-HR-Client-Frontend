@@ -40,11 +40,16 @@ export class AppComponent {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     this.updateStyles(lang);
 
-    // Scroll to top on navigation
+    // Scroll to top on navigation only if path changed
+    let lastUrl = '';
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.viewportScroller.scrollToPosition([0, 0]);
+      const currentPath = event.urlAfterRedirects.split('?')[0];
+      if (currentPath !== lastUrl) {
+        this.viewportScroller.scrollToPosition([0, 0]);
+        lastUrl = currentPath;
+      }
       // Hide version badge on public client job board routes
       this.hideVersionDisplay = event.urlAfterRedirects.includes('/careers');
     });

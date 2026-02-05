@@ -198,6 +198,8 @@ export class AttendanceLogComponent implements OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
   private toasterSubscription!: Subscription;
+  // Subscription for the current attendance API request so we can cancel when switching days/filters
+  private attendanceRequestSubscription?: Subscription;
   private destroy$ = new Subject<void>();
 
   employees: any[] = [];
@@ -427,9 +429,16 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
+    // Cancel any in-flight attendance request before starting a new one
+    if (this.attendanceRequestSubscription) {
+      try { this.attendanceRequestSubscription.unsubscribe(); } catch (e) { /* ignore */ }
+      this.attendanceRequestSubscription = undefined;
+    }
+
     this.loadData = true;
     this.isLoading = true;
-    this._AttendanceLogService.getAttendanceLog(filters).subscribe({
+
+    this.attendanceRequestSubscription = this._AttendanceLogService.getAttendanceLog(filters).subscribe({
       next: (data) => {
         const info = data.data.object_info;
         this.employees = info.list_items.map((emp: any) => ({
@@ -441,12 +450,15 @@ export class AttendanceLogComponent implements OnDestroy {
         this.totalPages = info.total_pages;
         this.loadData = false;
         this.isLoading = false;
-
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
         this.loadData = false;
         this.isLoading = false;
+      },
+      complete: () => {
+        // Clear reference when completed
+        this.attendanceRequestSubscription = undefined;
       }
     });
   }
@@ -578,6 +590,10 @@ export class AttendanceLogComponent implements OnDestroy {
   // Unified helpers for template action visibility
   shouldShowActionMenu(record: any): boolean {
     if (!record) return false;
+
+    // If the record is canceled, only show the action menu so the user can activate it.
+    if (record.canceled) return true;
+
     // Do not show actions for certain statuses
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
 
@@ -594,32 +610,48 @@ export class AttendanceLogComponent implements OnDestroy {
 
   shouldShowAddCheckIn(record: any): boolean {
     if (!record) return false;
+    // Do not allow adding check-in on canceled logs
+    if (record.canceled) return false;
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return !this.hasCheckIn(record);
   }
 
   shouldShowAddCheckOut(record: any): boolean {
     if (!record) return false;
+    // Do not allow adding check-out on canceled logs
+    if (record.canceled) return false;
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
   shouldShowEditCheckIn(record: any): boolean {
     if (!record) return false;
+    // Do not allow editing check-in on canceled logs
+    if (record.canceled) return false;
     if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
   shouldShowEditLog(record: any): boolean {
     if (!record) return false;
+    // Do not allow editing logs on canceled records
+    if (record.canceled) return false;
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasBothCheckInAndOut(record) || (!this.hasCheckIn(record) && !this.hasCheckOut(record));
   }
 
   shouldShowCancelOrActivate(record: any): boolean {
     if (!record) return false;
+    // If canceled, show the action so user can activate it.
+    if (record.canceled) return true;
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) || this.hasCheckOut(record);
+  }
+
+  // Show the "Activate" action when a log is canceled
+  shouldShowActivate(record: any): boolean {
+    if (!record) return false;
+    return !!record.canceled;
   }
 
   onSearchChange() {
@@ -893,21 +925,16 @@ export class AttendanceLogComponent implements OnDestroy {
     }
     this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
-        attendance.canceled = true;
+        const wasCanceled = attendance.canceled;
+        attendance.canceled = !wasCanceled;
         this.isLoading = false;
-        // this.toasterService.showSuccess('Attendance log canceled successfully.');
-        // Refresh current page to reflect changes
-        this.getAllAttendanceLog({
-          page: this.currentPage,
-          per_page: this.itemsPerPage,
-          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
-        });
-        // show toast
-        try { this.toasterService.showSuccess('Attendance log canceled successfully.'); } catch (e) { /* ignore */ }
+        const msg = wasCanceled ? 'Attendance log activated successfully.' : 'Attendance log canceled successfully.';
+        this.toasterService.showSuccess(msg);
+        // Refresh current page to reflect changes while preserving filters
+        this.loadFilteredAttendance();
       },
       error: (err: any) => {
-        this.toasterService.showError('Failed to cancel attendance log.');
+        this.toasterService.showError('Failed to update attendance log status.');
         this.isLoading = false;
         console.error(err);
       }
@@ -1139,22 +1166,33 @@ export class AttendanceLogComponent implements OnDestroy {
     }
 
     obs$.subscribe({
-      next: () => {
+      next: (res: any) => {
+        // Handle successful response (including 200, 201, 202 etc)
+        const successMsg = res?.details || res?.message || 'Attendance updated successfully.';
         this.closeEditModal();
         this.editModalLoading = false;
-        this.getAllAttendanceLog({
-          page: this.currentPage,
-          per_page: this.itemsPerPage,
-          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: '',
-          search: this.searchTerm || undefined
-        });
-        // Notify user of success
-        try { this.toasterService.showSuccess('Attendance updated successfully.'); } catch (e) { /* ignore */ }
+
+        // Refresh current day logs
+        this.loadFilteredAttendance();
+
+        // Success toasters are also handled by the global interceptor, 
+        // but we keep this here as a fallback or if the interceptor skips it.
+        this.toasterService.showSuccess(successMsg);
       },
-      error: (err) => {
-        this.closeEditModal();
+      error: (err: any) => {
         this.editModalLoading = false;
+        const errorBody = err.error || {};
+        const errorMessage = errorBody.details || errorBody.message || 'An error occurred. Please try again.';
+
+        // Critical fallback: If the interceptor logic failed or the status code was misleading
+        // but the message says 'successfully', treat it as a win.
+        if (errorMessage.toLowerCase().includes('successfully')) {
+          this.closeEditModal();
+          this.loadFilteredAttendance();
+          this.toasterService.showSuccess(errorMessage);
+        } else {
+          this.toasterService.showError(errorMessage);
+        }
       }
     });
   }
@@ -1177,18 +1215,13 @@ export class AttendanceLogComponent implements OnDestroy {
     const actionText = hasDeduction ? 'remove' : 'add';
     this._AttendanceLogService.toggleDeduction(id).subscribe({
       next: () => {
-        this.getAllAttendanceLog({
-          page: this.currentPage,
-          per_page: this.itemsPerPage,
-          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: '',
-          search: this.searchTerm || undefined
-        });
+        this.loadFilteredAttendance();
         this.closeDeductionModal();
-        try { this.toasterService.showSuccess('Deduction updated successfully.'); } catch (e) { /* ignore */ }
+        this.toasterService.showSuccess('Deduction updated successfully.');
       },
       error: () => {
         this.deductionModalLoading = false;
+        this.toasterService.showError('Failed to update deduction.');
       }
     });
   }
@@ -1210,6 +1243,10 @@ export class AttendanceLogComponent implements OnDestroy {
     }
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
+    }
+    if (this.attendanceRequestSubscription) {
+      try { this.attendanceRequestSubscription.unsubscribe(); } catch (e) { /* ignore */ }
+      this.attendanceRequestSubscription = undefined;
     }
 
     // Complete the search subject
