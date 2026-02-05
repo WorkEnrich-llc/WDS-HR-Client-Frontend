@@ -928,8 +928,8 @@ export class AttendanceLogComponent implements OnDestroy {
         const wasCanceled = attendance.canceled;
         attendance.canceled = !wasCanceled;
         this.isLoading = false;
-        const msg = wasCanceled ? 'Attendance log activated successfully.' : 'Attendance log canceled successfully.';
-        this.toasterService.showSuccess(msg);
+        // const msg = wasCanceled ? 'Attendance log activated successfully.' : 'Attendance log canceled successfully.';
+        // this.toasterService.showSuccess(msg);
         // Refresh current page to reflect changes while preserving filters
         this.loadFilteredAttendance();
       },
