@@ -166,7 +166,8 @@ export class WorkScheduleComponent implements OnInit, OnDestroy {
       search: searchTerm || undefined,
     }).subscribe({
       next: (response) => {
-        this.departments = response.data.list_items;
+        // Only include active departments in the filter list
+        this.departments = (response.data.list_items || []).filter((d: any) => d.is_active === true);
         this.loadingDepartments = false;
       },
       error: (err) => {
