@@ -453,6 +453,7 @@ export class EditJobComponent {
     this.removedManager = null;
     this.newManagerSelected = false;
     this.managerRemoved = false;
+    this.selectedManagerId = null;
 
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
   }
@@ -602,6 +603,8 @@ export class EditJobComponent {
 
 
   allActiveJobTitles: any[] = [];
+  // persist selected manager across pagination
+  selectedManagerId: number | null = null;
   /**
    * Fetch job titles for the table.
    * By default only fetches the paged list (main request).
@@ -629,10 +632,11 @@ export class EditJobComponent {
         tap((mainRes: any) => {
           const activeList = mainRes.data.list_items.map((item: any) => {
             const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+            const assignedByUser = this.selectedManagerId !== null ? item.id === this.selectedManagerId : false;
             return {
               id: item.id,
               name: item.name,
-              assigned: isAssigned || false,
+              assigned: isAssigned || assignedByUser || false,
               is_active: item.is_active
             };
           });
@@ -674,10 +678,11 @@ export class EditJobComponent {
       tap(([mainRes, checkRes]) => {
         const activeList = mainRes.data.list_items.map((item: any) => {
           const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+          const assignedByUser = this.selectedManagerId !== null ? item.id === this.selectedManagerId : false;
           return {
             id: item.id,
             name: item.name,
-            assigned: isAssigned || false,
+            assigned: isAssigned || assignedByUser || false,
             is_active: item.is_active
           };
         });
@@ -897,6 +902,8 @@ export class EditJobComponent {
       current.assigned = false;
       current.assigns = [];
       this.managerRemoved = true;
+      // clear persisted selection when removing current manager
+      this.selectedManagerId = null;
       this.checkForChanges();
     }
   }
@@ -923,6 +930,8 @@ export class EditJobComponent {
     }
 
     this.newManagerSelected = true;
+    // persist selection across pagination
+    this.selectedManagerId = selectedJob.id;
     this.checkForChanges();
   }
 

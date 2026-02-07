@@ -176,6 +176,7 @@ export class CreateNewJobTitleComponent {
 
 
     this.jobTitles = this.jobTitles.map(job => ({ ...job, assigned: false, assigns: [] }));
+    this.selectedManagerId = null;
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
 
@@ -268,6 +269,8 @@ export class CreateNewJobTitleComponent {
   noResultsFound: boolean = false;
   loadJobs: boolean = false;
   selectJobError: boolean = false;
+  // persist selected manager across pagination
+  selectedManagerId: number | null = null;
 
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
     this.loadJobs = true;
@@ -291,10 +294,11 @@ export class CreateNewJobTitleComponent {
         this.ManageTotalItems = response.data.total_items;
         this.ManagetotalPages = response.data.total_pages;
 
+        // Preserve selection across pagination: if an item matches selectedManagerId mark it assigned
         this.jobTitles = response.data.list_items.map((item: any) => ({
           id: item.id,
           name: item.name,
-          assigned: false
+          assigned: this.selectedManagerId !== null ? item.id === this.selectedManagerId : false
         }));
 
         this.sortDirection = 'desc';
@@ -476,10 +480,12 @@ export class CreateNewJobTitleComponent {
   toggleAssignStatus(selectedJob: any) {
     if (selectedJob.assigned) {
       selectedJob.assigned = false;
+      this.selectedManagerId = null;
     } else {
       this.jobTitles.forEach(job => {
         job.assigned = (job.id === selectedJob.id);
       });
+      this.selectedManagerId = selectedJob.id;
     }
   }
 
