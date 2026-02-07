@@ -463,7 +463,14 @@ export class EditJobComponent {
     if (!this.jobTitles?.length) return [];
 
     return this.jobTitles.map(job => {
-      const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
+      // If user explicitly selected a manager during this session, prefer that selection.
+      // Otherwise fall back to job.assigned or the original assignment returned by the API.
+      let isAssigned = false;
+      if (this.selectedManagerId !== null) {
+        isAssigned = job.id === this.selectedManagerId;
+      } else {
+        isAssigned = !!job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
+      }
 
       return {
         ...job,
@@ -632,11 +639,13 @@ export class EditJobComponent {
         tap((mainRes: any) => {
           const activeList = mainRes.data.list_items.map((item: any) => {
             const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
-            const assignedByUser = this.selectedManagerId !== null ? item.id === this.selectedManagerId : false;
+            // If the user has selected a new manager, the UI should show only that selection.
+            // Use selectedManagerId as the override; otherwise fall back to original assignment.
+            const assignedResolved = this.selectedManagerId !== null ? item.id === this.selectedManagerId : !!isAssigned;
             return {
               id: item.id,
               name: item.name,
-              assigned: isAssigned || assignedByUser || false,
+              assigned: assignedResolved,
               is_active: item.is_active
             };
           });
@@ -678,11 +687,12 @@ export class EditJobComponent {
       tap(([mainRes, checkRes]) => {
         const activeList = mainRes.data.list_items.map((item: any) => {
           const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
-          const assignedByUser = this.selectedManagerId !== null ? item.id === this.selectedManagerId : false;
+          // Respect user's current selection when present; otherwise show original assignment
+          const assignedResolved = this.selectedManagerId !== null ? item.id === this.selectedManagerId : !!isAssigned;
           return {
             id: item.id,
             name: item.name,
-            assigned: isAssigned || assignedByUser || false,
+            assigned: assignedResolved,
             is_active: item.is_active
           };
         });
