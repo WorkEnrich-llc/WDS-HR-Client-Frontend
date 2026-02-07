@@ -833,14 +833,14 @@
           <div class="d-flex align-items-center justify-content-between">
             <div>
               <h2>Last Known Device</h2>
-              <small class="mb-0 text-muted">Seen: {{ formatDeviceDate(employee.device?.last_seen) }}</small>
+              <small class="mb-0 text-muted">Seen: {{ formatDeviceDate(employee.device.last_seen) }}</small>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge-success" [ngClass]="
-                  employee.device?.is_main ? 'badge-newjoiner' : 'badge-gray'
+            <span class="badge-success" [ngClass]="
+                  employee.device.is_main ? 'badge-newjoiner' : 'badge-gray'
                 ">
                 {{
-                employee.device?.is_main
+                employee.device.is_main
                 ? "Primary Device"
                 : "Secondary Device"
                 }}
@@ -865,21 +865,21 @@
             <div class="info stagger-1">
               <h6>TYPE</h6>
               <span class="text-capitalize">{{
-                employee.device?.device_type || "—"
+                employee.device.device_type || "—"
                 }}</span>
             </div>
             <div class="info stagger-2">
               <h6>BRAND</h6>
-              <span>{{ employee.device?.device_family || "—" }}</span>
+              <span>{{ employee.device.device_family || "—" }}</span>
             </div>
             <div class="info stagger-3">
               <h6>MODEL</h6>
-              <span>{{ employee.device?.device_model || "—" }}</span>
+              <span>{{ employee.device.device_model || "—" }}</span>
             </div>
             <div class="info stagger-4">
               <h6>LANGUAGE</h6>
               <span class="text-uppercase">{{
-                employee.device?.device_ln || "—"
+                employee.device.device_ln || "—"
                 }}</span>
             </div>
           </div>

@@ -102,7 +102,8 @@ export class EditJobComponent {
 
     });
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
+      this.ManageCurrentPage = 1;
+      this.getAllJobTitles(this.ManageCurrentPage, value).subscribe();
     });
 
     this.watchFormChanges();
@@ -156,8 +157,37 @@ export class EditJobComponent {
         return this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
       })
     ).subscribe({
-      next: () => {
+      next: (mainRes: any) => {
         this.loadData = false;
+
+        // If original assigned manager exists but wasn't returned in the paged result,
+        // fetch the full active list to check whether the original manager is inactive.
+        const originalAssigned = this.jobTitleData?.assigns?.[0];
+        if (originalAssigned) {
+          const foundInPage = mainRes?.data?.list_items?.some((j: any) => j.id === originalAssigned.id);
+          if (!foundInPage) {
+            // Instead of fetching the whole list with per_page=10000,
+            // fetch the specific job title to determine if it's active.
+            this._JobsService.showJobTitle(originalAssigned.id).subscribe({
+              next: (res: any) => {
+                const obj = res?.data?.object_info;
+                if (obj && obj.is_active === false) {
+                  this.removedManager = {
+                    ...originalAssigned,
+                    is_active: false,
+                    assigned: true,
+                    name: originalAssigned.name + ' (Not Active)'
+                  };
+                } else {
+                  this.removedManager = null;
+                }
+              },
+              error: () => {
+                // ignore errors
+              }
+            });
+          }
+        }
       },
       error: () => {
         this.loadData = false;
@@ -303,10 +333,7 @@ export class EditJobComponent {
       assignedId: this.currentManager?.id || null
     };
 
-    const currentLevel = this.jobStep1.get('managementLevel')?.value;
-    if (currentLevel) {
-      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
-    }
+    // Don't automatically fetch here — callers decide whether to load the table.
   }
 
 
@@ -427,7 +454,7 @@ export class EditJobComponent {
     this.newManagerSelected = false;
     this.managerRemoved = false;
 
-    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
   }
 
   get filteredJobTitles() {
@@ -575,7 +602,13 @@ export class EditJobComponent {
 
 
   allActiveJobTitles: any[] = [];
-  getAllJobTitles(ManageCurrentPage: number, searchTerm: string = ''): Observable<any> {
+  /**
+   * Fetch job titles for the table.
+   * By default only fetches the paged list (main request).
+   * If `fetchAll` is true it will also fetch a full list (per_page=10000) used for checks
+   * such as determining if the original assigned manager exists in the active list.
+   */
+  getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '', fetchAll: boolean = false): Observable<any> {
     this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
 
@@ -590,6 +623,43 @@ export class EditJobComponent {
       }
     );
 
+    if (!fetchAll) {
+      // Only need the paged data
+      return mainRequest$.pipe(
+        tap((mainRes: any) => {
+          const activeList = mainRes.data.list_items.map((item: any) => {
+            const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+            return {
+              id: item.id,
+              name: item.name,
+              assigned: isAssigned || false,
+              is_active: item.is_active
+            };
+          });
+
+          this.jobTitles = activeList;
+          this.allActiveJobTitles = activeList;
+
+          // pagination
+          this.ManageCurrentPage = Number(mainRes.data.page);
+          this.ManageTotalItems = mainRes.data.total_items;
+          this.ManagetotalPages = Math.ceil(this.ManageTotalItems / this.manageItemsPerPage);
+
+          // sorting
+          this.sortDirection = 'desc';
+          this.currentSortColumn = 'id';
+          this.sortBy();
+
+          this.loadJobs = false;
+        }),
+        catchError(err => {
+          this.loadJobs = false;
+          return of(null);
+        })
+      );
+    }
+
+    // When fetchAll is true, also request the full active list for checks (per_page=10000)
     const checkRequest$ = this._JobsService.getAllJobTitles(
       1,
       10000,
@@ -744,7 +814,7 @@ export class EditJobComponent {
           if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
             this.selectJobError = true;
           }
-          this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+          this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
         }
         return;
       }
@@ -754,7 +824,7 @@ export class EditJobComponent {
     this.selectJobError = false;
 
     if (step === 3) {
-      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
     }
   }
 
