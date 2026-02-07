@@ -1635,7 +1635,6 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.isAssignmentSubmitting = false;
-        this.toasterService.showError('Failed to send assignment');
       }
     });
   }
