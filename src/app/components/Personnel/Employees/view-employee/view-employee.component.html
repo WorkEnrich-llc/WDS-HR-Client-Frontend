@@ -739,7 +739,7 @@
           <!-- <h6>Join Date</h6> -->
           <span>
             {{
-            (employee.job_info.start_contract | date : "dd/MM/yyyy") || "N/A"
+            (employee.created_at | date : "dd/MM/yyyy") || "N/A"
             }}
           </span>
         </div>
