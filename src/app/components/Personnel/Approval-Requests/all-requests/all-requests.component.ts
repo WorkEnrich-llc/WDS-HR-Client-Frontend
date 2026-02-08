@@ -17,7 +17,7 @@ import { DatePipe } from '@angular/common';
   selector: 'app-all-requests',
   imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent,
     FormsModule, ReactiveFormsModule, NgxDaterangepickerMd, RouterLink, DatePipe],
-    providers: [DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
 })
@@ -54,7 +54,8 @@ export class AllRequestsComponent {
 
   ngOnInit(): void {
     this.initializeFilterForm();
-    this.loadApprovalRequests(this.currentPage);
+    // Initial load is handled by the queryParams subscription below.
+    // Calling loadApprovalRequests here causes the API to be invoked twice on component init.
 
     // this.route.queryParams.pipe(skip(1)).subscribe(params => {
     //   this.currentPage = +params['page'] || 1;
