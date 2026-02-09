@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass, CommonModule } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -38,7 +38,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-edit-job',
-  imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent, NgClass],
+  imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent, NgClass, CommonModule],
   providers: [DatePipe],
   templateUrl: './edit-job.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-job.component.css']
@@ -58,6 +58,8 @@ export class EditJobComponent {
   originalData: any;
   originalAssignedIds: number[] = [];
   private searchSubject = new Subject<string>();
+  showSectionDropdown: boolean = false;
+  @ViewChild('sectionDropdownRef') sectionDropdownRef!: ElementRef;
 
   constructor(
     private toasterMessageService: ToasterMessageService,
@@ -109,6 +111,66 @@ export class EditJobComponent {
     this.watchFormChanges();
   }
 
+  toggleSectionDropdown() {
+    this.showSectionDropdown = !this.showSectionDropdown;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.sectionDropdownRef) return;
+    const target = event.target as HTMLElement;
+    if (this.sectionDropdownRef && !this.sectionDropdownRef.nativeElement.contains(target)) {
+      this.showSectionDropdown = false;
+    }
+  }
+
+  isSectionChecked(sectionId: number) {
+    const val = this.jobStep1.get('section')?.value || [];
+    return Array.isArray(val) && val.includes(sectionId);
+  }
+
+  toggleSectionSelection(sectionId: number, event?: Event) {
+    event?.stopPropagation();
+    const ctrl = this.jobStep1.get('section');
+    let val = ctrl?.value || [];
+    if (!Array.isArray(val)) val = [];
+    const idx = val.indexOf(sectionId);
+    if (idx > -1) {
+      val.splice(idx, 1);
+    } else {
+      val.push(sectionId);
+    }
+    ctrl?.setValue([...val]);
+    this.checkForChanges();
+  }
+
+  isAllSelected() {
+    if (!this.sections || this.sections.length === 0) return false;
+    const val = this.jobStep1.get('section')?.value || [];
+    return Array.isArray(val) && val.length === this.sections.length;
+  }
+
+  toggleSelectAllSections() {
+    const ctrl = this.jobStep1.get('section');
+    if (this.isAllSelected()) {
+      ctrl?.setValue([]);
+    } else {
+      ctrl?.setValue(this.sections.map(s => s.id));
+    }
+    this.checkForChanges();
+  }
+
+  // helper to return selected section objects for UI chips/badges
+  getSelectedSections() {
+    const selectedIds = this.jobStep1.get('section')?.value || [];
+    if (!Array.isArray(selectedIds) || selectedIds.length === 0) return [];
+    return this.sections.filter(s => selectedIds.includes(s.id));
+  }
+
+  getSelectedSectionsNames(): string {
+    return this.getSelectedSections().map(s => s.name).join(', ');
+  }
+
   get numericJobId(): number | null {
     return this.jobId !== null ? +this.jobId : null;
   }
@@ -119,7 +181,8 @@ export class EditJobComponent {
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
-    section: new FormControl({ value: '', disabled: true }),
+    // make `section` a multi-select control (array of ids)
+    section: new FormControl({ value: [], disabled: true }),
   });
 
 
@@ -288,7 +351,8 @@ export class EditJobComponent {
         ? this.jobTitleData.job_level
         : '',
       department: this.jobTitleData.department?.id || '',
-      section: this.jobTitleData.section?.id || ''
+      // set section as array for multi-select UI
+      section: this.jobTitleData.section?.id ? [this.jobTitleData.section.id] : []
     });
 
     // --- Step 2 (Salary Ranges) ---
@@ -324,13 +388,25 @@ export class EditJobComponent {
 
     this.setFieldsBasedOnLevel(this.jobTitleData.management_level);
 
+    // Track original assigned manager IDs
+    this.originalAssignedIds = Array.isArray(this.jobTitleData?.assigns)
+      ? this.jobTitleData.assigns.map((a: any) => Number(a.id))
+      : [];
+
+    // Initialize selectedManagerId with the first assigned manager's ID (to track changes)
+    if (this.originalAssignedIds.length > 0) {
+      this.selectedManagerId = this.originalAssignedIds[0];
+    } else {
+      this.selectedManagerId = null;
+    }
+
     this.originalData = {
       jobStep1: this.jobStep1.getRawValue(),
       jobStep2: this.jobStep2.getRawValue(),
       jobStep4: this.jobStep4.getRawValue(),
       requirements: [...this.requirements],
       removedManagerId: this.removedManagerId,
-      assignedId: this.currentManager?.id || null
+      assignedId: this.selectedManagerId
     };
 
     // Don't automatically fetch here — callers decide whether to load the table.
@@ -415,7 +491,8 @@ export class EditJobComponent {
 
     // --- reset dependent controls
     departmentControl?.reset('');
-    sectionControl?.reset('');
+    // reset multi-select to empty array
+    sectionControl?.reset([]);
     this.sections = [];
     this.sectionsLoading = false;
 
@@ -575,14 +652,14 @@ export class EditJobComponent {
     if (!deptId) {
       this.sections = [];
       this.sectionsLoading = false;
-      this.jobStep1.get('section')?.reset('');
+      this.jobStep1.get('section')?.reset([]);
       return;
     }
 
     this.getsections(deptId).subscribe({
       next: (sections) => {
         this.sections = sections.filter((s: { name: string | string[]; }) => !s.name.includes('(Not active)'));
-        this.jobStep1.get('section')?.reset('');
+        this.jobStep1.get('section')?.reset([]);
       },
       error: (err) => {
         console.error('Error loading sections:', err);
@@ -744,6 +821,13 @@ export class EditJobComponent {
     this.searchTerm = event.target.value;
     this.ManageCurrentPage = 1;
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
+  }
+
+  // update section multi-select control when selection changes
+  onSectionChange(event: any) {
+    const selectedOptions = Array.from(event.target.selectedOptions || []).map((o: any) => Number(o.value));
+    this.jobStep1.get('section')?.setValue(selectedOptions);
+    this.checkForChanges();
   }
 
   onPageChange(newPage: number): void {
@@ -1096,6 +1180,26 @@ export class EditJobComponent {
     const managementLevel = Number(this.jobStep1.get('managementLevel')?.value);
 
 
+    const departmentId = Number(this.jobStep1.get('department')?.value);
+    const sectionValue = this.jobStep1.get('section')?.value;
+    const sectionId = Array.isArray(sectionValue) ? Number(sectionValue[0] || 0) : Number(sectionValue);
+
+    const selectedSections = Array.isArray(sectionValue)
+      ? sectionValue.map((v: any) => Number(v))
+      : (sectionId ? [sectionId] : []);
+
+    let originalSections: number[] = [];
+    if (Array.isArray(this.jobTitleData?.sections) && this.jobTitleData.sections.length > 0) {
+      originalSections = this.jobTitleData.sections.map((s: any) => (s && s.id ? Number(s.id) : Number(s)));
+    } else if (this.jobTitleData?.section?.id) {
+      originalSections = [Number(this.jobTitleData.section.id)];
+    }
+
+    const rmSections = originalSections.filter(id => !selectedSections.includes(id));
+
+    const setArray: number[] = this.selectedManagerId !== null ? [this.selectedManagerId] : [];
+    const removeArray: number[] = this.originalAssignedIds.filter(id => !setArray.includes(id));
+
     const requestData: any = {
       request_data: {
         id: Number(this.jobId),
@@ -1103,65 +1207,43 @@ export class EditJobComponent {
         name: this.jobStep1.get('jobName')?.value || '',
         management_level: managementLevel,
         job_level: Number(this.jobStep1.get('jobLevel')?.value) || null,
+        department: {
+          id: departmentId || null,
+          section_id: sectionId || null
+        },
+        sections: selectedSections,
+        rm_sections: rmSections,
         salary_ranges: {
           full_time: {
-            minimum: this.jobStep2.get('fullTime_minimum')?.value,
-            maximum: this.jobStep2.get('fullTime_maximum')?.value,
+            minimum: Number(this.jobStep2.get('fullTime_minimum')?.value),
+            maximum: Number(this.jobStep2.get('fullTime_maximum')?.value),
             currency: this.jobStep2.get('fullTime_currency')?.value,
-            status: this.jobStep2.get('fullTime_status')?.value ? true : false,
-            restrict: this.jobStep2.get('fullTime_restrict')?.value
+            status: !!this.jobStep2.get('fullTime_status')?.value,
+            restrict: !!this.jobStep2.get('fullTime_restrict')?.value
           },
           part_time: {
-            minimum: this.jobStep2.get('partTime_minimum')?.value,
-            maximum: this.jobStep2.get('partTime_maximum')?.value,
+            minimum: Number(this.jobStep2.get('partTime_minimum')?.value),
+            maximum: Number(this.jobStep2.get('partTime_maximum')?.value),
             currency: this.jobStep2.get('partTime_currency')?.value,
-            status: this.jobStep2.get('partTime_status')?.value ? true : false,
-            restrict: this.jobStep2.get('partTime_restrict')?.value
+            status: !!this.jobStep2.get('partTime_status')?.value,
+            restrict: !!this.jobStep2.get('partTime_restrict')?.value
           },
           per_hour: {
-            minimum: this.jobStep2.get('hourly_minimum')?.value,
-            maximum: this.jobStep2.get('hourly_maximum')?.value,
+            minimum: Number(this.jobStep2.get('hourly_minimum')?.value),
+            maximum: Number(this.jobStep2.get('hourly_maximum')?.value),
             currency: this.jobStep2.get('hourly_currency')?.value,
-            status: this.jobStep2.get('hourly_status')?.value ? true : false,
-            restrict: this.jobStep2.get('hourly_restrict')?.value
+            status: !!this.jobStep2.get('hourly_status')?.value,
+            restrict: !!this.jobStep2.get('hourly_restrict')?.value
           }
         },
+        assigns: {
+          set: setArray,
+          remove: removeArray
+        },
         description: this.jobStep4.get('jobDescription')?.value || '',
+        requirements: this.requirements,
         analysis: this.jobStep4.get('jobAnalysis')?.value || '',
-        requirements: this.requirements
       }
-    };
-
-    const departmentId = Number(this.jobStep1.get('department')?.value);
-    const sectionId = Number(this.jobStep1.get('section')?.value);
-
-    if (managementLevel === 3 && departmentId) {
-      requestData.request_data.department = {
-        id: departmentId
-      };
-    } else if ((managementLevel === 4 || managementLevel === 5) && departmentId && sectionId) {
-      requestData.request_data.department = {
-        id: departmentId,
-        section_id: sectionId
-      };
-    }
-
-    const assignedJob = this.jobTitles.find(j => j.assigned);
-    const setArray: number[] = [];
-    const removeArray: number[] = [];
-
-    if (assignedJob) {
-      setArray.push(assignedJob.id);
-    }
-
-    if (this.originalAssignedIds?.length) {
-      const toRemove = this.originalAssignedIds.filter((id: number) => !setArray.includes(id));
-      removeArray.push(...toRemove);
-    }
-
-    requestData.request_data.assigns = {
-      set: setArray,
-      remove: removeArray
     };
 
     this._JobsService.updateJobTitle(requestData).subscribe({

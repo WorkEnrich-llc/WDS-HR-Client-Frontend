@@ -19,6 +19,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { HttpResponse } from '@angular/common/http';
 
 // Extend dayjs with isoWeek plugin - required for ngx-daterangepicker-material
 dayjs.extend(isoWeek);
@@ -857,7 +858,6 @@ export class AttendanceLogComponent implements OnDestroy {
     if (this.isExporting) return;
     this.isExporting = true;
 
-    // Build export params from current filterForm and searchTerm
     const raw = this.filterForm?.value ?? {};
     let from_date = '';
     let to_date = '';
@@ -879,7 +879,14 @@ export class AttendanceLogComponent implements OnDestroy {
     };
 
     this._AttendanceLogService.exportAttendanceLog(exportParams).subscribe({
-      next: (blob: Blob) => {
+      next: (response: HttpResponse<Blob>) => {
+        const blob = response.body;
+        if (!blob) {
+          this.isExporting = false;
+          return;
+        }
+
+        // Download file
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -889,12 +896,10 @@ export class AttendanceLogComponent implements OnDestroy {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
         this.isExporting = false;
-        this.toasterService.showSuccess('Attendance log exported successfully.');
       },
       error: (error) => {
         console.error('Error exporting attendance log:', error);
         this.isExporting = false;
-        this.toasterService.showError('Failed to export attendance log.');
       }
     });
   }

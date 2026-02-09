@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -12,8 +12,6 @@ export class JobsService {
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
-
-
 
   // get all job titles
   getAllJobTitles(
@@ -61,7 +59,8 @@ export class JobsService {
   // create job title
   createJobTitle(jobTilteData: any): Observable<any> {
     const url = `${this.apiBaseUrl}od/job-titles`;
-    return this._HttpClient.post(url, jobTilteData);
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this._HttpClient.post(url, jobTilteData, { headers });
   }
 
   // view job title
@@ -79,11 +78,8 @@ export class JobsService {
   // update job title
   updateJobTitle(jobTitleData: any): Observable<any> {
     const url = `${this.apiBaseUrl}od/job-titles`;
-    return this._HttpClient.put(url, jobTitleData, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this._HttpClient.put(url, jobTitleData, { headers });
   }
 
   // get job titles by department id

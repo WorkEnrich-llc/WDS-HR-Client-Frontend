@@ -1,5 +1,5 @@
-import { DatePipe, NgClass } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { DatePipe, NgClass, CommonModule } from '@angular/common';
+import { Component, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -40,7 +40,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-create-new-job-title',
-  imports: [PageHeaderComponent, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent, NgClass],
+  imports: [PageHeaderComponent, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent, NgClass, CommonModule],
   templateUrl: './create-new-job-title.component.html',
   providers: [DatePipe],
   styleUrls: ['./../../../shared/table/table.component.css', './create-new-job-title.component.css']
@@ -56,6 +56,8 @@ export class CreateNewJobTitleComponent {
   sectionsLoading: boolean = false;
   filterForm!: FormGroup;
   private searchSubject = new Subject<string>();
+  showSectionDropdown: boolean = false;
+  @ViewChild('sectionDropdownRef') sectionDropdownRef!: ElementRef;
 
   constructor(private toasterMessageService: ToasterMessageService, private fb: FormBuilder, private toastr: ToastrService,
     private _DepartmentsService: DepartmentsService, private subService: SubscriptionService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router,
@@ -115,7 +117,8 @@ export class CreateNewJobTitleComponent {
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
-    section: new FormControl({ value: '', disabled: true }),
+    // make `section` hold an array of selected section ids to support multi-select UI
+    section: new FormControl({ value: [], disabled: true }),
   });
 
   toggleDepartment(enable: boolean) {
@@ -137,7 +140,8 @@ export class CreateNewJobTitleComponent {
     const sectionControl = this.jobStep1.get('section');
 
     departmentControl?.reset('');
-    sectionControl?.reset('');
+    // reset multi-select to empty array
+    sectionControl?.reset([]);
 
     this.sections = [];
     this.sectionsLoading = false;
@@ -178,6 +182,64 @@ export class CreateNewJobTitleComponent {
     this.jobTitles = this.jobTitles.map(job => ({ ...job, assigned: false, assigns: [] }));
     this.selectedManagerId = null;
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
+
+  toggleSectionDropdown() {
+    this.showSectionDropdown = !this.showSectionDropdown;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.sectionDropdownRef) return;
+    const target = event.target as HTMLElement;
+    if (this.sectionDropdownRef && !this.sectionDropdownRef.nativeElement.contains(target)) {
+      this.showSectionDropdown = false;
+    }
+  }
+
+  isSectionChecked(sectionId: number) {
+    const val = this.jobStep1.get('section')?.value || [];
+    return Array.isArray(val) && val.includes(sectionId);
+  }
+
+  toggleSectionSelection(sectionId: number, event?: Event) {
+    event?.stopPropagation();
+    const ctrl = this.jobStep1.get('section');
+    let val = ctrl?.value || [];
+    if (!Array.isArray(val)) val = [];
+    const idx = val.indexOf(sectionId);
+    if (idx > -1) {
+      val.splice(idx, 1);
+    } else {
+      val.push(sectionId);
+    }
+    ctrl?.setValue([...val]);
+  }
+  isAllSelected() {
+    if (!this.sections || this.sections.length === 0) return false;
+    const val = this.jobStep1.get('section')?.value || [];
+    return Array.isArray(val) && val.length === this.sections.length;
+  }
+
+  toggleSelectAllSections() {
+    const ctrl = this.jobStep1.get('section');
+    if (this.isAllSelected()) {
+      ctrl?.setValue([]);
+    } else {
+      ctrl?.setValue(this.sections.map(s => s.id));
+    }
+  }
+
+  // helper to return selected section objects for UI chips/badges
+  getSelectedSections() {
+    const selectedIds = this.jobStep1.get('section')?.value || [];
+    if (!Array.isArray(selectedIds) || selectedIds.length === 0) return [];
+    return this.sections.filter(s => selectedIds.includes(s.id));
+  }
+
+  // string of selected section names (avoid arrow functions inside template)
+  getSelectedSectionsNames(): string {
+    return this.getSelectedSections().map(s => s.name).join(', ');
   }
 
 
@@ -255,6 +317,12 @@ export class CreateNewJobTitleComponent {
         this.sectionsLoading = false;
       }
     });
+  }
+
+  // update form control when the multi-select section element changes
+  onSectionChange(event: any) {
+    const selectedOptions = Array.from(event.target.selectedOptions || []).map((o: any) => Number(o.value));
+    this.jobStep1.get('section')?.setValue(selectedOptions);
   }
 
 
@@ -573,59 +641,53 @@ export class CreateNewJobTitleComponent {
     const jobLevel = Number(this.jobStep1.get('jobLevel')?.value);
 
 
+    const departmentId = Number(this.jobStep1.get('department')?.value);
+    const sectionValue = this.jobStep1.get('section')?.value;
+    const sectionId = Array.isArray(sectionValue) ? Number(sectionValue[0] || 0) : Number(sectionValue);
+
     const requestData: any = {
       request_data: {
         code: this.jobStep1.get('code')?.value || '',
         name: this.jobStep1.get('jobName')?.value || '',
         management_level: managementLevel,
         job_level: jobLevel,
+        department: {
+          id: departmentId || null,
+          section_id: sectionId || null
+        },
+        sections: Array.isArray(sectionValue) ? sectionValue.map((v: any) => Number(v)) : [],
+        rm_sections: [],
         salary_ranges: {
           full_time: {
-            minimum: this.jobStep2.get('fullTime_minimum')?.value,
-            maximum: this.jobStep2.get('fullTime_maximum')?.value,
+            minimum: Number(this.jobStep2.get('fullTime_minimum')?.value),
+            maximum: Number(this.jobStep2.get('fullTime_maximum')?.value),
             currency: this.jobStep2.get('fullTime_currency')?.value,
-            status: this.jobStep2.get('fullTime_status')?.value ? true : false,
-            restrict: this.jobStep2.get('fullTime_restrict')?.value,
+            status: !!this.jobStep2.get('fullTime_status')?.value,
+            restrict: !!this.jobStep2.get('fullTime_restrict')?.value,
           },
           part_time: {
-            minimum: this.jobStep2.get('partTime_minimum')?.value,
-            maximum: this.jobStep2.get('partTime_maximum')?.value,
+            minimum: Number(this.jobStep2.get('partTime_minimum')?.value),
+            maximum: Number(this.jobStep2.get('partTime_maximum')?.value),
             currency: this.jobStep2.get('partTime_currency')?.value,
-            status: this.jobStep2.get('partTime_status')?.value ? true : false,
-            restrict: this.jobStep2.get('partTime_restrict')?.value,
+            status: !!this.jobStep2.get('partTime_status')?.value,
+            restrict: !!this.jobStep2.get('partTime_restrict')?.value,
           },
           per_hour: {
-            minimum: this.jobStep2.get('hourly_minimum')?.value,
-            maximum: this.jobStep2.get('hourly_maximum')?.value,
+            minimum: Number(this.jobStep2.get('hourly_minimum')?.value),
+            maximum: Number(this.jobStep2.get('hourly_maximum')?.value),
             currency: this.jobStep2.get('hourly_currency')?.value,
-            status: this.jobStep2.get('hourly_status')?.value ? true : false,
-            restrict: this.jobStep2.get('hourly_restrict')?.value,
+            status: !!this.jobStep2.get('hourly_status')?.value,
+            restrict: !!this.jobStep2.get('hourly_restrict')?.value,
           }
         },
+        assigns: {
+          set: this.selectedManagerId ? [this.selectedManagerId] : [],
+          remove: []
+        },
         description: this.jobStep4.get('jobDescription')?.value || '',
+        requirements: this.requirements,
         analysis: this.jobStep4.get('jobAnalysis')?.value || '',
-        requirements: this.requirements
       }
-    };
-
-    const departmentId = Number(this.jobStep1.get('department')?.value);
-    const sectionId = Number(this.jobStep1.get('section')?.value);
-
-    if (managementLevel === 3 && departmentId) {
-      requestData.request_data.department = {
-        id: departmentId
-      };
-    } else if ((managementLevel === 4 || managementLevel === 5) && departmentId && sectionId) {
-      requestData.request_data.department = {
-        id: departmentId,
-        section_id: sectionId
-      };
-    }
-    const assignedJob = this.jobTitles.find(j => j.assigned);
-
-    requestData.request_data.assigns = {
-      set: assignedJob ? [assignedJob.id] : [],
-      remove: []
     };
 
 

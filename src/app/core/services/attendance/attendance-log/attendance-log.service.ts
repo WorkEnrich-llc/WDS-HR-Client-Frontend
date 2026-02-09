@@ -1,5 +1,5 @@
 
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -19,26 +19,32 @@ export class AttendanceLogService {
 
   createAttendance(data: AttendanceLog): Observable<AttendanceLog> {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/create`;
-    const formData = new FormData();
-    formData.append('employee_id', data.employee_id?.toString() || '');
-    formData.append('date', data.date);
-    formData.append('start', data.start);
-    formData.append('end', data.end);
-
-    return this.http.post<AttendanceLog>(url, formData);
+    const payload = {
+      request_data: {
+        employee_id: Number(data.employee_id),
+        date: data.date,
+        start: data.start,
+        end: data.end
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<AttendanceLog>(url, payload, { headers });
   }
 
 
   updateAttendance(data: AttendanceLog): Observable<AttendanceLog> {
     const url = `${this.apiBaseUrl}personnel/attendance-update`;
-    const formData = new FormData();
-    formData.append('record_id', data.id?.toString() || '');
-    formData.append('employee_id', data.employee_id?.toString() || '');
-    formData.append('date', data.date);
-    formData.append('start', data.start);
-    formData.append('end', data.end);
-
-    return this.http.put<AttendanceLog>(url, formData);
+    const payload = {
+      request_data: {
+        id: Number(data.id),
+        employee_id: Number(data.employee_id),
+        date: data.date,
+        start: data.start,
+        end: data.end
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put<AttendanceLog>(url, payload, { headers });
   }
 
 
@@ -58,12 +64,16 @@ export class AttendanceLogService {
   // Cancel log by id for new endpoint
   cancelAttendanceLogById(id: string | number) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/canceled`;
-    const formData = new FormData();
-    formData.append('id', String(id));
-    return this.http.put(url, formData);
+    const payload = {
+      request_data: {
+        id: Number(id)
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put(url, payload, { headers });
   }
 
-  exportAttendanceLog(params: IAttendanceFilters = {}): Observable<Blob> {
+  exportAttendanceLog(params: IAttendanceFilters = {}): Observable<HttpResponse<Blob>> {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -73,39 +83,56 @@ export class AttendanceLogService {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/log`;
     return this.http.get(url, {
       params: httpParams,
-      responseType: 'blob'
+      responseType: 'blob',
+      observe: 'response'
     });
   }
 
   updateCheckIn(id: string | number, check_in: string) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in`;
-    const formData = new FormData();
-    formData.append('id', String(id));
-    formData.append('check_in', check_in);
-    return this.http.put(url, formData);
+    const payload = {
+      request_data: {
+        id: Number(id),
+        check_in: check_in
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put(url, payload, { headers });
   }
 
   updateCheckOut(id: string | number, check_out: string) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-out`;
-    const formData = new FormData();
-    formData.append('id', String(id));
-    formData.append('check_out', check_out);
-    return this.http.put(url, formData);
+    const payload = {
+      request_data: {
+        id: Number(id),
+        check_out: check_out
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put(url, payload, { headers });
   }
 
   updateLog(id: string | number, check_in: string, check_out: string) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in-and-out`;
-    const formData = new FormData();
-    formData.append('id', String(id));
-    formData.append('check_in', check_in);
-    formData.append('check_out', check_out);
-    return this.http.put(url, formData);
+    const payload = {
+      request_data: {
+        id: Number(id),
+        check_in: check_in,
+        check_out: check_out
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put(url, payload, { headers });
   }
 
   toggleDeduction(id: string | number) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/deduction`;
-    const formData = new FormData();
-    formData.append('id', String(id));
-    return this.http.put(url, formData);
+    const payload = {
+      request_data: {
+        id: Number(id)
+      }
+    };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.put(url, payload, { headers });
   }
 }
