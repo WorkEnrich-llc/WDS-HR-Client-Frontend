@@ -17,19 +17,22 @@ export class ViewWorkflowComponent {
 
 
 
-  constructor(private _WorkflowService: WorkflowService,private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _WorkflowService: WorkflowService, private toasterMessageService: ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   workflowData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   workId: string | null = null;
+  isLoadingWorkflow = false;
+
   ngOnInit(): void {
     this.workId = this.route.snapshot.paramMap.get('id');
     if (this.workId) {
       this.getWorkflow(Number(this.workId));
     }
   }
-  getWorkflow(workId: number) {
 
+  getWorkflow(workId: number) {
+    this.isLoadingWorkflow = true;
     this._WorkflowService.showWorkflow(workId).subscribe({
       next: (response) => {
         this.workflowData = response.data.object_info;
@@ -41,9 +44,11 @@ export class ViewWorkflowComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
+        this.isLoadingWorkflow = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingWorkflow = false;
       }
     });
   }
@@ -71,7 +76,7 @@ export class ViewWorkflowComponent {
     this._WorkflowService.updateWorkflowStatus(this.workflowData.id, deptStatus).subscribe({
       next: (response) => {
         this.workflowData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Workflow Status Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Workflow Status Updated successfully", "Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -97,7 +102,7 @@ export class ViewWorkflowComponent {
     this._WorkflowService.updateWorkflowStatus(this.workflowData.id, deptStatus).subscribe({
       next: (response) => {
         this.workflowData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Workflow Status Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Workflow Status Updated successfully", "Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);

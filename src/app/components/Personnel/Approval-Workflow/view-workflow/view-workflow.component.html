@@ -1,9 +1,17 @@
 <!-- start page header -->
+@if (isLoadingWorkflow) {
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Workflows', link: '/workflow' },
-    {  label: 'View Workflow - '+workflowData.name}
-  ]" [title]="'View Workflow - '+workflowData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    { label: 'View Workflow' }
+  ]" [title]="'View Workflow'" [create]="''" [update]="''">
+</app-page-header>
+} @else {
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Workflows', link: '/workflow' },
+    { label: 'View Workflow - ' + workflowData.name }
+  ]" [title]="'View Workflow - ' + workflowData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
   <button class="btn btn-lg btn-primary" [routerLink]="['/workflow/update-workflows', workflowData.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -36,11 +44,41 @@
   </button>
   }
 </app-page-header>
-
+}
 
 <!-- start content -->
 <div class="content-hug d-flex flex-column gap-4">
 
+  @if (isLoadingWorkflow) {
+  <!-- Skeleton loader -->
+  <div class="content-box d-flex flex-column gap-3 w-100">
+    <div class="skeleton-loading skeleton-section-title"></div>
+    <div class="skeleton-info-item">
+      <div class="skeleton-loading skeleton-label"></div>
+      <div class="skeleton-loading skeleton-value"></div>
+    </div>
+    <div class="skeleton-info-item">
+      <div class="skeleton-loading skeleton-label"></div>
+      <div class="skeleton-loading skeleton-value"></div>
+    </div>
+    <div class="skeleton-info-item">
+      <div class="skeleton-loading skeleton-label"></div>
+      <div class="skeleton-loading skeleton-value"></div>
+    </div>
+    <div class="skeleton-info-item">
+      <div class="skeleton-loading skeleton-label"></div>
+      <div class="skeleton-loading skeleton-value"></div>
+    </div>
+    <div class="skeleton-info-item">
+      <div class="skeleton-loading skeleton-label"></div>
+      <div class="skeleton-loading skeleton-value"></div>
+    </div>
+    <div class="skeleton-info-item">
+      <div class="skeleton-loading skeleton-label"></div>
+      <div class="skeleton-loading skeleton-steps-value"></div>
+    </div>
+  </div>
+  } @else {
   <div class="content-box d-flex flex-column gap-3 w-100">
     <h2>Main Information</h2>
     @if (workflowData?.id) {
@@ -58,7 +96,9 @@
     @if (workflowData) {
     <div class="info">
       <h6>Workflow Type</h6>
-      @if(workflowData?.leave) {
+      @if (workflowData?.attendance) {
+      <span>Attendance</span>
+      } @if(workflowData?.leave) {
       <span>Leave</span>
       } @if (workflowData?.overtime) {
       <span>Overtime</span>
@@ -97,9 +137,7 @@
     </div>
 
   </div>
-
-
-
+  }
 </div>
 
 
