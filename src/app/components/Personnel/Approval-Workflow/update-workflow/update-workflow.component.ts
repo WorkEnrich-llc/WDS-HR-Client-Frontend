@@ -115,6 +115,8 @@ export class UpdateWorkflowComponent {
         } else if (this.workflowData.leave) {
           workflowType = 'leave';
           leaveId = this.workflowData.leave.id;
+        } else if (this.workflowData.attendance) {
+          workflowType = 'attendance';
         }
         if (this.workflowData.leave) {
           this.getAllLeaveTypes('', undefined, this.workflowData.leave.id);
@@ -128,6 +130,7 @@ export class UpdateWorkflowComponent {
           leave_id: leaveId,
           department_id: this.workflowData.department?.id,
         });
+        this.updateLeaveControlState(workflowType ?? undefined);
         this.originalSteps = this.workflowData.steps.map((step: any) => ({
           id: step.id,
           name: step.name,
@@ -157,6 +160,8 @@ export class UpdateWorkflowComponent {
         this.workflow1.valueChanges.subscribe(() => {
           this.isChanges = true;
         });
+        // mark as not changed immediately after initial setup
+        this.isChanges = false;
 
       },
       error: (err) => {
@@ -329,16 +334,41 @@ export class UpdateWorkflowComponent {
 
   // update workflow
   updateWorkflow() {
-    this.isLoading = true;
-    this.mandatoryError = '';
-
-    const hasMandatoryStep = this.steps.some(step => step.form.value.mandatory);
-
-    if (!hasMandatoryStep) {
-      this.mandatoryError = 'At least one step must be marked as Mandatory.';
-      this.isLoading = false;
+    // prevent duplicate submissions while a request is in-flight
+    if (this.isLoading) {
       return;
     }
+    this.mandatoryError = '';
+    this.errMsg = '';
+
+    // validate before submitting (don't block the button, validate on click)
+    if (!this.isChanges) {
+      this.errMsg = 'No changes to save.';
+      return;
+    }
+    if (!this.workflow1.valid) {
+      this.workflow1.markAllAsTouched();
+      return;
+    }
+    if (this.steps.length <= 0) {
+      this.errMsg = 'At least one step is required.';
+      return;
+    }
+    if (!this.areAllStepsValid()) {
+      this.showErrors = true;
+      this.steps.forEach(step => {
+        Object.values(step.form.controls).forEach(c => c.markAsTouched());
+      });
+      return;
+    }
+
+    const hasMandatoryStep = this.steps.some(step => step.form.value.mandatory);
+    if (!hasMandatoryStep) {
+      this.mandatoryError = 'At least one step must be marked as Mandatory.';
+      return;
+    }
+
+    this.isLoading = true;
     const currentSteps = this.steps.map((step, index) => {
       const stepData = {
         index: index + 1,
@@ -398,6 +428,7 @@ export class UpdateWorkflowComponent {
         this.isLoading = false;
         this.errMsg = '';
         // update success
+        this.isChanges = false;
         this.router.navigate(['/workflow/all-workflows']);
         this.toasterMessageService.showSuccess("Workflow Updated successfully", "Updated Successfully");
 

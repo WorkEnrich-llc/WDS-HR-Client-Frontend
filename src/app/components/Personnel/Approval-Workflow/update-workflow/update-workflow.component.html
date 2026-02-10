@@ -4,20 +4,19 @@
     { label: 'Workflows', link: '/workflow' },
     {  label: 'Edit Workflow - '+workflowData.name}
   ]" [title]="'Edit Workflow - '+workflowData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-success w-auto" (click)="updateWorkflow()"
-    [disabled]="!isChanges|| !workflow1.valid || !areAllStepsValid() || steps.length <= 0">
+  <button class="btn btn-lg btn-success w-auto" (click)="updateWorkflow()" [disabled]="isLoading || isLoadingWorkflow">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-    }
-    @if (!isLoading) {
+    <span>Saving...</span>
+    } @else {
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
       </g>
     </svg>
-    }
     <span>Save Changes</span>
+    }
   </button>
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
@@ -37,7 +36,7 @@
 
     <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
       <h2>Main Information</h2>
-      
+
       @if (isLoadingWorkflow) {
       <!-- Skeleton loader for main form -->
       <div class="w-lg-50 d-flex flex-column gap-2">
