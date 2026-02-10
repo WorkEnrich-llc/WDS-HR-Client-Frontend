@@ -207,7 +207,10 @@ export class EditJobComponent {
         const dept$ = this.getAllDepartment(this.currentPage, '', {}, jobDept);
         let section$ = of([]);
         if (jobDept?.id && (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)) {
-          section$ = this.getsections(jobDept.id, jobSection);
+          const jobSections = Array.isArray(this.jobTitleData.sections) && this.jobTitleData.sections.length > 0
+            ? this.jobTitleData.sections
+            : (jobSection ? [jobSection] : []);
+          section$ = this.getsections(jobDept.id, jobSections);
         }
 
         return forkJoin([dept$, section$]);
@@ -351,8 +354,10 @@ export class EditJobComponent {
         ? this.jobTitleData.job_level
         : '',
       department: this.jobTitleData.department?.id || '',
-      // set section as array for multi-select UI
-      section: this.jobTitleData.section?.id ? [this.jobTitleData.section.id] : []
+      // set section as array for multi-select UI: use assign sections from response, else single section
+      section: (Array.isArray(this.jobTitleData.sections) && this.jobTitleData.sections.length > 0)
+        ? this.jobTitleData.sections.map((s: any) => s.id)
+        : (this.jobTitleData.section?.id ? [this.jobTitleData.section.id] : [])
     });
 
     // --- Step 2 (Salary Ranges) ---
@@ -615,12 +620,16 @@ export class EditJobComponent {
 
 
 
-  getsections(deptid: number, jobSection?: { id: number; name: string }) {
+  getsections(deptid: number, jobSectionOrSections?: { id: number; name: string } | Array<{ id: number; name: string }>) {
     if (!deptid) {
       this.sectionsLoading = false;
       return of([]);
     }
     this.sectionsLoading = true;
+    const jobSectionsList = Array.isArray(jobSectionOrSections)
+      ? jobSectionOrSections
+      : (jobSectionOrSections ? [jobSectionOrSections] : []);
+
     return this._DepartmentsService.showDepartment(deptid).pipe(
       map((response: any) => {
         const rawSections = response.data.object_info.sections;
@@ -631,11 +640,13 @@ export class EditJobComponent {
           name: s.name,
         }));
 
-        if (jobSection && !sections.some((s: { id: number; }) => s.id === jobSection.id)) {
-          sections.unshift({
-            id: jobSection.id,
-            name: `${jobSection.name} (Not active)`,
-          });
+        for (const js of jobSectionsList) {
+          if (js && !sections.some((s: { id: number }) => s.id === js.id)) {
+            sections.push({
+              id: js.id,
+              name: `${js.name} (Not active)`,
+            });
+          }
         }
 
         this.sectionsLoading = false;
