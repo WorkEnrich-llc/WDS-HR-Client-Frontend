@@ -19,16 +19,12 @@ export class AttendanceLogService {
 
   createAttendance(data: AttendanceLog): Observable<AttendanceLog> {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/create`;
-    const payload = {
-      request_data: {
-        employee_id: Number(data.employee_id),
-        date: data.date,
-        start: data.start,
-        end: data.end
-      }
-    };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<AttendanceLog>(url, payload, { headers });
+    const formData = new FormData();
+    formData.append('date', data.date ?? '');
+    formData.append('employee_id', String(Number(data.employee_id)));
+    formData.append('start', data.start ?? '');
+    formData.append('end', data.end ?? '');
+    return this.http.post<AttendanceLog>(url, formData);
   }
 
 
