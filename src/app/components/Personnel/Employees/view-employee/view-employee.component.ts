@@ -65,6 +65,8 @@ export class ViewEmployeeComponent implements OnInit {
   isLoading = false;
   customFieldValues: CustomFieldValueItem[] = [];
   readonly app_name = 'personnel';
+  managementProfile: any = null;
+  managementProfileLoading = false;
 
   // Onboarding modal state
   isOnboardingModalOpen = false;
@@ -754,6 +756,7 @@ export class ViewEmployeeComponent implements OnInit {
       this.employeeId = +params['id'];
       if (this.employeeId) {
         this.loadEmployeeData();
+        this.loadManagementProfile();
       }
     });
     this.loadCustomValues();
@@ -965,6 +968,21 @@ export class ViewEmployeeComponent implements OnInit {
         if (keepTab) {
           this.setCurrentTab(keepTab as any);
         }
+      }
+    });
+  }
+
+  private loadManagementProfile(): void {
+    if (!this.employeeId) return;
+    this.managementProfileLoading = true;
+    this.employeeService.getManagementProfile(this.employeeId).subscribe({
+      next: (response) => {
+        this.managementProfile = response.data?.object_info || response.data;
+        this.managementProfileLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading management profile:', error);
+        this.managementProfileLoading = false;
       }
     });
   }

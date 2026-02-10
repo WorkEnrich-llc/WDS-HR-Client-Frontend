@@ -122,6 +122,12 @@ export class EmployeeService {
     return this.http.get<any>(url, { params });
   }
 
+  getManagementProfile(employeeId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/management-relationships/profile-main-only`;
+    const params = new HttpParams().set('employee_id', employeeId.toString());
+    return this.http.get<any>(url, { params });
+  }
+
   // Update an existing employee record
   updateEmployee(requestData: any): Observable<CreateEmployeeResponse> {
     const url = `${this.apiBaseUrl}personnel/employees`;

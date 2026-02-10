@@ -86,39 +86,27 @@ export class AttendanceLogService {
 
   updateCheckIn(id: string | number, check_in: string) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in`;
-    const payload = {
-      request_data: {
-        id: Number(id),
-        check_in: check_in
-      }
-    };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put(url, payload, { headers });
+    const formData = new FormData();
+    formData.append('id', String(Number(id)));
+    formData.append('check_in', check_in);
+    return this.http.put(url, formData);
   }
 
   updateCheckOut(id: string | number, check_out: string) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-out`;
-    const payload = {
-      request_data: {
-        id: Number(id),
-        check_out: check_out
-      }
-    };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put(url, payload, { headers });
+    const formData = new FormData();
+    formData.append('id', String(Number(id)));
+    formData.append('check_out', check_out);
+    return this.http.put(url, formData);
   }
 
   updateLog(id: string | number, check_in: string, check_out: string) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in-and-out`;
-    const payload = {
-      request_data: {
-        id: Number(id),
-        check_in: check_in,
-        check_out: check_out
-      }
-    };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put(url, payload, { headers });
+    const formData = new FormData();
+    formData.append('id', String(Number(id)));
+    formData.append('check_in', check_in);
+    formData.append('check_out', check_out);
+    return this.http.put(url, formData);
   }
 
   toggleDeduction(id: string | number) {
