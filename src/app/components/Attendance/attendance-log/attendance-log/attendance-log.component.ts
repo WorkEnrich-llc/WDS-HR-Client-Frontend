@@ -1222,7 +1222,6 @@ export class AttendanceLogComponent implements OnDestroy {
       next: () => {
         this.loadFilteredAttendance();
         this.closeDeductionModal();
-        this.toasterService.showSuccess('Deduction updated successfully.');
       },
       error: () => {
         this.deductionModalLoading = false;

@@ -60,13 +60,9 @@ export class AttendanceLogService {
   // Cancel log by id for new endpoint
   cancelAttendanceLogById(id: string | number) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/canceled`;
-    const payload = {
-      request_data: {
-        id: Number(id)
-      }
-    };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put(url, payload, { headers });
+    const formData = new FormData();
+    formData.append('id', String(Number(id)));
+    return this.http.put(url, formData);
   }
 
   exportAttendanceLog(params: IAttendanceFilters = {}): Observable<HttpResponse<Blob>> {
@@ -111,12 +107,8 @@ export class AttendanceLogService {
 
   toggleDeduction(id: string | number) {
     const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/deduction`;
-    const payload = {
-      request_data: {
-        id: Number(id)
-      }
-    };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put(url, payload, { headers });
+    const formData = new FormData();
+    formData.append('id', String(Number(id)));
+    return this.http.put(url, formData);
   }
 }
