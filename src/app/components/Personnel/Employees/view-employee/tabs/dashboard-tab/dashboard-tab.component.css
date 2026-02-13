@@ -156,13 +156,20 @@
     border-radius: 16px;
     border: 1px solid #e2e8f0;
     padding: 12px;
-    height: 100%;
+    height: auto;
+    /* Allow content to define height */
 }
 
 .employee-hierarchy-list {
     display: flex;
     flex-direction: column;
     gap: 0;
+    max-height: 400px;
+    /* Fixed height for scrollability */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding-right: 8px;
+    /* Add some padding for the scrollbar */
 }
 
 .employee-card {

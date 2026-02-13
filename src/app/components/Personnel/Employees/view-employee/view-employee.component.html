@@ -660,23 +660,107 @@
   <h6>Days On Site</h6>
   <span>{{ employee.job_info.days_on_site }} days/week</span>
 </div> -->
-        @if (employee.job_info.direct_manager?.name) {
-        <div class="d-flex align-items-center justify-content-between">
-          <div class="info">
-            <h6>Direct Manager</h6>
-            <span>{{ employee.job_info.direct_manager?.name || "--" }}</span>
+        <!-- Managers Section following Flags Pattern -->
+        <div class="managers-section mt-2">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6>Managers</h6>
+            @if (managementProfileLoading) {
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            }
           </div>
-          <a class="view-btn h-100 d-flex align-items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
-                <path
-                  d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
-              </g>
-            </svg>
-          </a>
+
+          <div class="flags-container">
+            @for(manager of (managementProfile?.direct_manager || []).slice(0, 3); track manager.id) {
+            <span class="pill-base flag-pill manager-pill" [title]="manager.job_title?.name || ''">
+              {{ manager.name }}
+              <button class="flag-delete-btn" (click)="openRemoveManagerModal(manager.id); $event.stopPropagation()"
+                title="Remove">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </span>
+            } @if ((managementProfile?.direct_manager || []).length > 3) {
+            <div class="flag-more-wrapper">
+              <span class="flag-more" (click)="isFlagsPopupOpen = !isFlagsPopupOpen">
+                +{{ (managementProfile?.direct_manager?.length || 0) - 3 }}
+              </span>
+
+              @if (isFlagsPopupOpen) {
+              <div class="flags-cloud">
+                <div class="flags-cloud-header">
+                  <span>All Managers</span>
+                  <button (click)="isFlagsPopupOpen = false">&times;</button>
+                </div>
+                <div class="flags-cloud-body">
+                  @for(manager of managementProfile?.direct_manager || []; track manager.id) {
+                  <span class="pill-base flag-pill manager-pill" [title]="manager.job_title?.name || ''">
+                    {{ manager.name }}
+                    <button class="flag-delete-btn"
+                      (click)="openRemoveManagerModal(manager.id); $event.stopPropagation()" title="Remove">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </span>
+                  }
+                </div>
+                <div class="flags-cloud-arrow"></div>
+              </div>
+              }
+            </div>
+            }
+
+            <div class="flag-add-wrapper">
+              <button class="flag-add-btn" (click)="toggleAddManager()" title="Add Manager">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+
+              @if (isAddingManager) {
+              <div class="flag-input-container">
+                <input #newManagerInput id="newManagerInput" type="text" [formControl]="managerSearchControl"
+                  placeholder="Search..." />
+
+                @if (isSearchingManagers) {
+                <div class="flag-loader">
+                  <svg class="spinner-base spinner" viewBox="0 0 50 50">
+                    <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                  </svg>
+                </div>
+                }
+
+                @if (managerSuggestions.length > 0) {
+                <div class="flag-suggestions">
+                  @for (suggestion of managerSuggestions; track suggestion.id) {
+                  <div class="suggestion-item d-flex align-items-center gap-2"
+                    (click)="selectManagerSuggestion(suggestion)">
+                    <div class="suggestion-avatar">
+                      <img [src]="suggestion.picture || './images/profile-defult.jpg'"
+                        (error)="suggestion.picture = './images/profile-defult.jpg'" alt="">
+                    </div>
+                    <div class="suggestion-info">
+                      <div class="suggestion-name">{{ suggestion.name }}</div>
+                      <div class="suggestion-title">{{ suggestion.code }}</div>
+                    </div>
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
         </div>
-        }
       </div>
     </div>
 
@@ -836,7 +920,7 @@
               <small class="mb-0 text-muted">Seen: {{ formatDeviceDate(employee.device.last_seen) }}</small>
             </div>
             <div class="d-flex align-items-center gap-2">
-            <span class="badge-success" [ngClass]="
+              <span class="badge-success" [ngClass]="
                   employee.device.is_main ? 'badge-newjoiner' : 'badge-gray'
                 ">
                 {{
@@ -1088,7 +1172,10 @@
         <!-- Tab Content -->
         <div class="tab-content">
           @if (currentTab === 'dashboard') {
-          <app-dashboard-tab [employeeId]="employeeId"> </app-dashboard-tab>
+          <app-dashboard-tab [employeeId]="employeeId" [managementProfile]="managementProfile"
+            [currentEmployeeName]="employee.contact_info.name"
+            [currentEmployeeJobTitle]="employee.job_info.job_title.name" [currentEmployeePicture]="profileImage">
+          </app-dashboard-tab>
           } @if (currentTab === 'attendance') {
           <app-attendance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive">
           </app-attendance-tab>
@@ -1292,6 +1379,22 @@
   </button>
 
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteFlagModal()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Manager Removal Confirmation -->
+<app-popup [title]="'Remove Manager'" [paragraph1]="managerMessage" [paragraph2]="'This action cannot be undone!'"
+  [isOpen]="isRemoveManagerModalOpen" (close)="closeRemoveManagerModal()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmRemoveManager()"
+    [disabled]="isSavingManagers">
+    @if (isSavingManagers) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+    Confirm
+  </button>
+
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeRemoveManagerModal()">
     Cancel
   </button>
 </app-popup>

@@ -5,7 +5,6 @@ import { EmployeeService } from '../../../../../../core/services/personnel/emplo
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { LeaveBalanceService } from '../../../../../../core/services/attendance/leave-balance/leave-balance.service';
-import { ChartsService } from '../../../../../../core/services/od/charts/charts.service';
 
 @Component({
     selector: 'app-dashboard-tab',
@@ -16,16 +15,16 @@ import { ChartsService } from '../../../../../../core/services/od/charts/charts.
 })
 export class DashboardTabComponent implements OnInit {
     @Input() employeeId!: number;
+    @Input() currentEmployeeName!: string;
+    @Input() currentEmployeeJobTitle!: string;
+    @Input() currentEmployeePicture: string | null = null;
     private employeeService = inject(EmployeeService);
     private leaveBalanceService = inject(LeaveBalanceService);
-    private chartsService = inject(ChartsService);
     private router = inject(Router);
 
     isLoading = true;
     dashboardData: any[] = [];
     companyStructure: any[] = [];
-    isOrgChartModalOpen = false;
-    isLoadingOrgChart = true;
     readonly defaultImage: string = './images/profile-defult.jpg';
     months: { value: number, label: string }[] = [];
     years: { value: string, label: string }[] = [];
@@ -105,30 +104,9 @@ export class DashboardTabComponent implements OnInit {
         if (this.employeeId) {
             this.loadDashboardData();
         }
-        this.loadCompanyStructure();
     }
 
-    loadCompanyStructure(): void {
-        this.isLoadingOrgChart = true;
-        this.chartsService.jobsChart().subscribe({
-            next: (res) => {
-                this.companyStructure = res.data.list_items || [];
-                this.isLoadingOrgChart = false;
-            },
-            error: (err) => {
-                console.error('Error loading company structure:', err);
-                this.isLoadingOrgChart = false;
-            }
-        });
-    }
-
-    openOrgChartModal(): void {
-        this.isOrgChartModalOpen = true;
-    }
-
-    closeOrgChartModal(): void {
-        this.isOrgChartModalOpen = false;
-    }
+    @Input() managementProfile: any = null;
 
     initializeFilters(): void {
         const now = new Date();
@@ -232,31 +210,47 @@ export class DashboardTabComponent implements OnInit {
     }
 
     getEmployeeHierarchy(): any[] {
-        const employees: any[] = [];
+        if (!this.managementProfile) return [];
 
-        const processNode = (node: any, level: number) => {
-            employees.push({
-                code: node.job_title_code,
-                name: node.name,
-                position: node.position,
-                level: level,
-                avatar: null,
-                highlighted: employees.length === 2 // Highlight the 3rd item
+        const hierarchy: any[] = [];
+
+        // Add direct managers (employees above current employee)
+        const directManagers = this.managementProfile.direct_manager || [];
+        directManagers.forEach((manager: any) => {
+            hierarchy.push({
+                id: manager.id,
+                name: manager.name,
+                job_title: manager.job_title,
+                picture: manager.picture?.generate_signed_url || manager.picture?.image_url || this.defaultImage,
+                type: 'manager',
+                level: 0
             });
-
-            // Recursively process children
-            if (node.children && node.children.length > 0) {
-                node.children.forEach((child: any) => processNode(child, level + 1));
-            }
-        };
-
-        // Process job titles structure
-        this.companyStructure.forEach(root => {
-            processNode(root, 0);
         });
 
-        // Return only first 5 employees like in the image
-        return employees.slice(0, 5);
+        // Add current employee
+        hierarchy.push({
+            id: this.employeeId,
+            name: this.currentEmployeeName,
+            job_title: this.currentEmployeeJobTitle,
+            picture: this.currentEmployeePicture || this.defaultImage,
+            type: 'current',
+            level: 1
+        });
+
+        // Add employees under the current employee
+        const employeesUnder = this.managementProfile.employees || [];
+        employeesUnder.forEach((employee: any) => {
+            hierarchy.push({
+                id: employee.id,
+                name: employee.name,
+                job_title: employee.job_title,
+                picture: employee.picture?.generate_signed_url || employee.picture?.image_url || this.defaultImage,
+                type: 'employee',
+                level: 2
+            });
+        });
+
+        return hierarchy;
     }
 
     navigateToOrgChart(): void {

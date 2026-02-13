@@ -104,26 +104,14 @@
         <h2>Structure</h2>
       </div>
 
-      @if (isLoadingOrgChart) {
+      @if (getEmployeeHierarchy().length > 0) {
       <div class="org-chart-wrapper">
         <div class="employee-hierarchy-list">
-          @for (i of [1,2,3,4]; track $index) {
-          <div class="employee-card skeleton mb-2">
-            <div class="hierarchy-arrow skeleton-arrow"></div>
-            <div class="employee-avatar skeleton-avatar"></div>
-            <div class="employee-info">
-              <div class="skeleton-line skeleton-id"></div>
-              <div class="skeleton-line skeleton-name"></div>
-            </div>
-          </div>
-          }
-        </div>
-      </div>
-      } @else if (getEmployeeHierarchy().length > 0) {
-      <div class="org-chart-wrapper">
-        <div class="employee-hierarchy-list">
-          @for (emp of getEmployeeHierarchy().slice(0, 4); track $index) {
-          <div class="employee-card mb-1" [class.highlighted]="emp.highlighted">
+          @for (emp of getEmployeeHierarchy(); track emp.id) {
+          <div class="employee-card mb-1" [class.employee-card--manager]="emp.type === 'manager'"
+            [class.employee-card--current]="emp.type === 'current'"
+            [class.employee-card--subordinate]="emp.type === 'employee'">
+            @if (emp.type === 'manager' || emp.type === 'employee' || emp.type === 'current') {
             <div class="hierarchy-arrow" [style.margin-left.px]="emp.level * 20">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
                 <path d="M4 4 Q 4 16, 16 16 L 28 16" stroke="currentColor" stroke-width="2" fill="none" />
@@ -131,12 +119,14 @@
                   stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
+            }
             <div class="employee-avatar" style="width: 40px; height: 40px;">
-              <img [src]="defaultImage" [alt]="emp.name" onerror="this.src='assets/images/default-avatar.png'">
+              <img [src]="emp.picture || defaultImage" [alt]="emp.name"
+                onerror="this.src='./images/profile-defult.jpg'">
             </div>
             <div class="employee-info">
-              <div class="employee-id">{{ emp.code }}</div>
               <div class="employee-name" style="font-size: 14px;">{{ emp.name }}</div>
+              <div class="employee-id">{{ emp.job_title }}</div>
             </div>
           </div>
           }
@@ -161,127 +151,3 @@
     </div>
   </div>
   }
-</div>
-
-<!-- Organizational Chart Modal -->
-@if (isOrgChartModalOpen) {
-<div class="org-chart-modal-overlay" (click)="closeOrgChartModal()">
-  <div class="org-chart-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>Complete Organizational Chart</h2>
-      <button class="close-btn" (click)="closeOrgChartModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
-        </svg>
-      </button>
-    </div>
-
-    <div class="modal-body">
-      <div class="org-tree-container">
-        @for (root of companyStructure; track $index) {
-        <div class="tree-node-wrapper">
-          <div class="tree-node root-node">
-            <div class="node-avatar">
-              <img [src]="defaultImage" [alt]="root.name" onerror="this.src='assets/images/default-avatar.png'">
-            </div>
-            <div class="node-details">
-              <div class="node-code">{{ root.job_title_code }}</div>
-              <div class="node-name">{{ root.name }}</div>
-              <div class="node-position">{{ root.position }}</div>
-              <div class="node-level">{{ root.level }}</div>
-            </div>
-          </div>
-
-          @if (root.children && root.children.length > 0) {
-          <div class="tree-children">
-            @for (child of root.children; track $index) {
-            <div class="tree-branch">
-              <div class="branch-line"></div>
-              <div class="tree-node child-node">
-                <div class="node-avatar">
-                  <img [src]="defaultImage" [alt]="child.name" onerror="this.src='assets/images/default-avatar.png'">
-                </div>
-                <div class="node-details">
-                  <div class="node-code">{{ child.job_title_code }}</div>
-                  <div class="node-name">{{ child.name }}</div>
-                  <div class="node-position">{{ child.position }}</div>
-                  <div class="node-level">{{ child.level }}</div>
-                </div>
-              </div>
-
-              @if (child.children && child.children.length > 0) {
-              <div class="tree-children">
-                @for (grandchild of child.children; track $index) {
-                <div class="tree-branch">
-                  <div class="branch-line"></div>
-                  <div class="tree-node child-node">
-                    <div class="node-avatar">
-                      <img [src]="defaultImage" [alt]="grandchild.name"
-                        onerror="this.src='assets/images/default-avatar.png'">
-                    </div>
-                    <div class="node-details">
-                      <div class="node-code">{{ grandchild.job_title_code }}</div>
-                      <div class="node-name">{{ grandchild.name }}</div>
-                      <div class="node-position">{{ grandchild.position }}</div>
-                      <div class="node-level">{{ grandchild.level }}</div>
-                    </div>
-                  </div>
-
-                  @if (grandchild.children && grandchild.children.length > 0) {
-                  <div class="tree-children">
-                    @for (ggchild of grandchild.children; track $index) {
-                    <div class="tree-branch">
-                      <div class="branch-line"></div>
-                      <div class="tree-node child-node">
-                        <div class="node-avatar">
-                          <img [src]="defaultImage" [alt]="ggchild.name"
-                            onerror="this.src='assets/images/default-avatar.png'">
-                        </div>
-                        <div class="node-details">
-                          <div class="node-code">{{ ggchild.job_title_code }}</div>
-                          <div class="node-name">{{ ggchild.name }}</div>
-                          <div class="node-position">{{ ggchild.position }}</div>
-                          <div class="node-level">{{ ggchild.level }}</div>
-                        </div>
-                      </div>
-
-                      @if (ggchild.children && ggchild.children.length > 0) {
-                      <div class="tree-children">
-                        @for (gggchild of ggchild.children; track $index) {
-                        <div class="tree-branch">
-                          <div class="branch-line"></div>
-                          <div class="tree-node child-node">
-                            <div class="node-avatar">
-                              <img src="assets/images/default-avatar.png" [alt]="gggchild.name">
-                            </div>
-                            <div class="node-details">
-                              <div class="node-code">{{ gggchild.job_title_code }}</div>
-                              <div class="node-name">{{ gggchild.name }}</div>
-                              <div class="node-position">{{ gggchild.position }}</div>
-                              <div class="node-level">{{ gggchild.level }}</div>
-                            </div>
-                          </div>
-                        </div>
-                        }
-                      </div>
-                      }
-                    </div>
-                    }
-                  </div>
-                  }
-                </div>
-                }
-              </div>
-              }
-            </div>
-            }
-          </div>
-          }
-        </div>
-        }
-      </div>
-    </div>
-  </div>
-</div>
-}

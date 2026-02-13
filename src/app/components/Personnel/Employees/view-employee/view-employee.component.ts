@@ -96,6 +96,11 @@ export class ViewEmployeeComponent implements OnInit {
     if (this.isAddingFlag && !target.closest('.flag-add-wrapper') && !target.closest('.empty-placeholder')) {
       this.isAddingFlag = false;
     }
+
+    // Close manager removal modal if clicking outside the modal
+    if (this.isRemoveManagerModalOpen && !target.closest('app-popup')) {
+      this.isRemoveManagerModalOpen = false;
+    }
   }
 
   contactInfoExpanded = false;
@@ -138,6 +143,100 @@ export class ViewEmployeeComponent implements OnInit {
         if (inputEl) inputEl.focus();
       }, 100);
     }
+  }
+
+  // Manager management state
+  isAddingManager = false;
+  managerSearchControl = new FormControl('');
+  managerSuggestions: any[] = [];
+  isSearchingManagers = false;
+  isSavingManagers = false;
+
+  private setupManagerSearchDebounce(): void {
+    this.managerSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        if (!value || value.length < 1) {
+          this.managerSuggestions = [];
+          return of(null);
+        }
+        this.isSearchingManagers = true;
+        return this.employeeService.fastFetchEmployees(value).pipe(
+          finalize(() => this.isSearchingManagers = false)
+        );
+      })
+    ).subscribe(response => {
+      if (response && response.data && response.data.list_items) {
+        this.managerSuggestions = response.data.list_items || [];
+      }
+    });
+  }
+
+  toggleAddManager(): void {
+    this.isAddingManager = !this.isAddingManager;
+    if (this.isAddingManager) {
+      this.managerSearchControl.setValue('');
+      this.managerSuggestions = [];
+      setTimeout(() => {
+        const inputEl = document.getElementById('newManagerInput');
+        if (inputEl) inputEl.focus();
+      }, 100);
+    }
+  }
+
+  selectManagerSuggestion(manager: any): void {
+    this.saveNewManager(manager.id);
+  }
+
+  saveNewManager(managerId: number): void {
+    if (!this.employeeId) return;
+    this.isSavingManagers = true;
+    this.employeeService.setMainManager(this.employeeId, managerId).subscribe({
+      next: () => {
+        this.loadManagementProfile();
+        this.isAddingManager = false;
+        this.managerSearchControl.setValue('');
+      },
+      error: (err) => {
+        console.error('Error adding manager:', err);
+        this.toasterMessageService.showError('Failed to add manager');
+      },
+      complete: () => {
+        this.isSavingManagers = false;
+      }
+    });
+  }
+
+  // Manager removal
+  managerToRemoveId: number | null = null;
+  managerToDelete: any | null = null;
+  isRemoveManagerModalOpen = false;
+
+  openRemoveManagerModal(managerId: number): void {
+    this.managerToRemoveId = managerId;
+    this.managerToDelete = this.managementProfile?.direct_manager?.find((manager: any) => manager.id === managerId) || null;
+    this.isRemoveManagerModalOpen = true;
+  }
+
+  closeRemoveManagerModal(): void {
+    this.managerToRemoveId = null;
+    this.isRemoveManagerModalOpen = false;
+  }
+
+  confirmRemoveManager(): void {
+    if (!this.employeeId || !this.managerToRemoveId) return;
+
+    this.employeeService.removeMainManager(this.employeeId, this.managerToRemoveId).subscribe({
+      next: () => {
+        this.loadManagementProfile();
+        this.closeRemoveManagerModal();
+      },
+      error: (err) => {
+        console.error('Error removing manager:', err);
+        this.toasterMessageService.showError('Failed to remove manager');
+      }
+    });
   }
 
   selectSuggestion(suggestion: string): void {
@@ -762,6 +861,7 @@ export class ViewEmployeeComponent implements OnInit {
     this.loadCustomValues();
     this.loadEmployeeContracts();
     this.setupFlagSearchDebounce();
+    this.setupManagerSearchDebounce();
   }
 
   get onboardingCompleted(): number {
@@ -1728,5 +1828,10 @@ export class ViewEmployeeComponent implements OnInit {
   // Message for activate popup
   get activateMessage(): string {
     return `Are you sure you want to Activate the Employee "${this.employee?.contact_info?.name || ''}"?`;
+  }
+
+  // Message for remove manager popup
+  get managerMessage(): string {
+    return `Are you sure you want to remove "${this.managerToDelete?.name || ''}" as a direct manager?`;
   }
 }
