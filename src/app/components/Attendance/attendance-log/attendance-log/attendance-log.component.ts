@@ -1,5 +1,4 @@
 
-
 import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -643,6 +642,8 @@ export class AttendanceLogComponent implements OnDestroy {
 
   shouldShowCancelOrActivate(record: any): boolean {
     if (!record) return false;
+    // If the record is a main record and not canceled, hide the cancel option.
+    if (record.main_record && !record.canceled) return false;
     // If canceled, show the action so user can activate it.
     if (record.canceled) return true;
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
