@@ -534,7 +534,7 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   getFormattedCheckOut(log: any): string {
-    const checkOut = log?.times_object?.working_check_out;
+    const checkOut = log?.times_object?.actual_check_out;
     const finished = log?.working_details?.finished;
 
     if (!checkOut || checkOut === '00:00' || finished === false) {
@@ -568,7 +568,7 @@ export class AttendanceLogComponent implements OnDestroy {
 
   // Check if a record has check-out
   hasCheckOut(record: any): boolean {
-    const checkOut = record?.times_object?.working_check_out;
+    const checkOut = record?.times_object?.actual_check_out;
     const finished = record?.working_details?.finished;
 
     if (!checkOut) return false;
@@ -1104,9 +1104,9 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalLog = log;
     this.editModalEmp = emp;
     // Check if this is an add scenario (no existing check-out)
-    const hasExistingCheckOut = log?.times_object?.working_check_out && log?.times_object?.working_check_out !== '00:00';
+    const hasExistingCheckOut = log?.times_object?.actual_check_out && log?.times_object?.actual_check_out !== '00:00';
     this.isAddingCheckOut = !hasExistingCheckOut;
-    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.working_check_out : '';
+    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.actual_check_out : '';
     this.editModalOpen = true;
   }
 
@@ -1117,7 +1117,7 @@ export class AttendanceLogComponent implements OnDestroy {
     // Only set initial values if both check-in and check-out exist
     if (this.hasBothCheckInAndOut(log)) {
       this.editCheckInValue = log?.times_object?.actual_check_in || '';
-      this.editCheckOutValue = log?.times_object?.working_check_out || '';
+      this.editCheckOutValue = log?.times_object?.actual_check_out || '';
     } else {
       // For add log scenario, start with empty values
       this.editCheckInValue = '';
