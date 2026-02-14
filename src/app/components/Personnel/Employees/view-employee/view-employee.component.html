@@ -636,7 +636,7 @@
 
         <div class="info">
           <h6>Current Contract End Date</h6>
-          <span>{{ (lastContractDate | date : "dd/MM/yyyy") || "N/A" }}</span>
+          <span>{{ employeeData.contractEndDate }}</span>
         </div>
 
         @if (employee.job_info.end_contract) {

@@ -151,6 +151,7 @@ export class ViewEmployeeComponent implements OnInit {
   managerSuggestions: any[] = [];
   isSearchingManagers = false;
   isSavingManagers = false;
+  datePipe = inject(DatePipe);
 
   private setupManagerSearchDebounce(): void {
     this.managerSearchControl.valueChanges.pipe(
@@ -1173,7 +1174,8 @@ export class ViewEmployeeComponent implements OnInit {
         accountStatus: "inactive" as 'active' | 'inactive' | 'pending' | 'disabled',
         jobTitle: "",
         branch: "",
-        joinDate: ""
+        joinDate: "",
+        contractEndDate: ""
       };
     }
     return {
@@ -1183,7 +1185,8 @@ export class ViewEmployeeComponent implements OnInit {
       accountStatus: this.getAccountStatus(this.employee.employee_active),
       jobTitle: this.employee.job_info.job_title.name,
       branch: this.employee.job_info.branch.name,
-      joinDate: this.employee.job_info.start_contract
+      joinDate: this.employee.job_info.start_contract,
+      contractEndDate: this.employee.current_contract?.end_contract ? this.datePipe.transform(this.employee.current_contract.end_contract, 'mediumDate') : 'Indefinite term contract',
     };
   }
 
