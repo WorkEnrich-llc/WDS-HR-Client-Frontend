@@ -174,13 +174,22 @@ export class CreateDepartmentsComponent {
     subSections.removeAt(childIndex);
   }
   get isStep2Valid(): boolean {
-    if (this.sectionsFormArray.length < 1) {
-      return false;
+
+    if (this.sectionsFormArray.length === 0) {
+      return true;
     }
 
+    // Only validate sections if they are not empty and have a name
     return this.sectionsFormArray.controls.every((section: FormGroup) => {
-      const subSections = this.getSubSections(section);
-      return section.valid && subSections.controls.every((sub: FormGroup) => sub.valid);
+      const sectionNameControl = section.get('secName');
+      const hasSectionName = sectionNameControl?.value && sectionNameControl.value.trim().length > 0;
+
+      // If a section has a name, it must be valid. If it doesn't have a name, it's considered optional at this step.
+      if (hasSectionName) {
+        const subSections = this.getSubSections(section);
+        return section.valid && subSections.controls.every((sub: FormGroup) => sub.valid);
+      }
+      return true; // Section is considered valid if no name is entered (optional)
     });
   }
 
@@ -338,7 +347,7 @@ export class CreateDepartmentsComponent {
 
   // create Department
   createDept() {
-    if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
+    if (this.deptStep1.invalid || this.deptStep2.invalid) {
       this.errMsg = 'Please complete both steps with valid data and at least one section.';
       return;
     }
