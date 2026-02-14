@@ -138,9 +138,15 @@
               <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
             </div>
             <div class="info">
+              <h6>Work Mode</h6>
+              <span>{{ jobOpening.work_mode?.name || "N/A" }}</span>
+            </div>
+            @if (jobOpening.work_mode?.id !== 1) {
+            <div class="info">
               <h6>Days on Site</h6>
               <span>{{ jobOpening.days_on_site ?? "N/A" }}</span>
             </div>
+            }
             <div class="info">
               <h6>Employment Type</h6>
               <span>{{ jobOpening.employment_type?.name || "N/A" }}</span>
