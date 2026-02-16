@@ -17,6 +17,8 @@ import { EmployeeService } from 'app/core/services/personnel/employees/employee.
 import { RolesService } from 'app/core/services/roles/roles.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface AllowedAction {
   name: string;
@@ -83,10 +85,21 @@ export class ManageRoleComponent implements OnInit {
   constructor(
     // private router: Router,
     private rolesService: RolesService,
-  ) { }
+  ) {
+    this.searchSubject.pipe(debounceTime(300), takeUntilDestroyed()).subscribe((term) => {
+      this.currentPage = 1;
+      this.getAllUsers({ search: term });
+    });
+  }
   private userService = inject(AdminUsersService);
   errMsg = '';
   isLoading: boolean = false;
+  isLoadingRoles = false;
+  isLoadingRoleDetails = false;
+  isLoadingAllUsers = false;
+  skeletonModuleRows = Array.from({ length: 7 }, (_, i) => i);
+  skeletonServiceRows = Array.from({ length: 5 }, (_, i) => i);
+  skeletonActionChips = Array.from({ length: 6 }, (_, i) => i);
 
 
 
@@ -150,6 +163,8 @@ export class ManageRoleComponent implements OnInit {
   // users
   openUsersOverlay() {
     this.searchTerm = '';
+    this.currentPage = 1;
+    this.getAllUsers();
     this.usersOverlay.openOverlay();
   }
 
@@ -157,25 +172,30 @@ export class ManageRoleComponent implements OnInit {
 
 
   private getAllUsers(filters?: ISearchParams): void {
-    this.employeesService.getEmployeesForAddRoles(this.currentPage, this.itemsPerPage, filters?.search || '').subscribe({
+    const search = filters && 'search' in filters ? filters.search : this.searchTerm.trim();
+    this.isLoadingAllUsers = true;
+    this.employeesService.getEmployeesForAddRoles(this.currentPage, this.itemsPerPage, search).subscribe({
       next: (response: EmployeesResponse) => {
+        this.isLoadingAllUsers = false;
         this.totalItems = response.data.total_items;
         this.totalPages = response.data.total_pages;
         this.currentPage = response.data.page ? Number(response.data.page) : this.currentPage;
 
-        const users: IUser[] = response.data.list_items.map((e: Employee) => {
-          if (this.pendingSelections.has(e.id)) {
-            return this.pendingSelections.get(e.id)!;
+        const users: IUser[] = response.data.list_items.map((item: any) => {
+          const emp = item.object_info ?? item;
+          const empId = emp.id;
+          if (this.pendingSelections.has(empId)) {
+            return this.pendingSelections.get(empId)!;
           }
-          const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === e.id);
+          const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === empId);
           return {
-            id: e.id,
-            name: e.contact_info?.name ?? '',
-            email: e.contact_info?.email ?? '',
-            code: e.contact_info?.mobile?.number?.toString() ?? '',
-            created_at: e.created_at,
-            updated_at: e.updated_at,
-            status: e.employee_active,
+            id: empId,
+            name: emp.contact_info?.name ?? '',
+            email: emp.contact_info?.email ?? '',
+            code: emp.code ?? emp.contact_info?.mobile?.number?.toString() ?? '',
+            created_at: emp.created_at,
+            updated_at: emp.updated_at,
+            status: emp.employee_active,
             permissions: [],
             isSelected: alreadyAdded
           } as IUser;
@@ -236,19 +256,7 @@ export class ManageRoleComponent implements OnInit {
 
 
   onSearchChange() {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    if (term) {
-      this.allUsers = this.originalUsers.filter(user =>
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
-        user.code.toLowerCase().includes(term)
-      );
-    } else {
-      this.allUsers = [...this.originalUsers];
-    }
-
-    this.selectAllUsers = this.allUsers.length > 0 && this.allUsers.every(u => u.isSelected);
+    this.searchSubject.next(this.searchTerm.trim());
   }
 
 
@@ -413,8 +421,10 @@ export class ManageRoleComponent implements OnInit {
 
   // ------------
   getAllRoles() {
+    this.isLoadingRoles = true;
     this.rolesService.getroles().subscribe({
       next: (response) => {
+        this.isLoadingRoles = false;
         const orderedKeys = [
           "Admin Dashboard",
           "Operational Development",
@@ -446,7 +456,7 @@ export class ManageRoleComponent implements OnInit {
         // console.log(this.mappedData);
       },
       error: (err) => {
-        // console.log(err.error?.details);
+        this.isLoadingRoles = false;
         this.errMsg = err.error?.details;
       }
     });
@@ -563,9 +573,12 @@ export class ManageRoleComponent implements OnInit {
 
   // load role for edit
   loadRoleForEdit(id: number) {
+    this.isLoadingRoleDetails = true;
     this.adminRolesService.getRoleById(id).subscribe({
       next: (role) => {
+        this.isLoadingRoleDetails = false;
         if (!role) return;
+        this.roleName = role.name ?? '';
         this.createDate = new Date(role.createdAt ?? '').toLocaleDateString('en-GB');
         this.updatedDate = new Date(role.updatedAt ?? '').toLocaleDateString('en-GB');
         this.addedUsers = role.users || [];
@@ -617,6 +630,7 @@ export class ManageRoleComponent implements OnInit {
         this.updatePaginatedAddedUsers();
       },
       error: (err) => {
+        this.isLoadingRoleDetails = false;
         console.error("Error loading role", err);
       }
     });
