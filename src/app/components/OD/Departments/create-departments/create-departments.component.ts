@@ -347,26 +347,36 @@ export class CreateDepartmentsComponent {
 
   // create Department
   createDept() {
-    if (this.deptStep1.invalid || this.deptStep2.invalid) {
-      this.errMsg = 'Please complete both steps with valid data and at least one section.';
+    if (this.deptStep1.invalid || !this.isStep2Valid) {
+      this.errMsg = 'Please complete both steps with valid data.';
       return;
     }
 
     const form1Data = this.deptStep1.value;
 
-    const sections = this.sectionsFormArray.controls.map((group, index) => {
-      const subSections = this.getSubSections(group).controls.map((subGroup, subIndex) => ({
-        id: 0,
-        index: subIndex + 1,
-        record_type: 'create',
-        code: subGroup.get('secCode')?.value,
-        name: subGroup.get('secName')?.value,
-        status: subGroup.get('status')?.value.toString()
-      }));
+    // Only include sections that have a name (sections are optional)
+    const sectionsWithData = this.sectionsFormArray.controls
+      .map((group, index) => ({ group, index }))
+      .filter(({ group }) => {
+        const name = group.get('secName')?.value;
+        return name != null && String(name).trim().length > 0;
+      });
+
+    const sections = sectionsWithData.map(({ group, index }, mappedIndex) => {
+      const subSections = this.getSubSections(group).controls
+        .map((subGroup, subIndex) => ({
+          id: 0,
+          index: subIndex + 1,
+          record_type: 'create',
+          code: subGroup.get('secCode')?.value,
+          name: subGroup.get('secName')?.value,
+          status: subGroup.get('status')?.value.toString()
+        }))
+        .filter(sub => sub.name != null && String(sub.name).trim().length > 0);
 
       return {
         id: 0,
-        index: index + 1,
+        index: mappedIndex + 1,
         record_type: 'create',
         code: group.get('secCode')?.value,
         name: group.get('secName')?.value,
