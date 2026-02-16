@@ -340,8 +340,7 @@
                     </button>
                     }
                     @if (openSubMenu && openSubMenu.mainIndex === i && openSubMenu.subIndex === j){
-                    <div class="action-menu-dropdown" (mouseleave)="closeSubLogMenu()"
-                      (click)="$event.stopPropagation()">
+                    <div class="action-menu-dropdown" (click)="$event.stopPropagation()">
                       <!-- Scenario 1: NO check-in AND NO check-out → Show "Add Check In" + "Add Check Out" + "Cancel Log" -->
                       <!-- Show "Add Check In" when check-in doesn't exist or is '00:00' -->
                       @if (shouldShowAddCheckIn(log)) {
