@@ -223,6 +223,7 @@ export class ViewEmployeeComponent implements OnInit {
     this.employeeService.setMainManager(this.employeeId, managerId).subscribe({
       next: () => {
         this.loadManagementProfile();
+        this.loadAllManagersForDropdown();
         this.isAddingManager = false;
         this.managerSearchControl.setValue('');
       },
