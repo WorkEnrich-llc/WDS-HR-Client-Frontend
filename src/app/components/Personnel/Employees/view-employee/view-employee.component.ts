@@ -149,36 +149,57 @@ export class ViewEmployeeComponent implements OnInit {
   isAddingManager = false;
   managerSearchControl = new FormControl('');
   managerSuggestions: any[] = [];
-  isSearchingManagers = false;
+  allManagersList: any[] = [];
   isSavingManagers = false;
   datePipe = inject(DatePipe);
 
-  private setupManagerSearchDebounce(): void {
-    this.managerSearchControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(value => {
-        if (!value || value.length < 1) {
-          this.managerSuggestions = [];
-          return of(null);
+  allManagersLoading = false;
+
+  loadAllManagersForDropdown(): void {
+    this.allManagersLoading = true;
+    this.employeeService.fastFetchEmployees('').subscribe({
+      next: (response) => {
+        if (response?.data?.list_items) {
+          this.allManagersList = response.data.list_items;
+          if (this.isAddingManager && !this.managerSearchControl.value) {
+            this.managerSuggestions = [...this.allManagersList];
+          }
         }
-        this.isSearchingManagers = true;
-        return this.employeeService.fastFetchEmployees(value).pipe(
-          finalize(() => this.isSearchingManagers = false)
-        );
-      })
-    ).subscribe(response => {
-      if (response && response.data && response.data.list_items) {
-        this.managerSuggestions = response.data.list_items || [];
+      },
+      complete: () => {
+        this.allManagersLoading = false;
+      },
+      error: () => {
+        this.allManagersLoading = false;
       }
     });
+  }
+
+  private filterManagersClientSide(query: string): any[] {
+    if (!query || query.trim().length < 1) {
+      return [...this.allManagersList];
+    }
+    const q = query.trim().toLowerCase();
+    return this.allManagersList.filter(
+      (m: any) =>
+        (m.name && String(m.name).toLowerCase().includes(q)) ||
+        (m.code && String(m.code).toLowerCase().includes(q))
+    );
+  }
+
+  private setupManagerSearchDebounce(): void {
+    this.managerSearchControl.valueChanges
+      .pipe(debounceTime(200), distinctUntilChanged())
+      .subscribe(value => {
+        this.managerSuggestions = this.filterManagersClientSide(value ?? '');
+      });
   }
 
   toggleAddManager(): void {
     this.isAddingManager = !this.isAddingManager;
     if (this.isAddingManager) {
       this.managerSearchControl.setValue('');
-      this.managerSuggestions = [];
+      this.managerSuggestions = [...this.allManagersList];
       setTimeout(() => {
         const inputEl = document.getElementById('newManagerInput');
         if (inputEl) inputEl.focus();
@@ -863,6 +884,7 @@ export class ViewEmployeeComponent implements OnInit {
     this.loadEmployeeContracts();
     this.setupFlagSearchDebounce();
     this.setupManagerSearchDebounce();
+    this.loadAllManagersForDropdown();
   }
 
   get onboardingCompleted(): number {

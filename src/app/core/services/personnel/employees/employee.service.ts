@@ -403,7 +403,7 @@ export class EmployeeService {
 
   // Fast fetch employees for manager search
   fastFetchEmployees(search: string, page: number = 1, perPage: number = 10000): Observable<any> {
-    const url = `${this.apiBaseUrl}personnel/employees-fast-fetch`;
+    const url = `${this.apiBaseUrl}personnel/employees-mangers-fetch`;
     let params = new HttpParams()
       .set('page', page.toString())
       .set('per_page', perPage.toString());

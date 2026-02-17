@@ -664,13 +664,15 @@
         <div class="managers-section mt-2">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <h6>Managers</h6>
-            @if (managementProfileLoading) {
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            }
           </div>
 
+          @if (managementProfileLoading || allManagersLoading) {
+          <div class="flags-container">
+            @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton-loading skeleton-manager-pill"></div>
+            }
+          </div>
+          } @else {
           <div class="flags-container">
             @for(manager of (managementProfile?.direct_manager || []).slice(0, 3); track manager.id) {
             <span class="pill-base flag-pill manager-pill" [title]="manager.job_title?.name || ''">
@@ -731,14 +733,6 @@
                 <input #newManagerInput id="newManagerInput" type="text" [formControl]="managerSearchControl"
                   placeholder="Search..." />
 
-                @if (isSearchingManagers) {
-                <div class="flag-loader">
-                  <svg class="spinner-base spinner" viewBox="0 0 50 50">
-                    <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-                  </svg>
-                </div>
-                }
-
                 @if (managerSuggestions.length > 0) {
                 <div class="flag-suggestions">
                   @for (suggestion of managerSuggestions; track suggestion.id) {
@@ -760,6 +754,7 @@
               }
             </div>
           </div>
+          }
         </div>
       </div>
     </div>

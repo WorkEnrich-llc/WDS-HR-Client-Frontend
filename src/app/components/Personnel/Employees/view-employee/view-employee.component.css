@@ -1015,6 +1015,13 @@
   width: 100%;
 }
 
+/* --- Managers Section Skeleton --- */
+.skeleton-manager-pill {
+  height: 32px;
+  min-width: 80px;
+  border-radius: 999px;
+}
+
 /* --- Managers Section Styles --- */
 .managers-section {
   padding-top: var(--spacing-16);
