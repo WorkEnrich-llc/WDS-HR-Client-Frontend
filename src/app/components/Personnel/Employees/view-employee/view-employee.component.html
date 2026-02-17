@@ -749,6 +749,16 @@
                   </div>
                   }
                 </div>
+                } @else {
+                <div class="flag-suggestions flag-suggestions--empty">
+                  @if (allManagersLoading) {
+                  <div class="manager-dropdown-empty">Loading...</div>
+                  } @else if (managerSearchControl.value?.trim()) {
+                  <div class="manager-dropdown-empty">No matching employees</div>
+                  } @else {
+                  <div class="manager-dropdown-empty">No employees available</div>
+                  }
+                </div>
                 }
               </div>
               }

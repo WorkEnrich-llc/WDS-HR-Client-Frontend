@@ -875,6 +875,17 @@
   z-index: 101;
 }
 
+.flag-suggestions--empty {
+  padding: 0;
+}
+
+.manager-dropdown-empty {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--color-neutral-500);
+  text-align: center;
+}
+
 .suggestion-item {
   padding: 8px 12px;
   font-size: 13px;
