@@ -401,10 +401,23 @@ export class EmployeeService {
     return this.http.get<any>(url, { params });
   }
 
-  // Fast fetch employees for manager search
+  // Fast fetch employees for manager search (legacy, no employee_id)
   fastFetchEmployees(search: string, page: number = 1, perPage: number = 10000): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-fast-fetch`;
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', perPage.toString());
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get<any>(url, { params });
+  }
+
+  // Fetch employees for manager dropdown (with employee_id)
+  employeeManagersFetch(employeeId: number, search: string = '', page: number = 1, perPage: number = 10000): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/employees-mangers-fetch`;
     let params = new HttpParams()
+      .set('employee_id', employeeId.toString())
       .set('page', page.toString())
       .set('per_page', perPage.toString());
     if (search) {

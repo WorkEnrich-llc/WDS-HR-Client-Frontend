@@ -174,14 +174,9 @@ export const authInterceptor: HttpInterceptorFn = (
             break;
           }
 
-          // If this is a logout request that returned 401, just cleanup without calling logout again
+          // If this is a logout request (e.g. from settings), let the caller handle cleanup
+          // after the request completes so the loader can stay until API finishes
           if (req.url.includes('logout')) {
-            const deviceTokenRaw = localStorage.getItem('device_token');
-            let deviceToken: string | null = null;
-            if (deviceTokenRaw !== null && deviceTokenRaw !== undefined) {
-              deviceToken = deviceTokenRaw;
-            }
-            cleanupAndRedirect(deviceToken);
             break;
           }
 

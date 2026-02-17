@@ -156,8 +156,9 @@ export class ViewEmployeeComponent implements OnInit {
   allManagersLoading = false;
 
   loadAllManagersForDropdown(): void {
+    if (!this.employeeId) return;
     this.allManagersLoading = true;
-    this.employeeService.fastFetchEmployees('').subscribe({
+    this.employeeService.employeeManagersFetch(this.employeeId, '').subscribe({
       next: (response) => {
         if (response?.data?.list_items) {
           this.allManagersList = response.data.list_items;
@@ -878,13 +879,13 @@ export class ViewEmployeeComponent implements OnInit {
       if (this.employeeId) {
         this.loadEmployeeData();
         this.loadManagementProfile();
+        this.loadAllManagersForDropdown();
       }
     });
     this.loadCustomValues();
     this.loadEmployeeContracts();
     this.setupFlagSearchDebounce();
     this.setupManagerSearchDebounce();
-    this.loadAllManagersForDropdown();
   }
 
   get onboardingCompleted(): number {

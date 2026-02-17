@@ -32,27 +32,33 @@ export class SettingsComponent {
   }
 
 
-logout(): void {
-  this.isLoading = true;
+  logout(): void {
+    this.isLoading = true;
 
-  this._AuthenticationService.logout().subscribe({
-    next: () => {
-      const deviceToken = localStorage.getItem('device_token');
-      localStorage.clear();
-      if (deviceToken) {
-        localStorage.setItem('device_token', deviceToken);
+    this._AuthenticationService.logout().subscribe({
+      next: () => {
+        this.clearStorageAndRedirect();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Logout request failed:', err);
+        this.clearStorageAndRedirect();
+        this.isLoading = false;
       }
+    });
+  }
 
-      this.cookieService.deleteAll('/', window.location.hostname);
-      this._Router.navigate(['/auth/login']);
-      this.isLoading = false;
-    },
-    error: (err) => {
-      console.error('Logout request failed:', err);
-      this.isLoading = false;
+  /** Clear storage and cookies only after logout API has finished (success or error). */
+  private clearStorageAndRedirect(): void {
+    const deviceToken = localStorage.getItem('device_token');
+    localStorage.clear();
+    sessionStorage.clear();
+    if (deviceToken) {
+      localStorage.setItem('device_token', deviceToken);
     }
-  });
-}
+    this.cookieService.deleteAll('/', window.location.hostname);
+    this._Router.navigate(['/auth/login']);
+  }
 
 
 
