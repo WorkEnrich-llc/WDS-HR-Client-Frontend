@@ -120,7 +120,7 @@
   <div class="user-info">
     <div class="row align-items-center g-4">
       <div class="col-md-6">
-        <form [formGroup]="registerForm1" class="w-100 d-flex flex-column gap-2">
+        <form [formGroup]="registerForm1" class="w-100 d-flex flex-column gap-2" autocomplete="off">
           <div class="input">
             <label for="name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <g fill="none" stroke-width="1.5">
@@ -169,8 +169,8 @@
               </svg> Email</label>
             <div class="d-flex align-items-center gap-4">
               <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input formControlName="email" (blur)="checkEmail()" type="email" id="email" class="form-control"
-                  placeholder="What’s your Business Email?" [ngClass]="{
+                <input formControlName="email" type="email" id="email" class="form-control" autocomplete="nope" readonly
+                  (focus)="removeEmailReadonly($event)" placeholder="What’s your Business Email?" [ngClass]="{
           'error-input': registerForm1.get('email')?.touched && registerForm1.get('email')?.invalid,
           'success-input': registerForm1.get('email')?.touched && registerForm1.get('email')?.valid
         }">

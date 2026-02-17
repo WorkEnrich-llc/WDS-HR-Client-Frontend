@@ -8,6 +8,7 @@ import { AuthenticationService } from '../../../core/services/authentication/aut
 import { HttpErrorResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { Subject, catchError, debounceTime, EMPTY, filter, switchMap, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -56,7 +57,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.loadJobTitles();
-
+    this.setupEmailCheck();
   }
 
 
@@ -171,29 +172,51 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
 
   emailAvailable: boolean = false;
-  checkEmail(): void {
+  private readonly destroy$ = new Subject<void>();
+
+  private setupEmailCheck(): void {
     const emailControl = this.registerForm1.get('email');
-    if (!emailControl?.value) return;
+    if (!emailControl) return;
 
-    this._AuthenticationService.checkEmail(emailControl.value).subscribe({
-      next: (response) => {
-        this.emailMsg = 'Email available';
-        this.emailAvailable = true;
-
-        if (emailControl.hasError('emailTaken')) {
-          const currentErrors = emailControl.errors;
-          delete currentErrors?.['emailTaken'];
-          emailControl.setErrors(Object.keys(currentErrors || {}).length ? currentErrors : null);
+    emailControl.valueChanges.pipe(
+      debounceTime(1000),
+      tap((value: string) => {
+        if (!value?.trim()) {
+          this.emailMsg = '';
+          this.emailAvailable = false;
+          if (emailControl.hasError('emailTaken')) {
+            const currentErrors = { ...emailControl.errors };
+            delete currentErrors['emailTaken'];
+            emailControl.setErrors(Object.keys(currentErrors).length ? currentErrors : null);
+          }
         }
-      },
-      error: (err: HttpErrorResponse) => {
-        const details = err.error?.details || '';
-
-        this.emailMsg = details;
-        this.emailAvailable = false;
-        emailControl.setErrors({ emailTaken: true });
-
-        console.error("Email check error:", err);
+      }),
+      filter((value: string) => {
+        if (!value?.trim()) return false;
+        return !emailControl.hasError('email') && !emailControl.hasError('required');
+      }),
+      switchMap((email) =>
+        this._AuthenticationService.checkEmail(email).pipe(
+          catchError((err: HttpErrorResponse) => {
+            const details = err.error?.details || '';
+            this.emailMsg = details;
+            this.emailAvailable = false;
+            const currentErrors = { ...(emailControl.errors || {}) };
+            currentErrors['emailTaken'] = true;
+            emailControl.setErrors(currentErrors);
+            console.error("Email check error:", err);
+            return EMPTY;
+          })
+        )
+      ),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.emailMsg = 'Email available';
+      this.emailAvailable = true;
+      if (emailControl.hasError('emailTaken')) {
+        const currentErrors = { ...(emailControl.errors || {}) };
+        delete currentErrors['emailTaken'];
+        emailControl.setErrors(Object.keys(currentErrors).length ? currentErrors : null);
       }
     });
   }
@@ -565,9 +588,15 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
 
   ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.countdown) {
       clearInterval(this.countdown);
     }
+  }
+
+  removeEmailReadonly(event: FocusEvent): void {
+    (event.target as HTMLInputElement).removeAttribute('readonly');
   }
 
   togglePassword(): void {
