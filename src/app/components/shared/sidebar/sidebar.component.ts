@@ -164,33 +164,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (!dateString) return null;
     try {
       const s = String(dateString).trim();
-      // If string contains timezone offset or Z, let Date parse it (it will handle offsets)
-      if (/[zZ]|[+-]\d{2}:\d{2}$/.test(s)) {
-        const d = new Date(s);
-        if (!isNaN(d.getTime())) return d;
-      }
-
-      // Fallback: parse components manually and construct a local date
-      // Split date and time
-      const [datePart, timePart] = s.split('T');
-      if (!datePart) return null;
-      const [year, month, day] = datePart.split('-').map(Number);
-      if (!timePart) {
-        const d = new Date(year, (month || 1) - 1, day || 1);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      }
-      // Remove fractional seconds and timezone if present
-      const cleanTime = timePart.split(/[\+\-Zz]/)[0];
-      const timeParts = cleanTime.split(':').map(p => p.replace(/\D/g, ''));
-      const hour = Number(timeParts[0] || 0);
-      const minute = Number(timeParts[1] || 0);
-      const second = Number((timeParts[2] || '0').split('.')[0] || 0);
-      const milliMatch = (cleanTime.match(/\.(\d+)/) || [])[1] || '';
-      const ms = milliMatch ? Number((milliMatch + '000').slice(0, 3)) : 0;
-
-      const d = new Date(year, (month || 1) - 1, day || 1, hour, minute, second, ms);
-      return d;
+      // If string has no timezone, treat as UTC (common API format)
+      const toParse = /[zZ]|[+-]\d{2}:?\d{2}$/.test(s) ? s : s.replace(/\.(\d+)$/, (_, frac) => '.' + frac.slice(0, 3)) + 'Z';
+      const d = new Date(toParse);
+      if (!isNaN(d.getTime())) return d;
+      return null;
     } catch (e) {
       return null;
     }
@@ -203,6 +181,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
+    if (diffInSeconds < 0) return 'Just now';
     if (diffInSeconds < 60) return 'Just now';
 
     const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -212,13 +191,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (diffInHours < 24) return `${diffInHours} ${diffInHours === 1 ? 'hr' : 'hrs'} ago`;
 
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 30) return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
-
-    const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths < 12) return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
-
-    const diffInYears = Math.floor(diffInDays / 365);
-    return `${diffInYears} ${diffInYears === 1 ? 'year' : 'years'} ago`;
+    return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
   }
 
   // end notification popup
