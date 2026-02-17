@@ -45,7 +45,7 @@ export const routes: Routes = [
           {
             path: 'login',
             loadComponent: () => import('./components/auth/login/login.component').then(m => m.LoginComponent),
-            title: 'Login',
+            title: 'Talent.HR',
           },
           {
             path: 'register',
@@ -111,6 +111,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./layouts/system-layout/system-layout.component').then(m => m.SystemLayoutComponent),
     canActivate: [AuthGuard],
+    runGuardsAndResolvers: 'always',
     children: [
 
 

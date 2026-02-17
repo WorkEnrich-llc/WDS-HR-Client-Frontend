@@ -67,9 +67,10 @@ export class AuthHelperService {
   getClientLoginUrl(): string {
     const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
     const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const parts = hostname.split('.');
     if (parts.length < 2) {
-      return `${protocol}//${hostname}/auth/login`;
+      return origin ? `${origin}/auth/login` : `${protocol}//${hostname}/auth/login`;
     }
     const firstSegment = parts[0];
     const rest = parts.slice(1).join('.');

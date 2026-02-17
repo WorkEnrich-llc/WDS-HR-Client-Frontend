@@ -78,6 +78,18 @@ export class AppComponent {
       await this.registerDeviceAlways();
     }
     this.startTokenCheck();
+    this.setupBfcacheAuthCheck();
+  }
+
+  /** When user logs out and uses Back button, the page may be restored from bfcache without running the guard. Redirect to login if not authenticated. */
+  private setupBfcacheAuthCheck(): void {
+    window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        if (!localStorage.getItem('user_info')) {
+          window.location.replace(window.location.origin + '/auth/login');
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {
