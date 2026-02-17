@@ -97,6 +97,11 @@ export class ViewEmployeeComponent implements OnInit {
       this.isAddingFlag = false;
     }
 
+    // Close add manager dropdown if clicking outside the dropdown wrapper
+    if (this.isAddingManager && !target.closest('.manager-add-wrapper')) {
+      this.isAddingManager = false;
+    }
+
     // Close manager removal modal if clicking outside the modal
     if (this.isRemoveManagerModalOpen && !target.closest('app-popup')) {
       this.isRemoveManagerModalOpen = false;

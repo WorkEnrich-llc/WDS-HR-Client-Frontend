@@ -777,6 +777,16 @@
   align-items: center;
 }
 
+/* Manager add: wider input and dropdown */
+.manager-add-wrapper .flag-input-container {
+  min-width: 320px;
+  width: 320px;
+}
+
+.manager-add-wrapper .flag-suggestions {
+  min-width: 320px;
+}
+
 .flag-add-btn {
   display: flex;
   align-items: center;
