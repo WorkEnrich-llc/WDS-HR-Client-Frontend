@@ -315,18 +315,39 @@
           </div>
           } @else {
           <div class="d-flex align-items-center gap-4">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <select name="section" formControlName="section" id="section" class="form-select">
-                <option value="" selected disabled hidden>Select Section</option>
-                @if (sections.length === 0) {
-                <option value="" selected disabled>
-                  No active sections to select
-                </option>
-                }
-                @for (section of sections; track section) {
-                <option [value]="section.id">{{section.name}}</option>
-                }
-              </select>
+            <div class="form-outline w-100 position-relative custom-date-wrapper" #sectionDropdownRef>
+              <input type="text" readonly class="form-control custom-date-input" (click)="toggleSectionDropdown()"
+                [value]="getSelectedSectionsNames()" placeholder="Select Section" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="1.5" d="M6 9l6 6l6-6" />
+              </svg>
+
+              <div *ngIf="showSectionDropdown" class="custom-dropdown-container">
+                <div class="select-all-header">
+                  <div class="dropdown-item-wrapper" (click)="toggleSelectAllSections()">
+                    <label class="form-check-label" (click)="$event.stopPropagation()">
+                      <input class="section-checkbox" type="checkbox" [checked]="isAllSelected()"
+                        (change)="toggleSelectAllSections()">
+                      <span>Select all</span>
+                    </label>
+                  </div>
+                </div>
+                <div *ngIf="sections.length > 0">
+                  @for (section of sections; track section) {
+                  <div class="dropdown-item-wrapper" (click)="toggleSectionSelection(section.id, $event)">
+                    <label class="d-flex align-items-center" (click)="$event.stopPropagation()">
+                      <input type="checkbox" class="section-checkbox" [checked]="isSectionChecked(section.id)"
+                        (change)="toggleSectionSelection(section.id, $event)" />
+                      <span>{{section.name}}</span>
+                    </label>
+                  </div>
+                  }
+                </div>
+                <div *ngIf="sections.length === 0" class="text-muted px-2 py-2 text-center">No active sections to select
+                </div>
+              </div>
             </div>
           </div>
           }

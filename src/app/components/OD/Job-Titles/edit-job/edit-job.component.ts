@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass, CommonModule } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -38,7 +38,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-edit-job',
-  imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent, NgClass],
+  imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent, NgClass, CommonModule],
   providers: [DatePipe],
   templateUrl: './edit-job.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-job.component.css']
@@ -58,6 +58,8 @@ export class EditJobComponent {
   originalData: any;
   originalAssignedIds: number[] = [];
   private searchSubject = new Subject<string>();
+  showSectionDropdown: boolean = false;
+  @ViewChild('sectionDropdownRef') sectionDropdownRef!: ElementRef;
 
   constructor(
     private toasterMessageService: ToasterMessageService,
@@ -102,10 +104,71 @@ export class EditJobComponent {
 
     });
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
+      this.ManageCurrentPage = 1;
+      this.getAllJobTitles(this.ManageCurrentPage, value).subscribe();
     });
 
     this.watchFormChanges();
+  }
+
+  toggleSectionDropdown() {
+    this.showSectionDropdown = !this.showSectionDropdown;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (!this.sectionDropdownRef) return;
+    const target = event.target as HTMLElement;
+    if (this.sectionDropdownRef && !this.sectionDropdownRef.nativeElement.contains(target)) {
+      this.showSectionDropdown = false;
+    }
+  }
+
+  isSectionChecked(sectionId: number) {
+    const val = this.jobStep1.get('section')?.value || [];
+    return Array.isArray(val) && val.includes(sectionId);
+  }
+
+  toggleSectionSelection(sectionId: number, event?: Event) {
+    event?.stopPropagation();
+    const ctrl = this.jobStep1.get('section');
+    let val = ctrl?.value || [];
+    if (!Array.isArray(val)) val = [];
+    const idx = val.indexOf(sectionId);
+    if (idx > -1) {
+      val.splice(idx, 1);
+    } else {
+      val.push(sectionId);
+    }
+    ctrl?.setValue([...val]);
+    this.checkForChanges();
+  }
+
+  isAllSelected() {
+    if (!this.sections || this.sections.length === 0) return false;
+    const val = this.jobStep1.get('section')?.value || [];
+    return Array.isArray(val) && val.length === this.sections.length;
+  }
+
+  toggleSelectAllSections() {
+    const ctrl = this.jobStep1.get('section');
+    if (this.isAllSelected()) {
+      ctrl?.setValue([]);
+    } else {
+      ctrl?.setValue(this.sections.map(s => s.id));
+    }
+    this.checkForChanges();
+  }
+
+  // helper to return selected section objects for UI chips/badges
+  getSelectedSections() {
+    const selectedIds = this.jobStep1.get('section')?.value || [];
+    if (!Array.isArray(selectedIds) || selectedIds.length === 0) return [];
+    return this.sections.filter(s => selectedIds.includes(s.id));
+  }
+
+  getSelectedSectionsNames(): string {
+    return this.getSelectedSections().map(s => s.name).join(', ');
   }
 
   get numericJobId(): number | null {
@@ -118,7 +181,8 @@ export class EditJobComponent {
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
-    section: new FormControl({ value: '', disabled: true }),
+    // make `section` a multi-select control (array of ids)
+    section: new FormControl({ value: [], disabled: true }),
   });
 
 
@@ -143,7 +207,10 @@ export class EditJobComponent {
         const dept$ = this.getAllDepartment(this.currentPage, '', {}, jobDept);
         let section$ = of([]);
         if (jobDept?.id && (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)) {
-          section$ = this.getsections(jobDept.id, jobSection);
+          const jobSections = Array.isArray(this.jobTitleData.sections) && this.jobTitleData.sections.length > 0
+            ? this.jobTitleData.sections
+            : (jobSection ? [jobSection] : []);
+          section$ = this.getsections(jobDept.id, jobSections);
         }
 
         return forkJoin([dept$, section$]);
@@ -156,8 +223,37 @@ export class EditJobComponent {
         return this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
       })
     ).subscribe({
-      next: () => {
+      next: (mainRes: any) => {
         this.loadData = false;
+
+        // If original assigned manager exists but wasn't returned in the paged result,
+        // fetch the full active list to check whether the original manager is inactive.
+        const originalAssigned = this.jobTitleData?.assigns?.[0];
+        if (originalAssigned) {
+          const foundInPage = mainRes?.data?.list_items?.some((j: any) => j.id === originalAssigned.id);
+          if (!foundInPage) {
+            // Instead of fetching the whole list with per_page=10000,
+            // fetch the specific job title to determine if it's active.
+            this._JobsService.showJobTitle(originalAssigned.id).subscribe({
+              next: (res: any) => {
+                const obj = res?.data?.object_info;
+                if (obj && obj.is_active === false) {
+                  this.removedManager = {
+                    ...originalAssigned,
+                    is_active: false,
+                    assigned: true,
+                    name: originalAssigned.name + ' (Not Active)'
+                  };
+                } else {
+                  this.removedManager = null;
+                }
+              },
+              error: () => {
+                // ignore errors
+              }
+            });
+          }
+        }
       },
       error: () => {
         this.loadData = false;
@@ -258,7 +354,10 @@ export class EditJobComponent {
         ? this.jobTitleData.job_level
         : '',
       department: this.jobTitleData.department?.id || '',
-      section: this.jobTitleData.section?.id || ''
+      // set section as array for multi-select UI: use assign sections from response, else single section
+      section: (Array.isArray(this.jobTitleData.sections) && this.jobTitleData.sections.length > 0)
+        ? this.jobTitleData.sections.map((s: any) => s.id)
+        : (this.jobTitleData.section?.id ? [this.jobTitleData.section.id] : [])
     });
 
     // --- Step 2 (Salary Ranges) ---
@@ -294,19 +393,28 @@ export class EditJobComponent {
 
     this.setFieldsBasedOnLevel(this.jobTitleData.management_level);
 
+    // Track original assigned manager IDs
+    this.originalAssignedIds = Array.isArray(this.jobTitleData?.assigns)
+      ? this.jobTitleData.assigns.map((a: any) => Number(a.id))
+      : [];
+
+    // Initialize selectedManagerId with the first assigned manager's ID (to track changes)
+    if (this.originalAssignedIds.length > 0) {
+      this.selectedManagerId = this.originalAssignedIds[0];
+    } else {
+      this.selectedManagerId = null;
+    }
+
     this.originalData = {
       jobStep1: this.jobStep1.getRawValue(),
       jobStep2: this.jobStep2.getRawValue(),
       jobStep4: this.jobStep4.getRawValue(),
       requirements: [...this.requirements],
       removedManagerId: this.removedManagerId,
-      assignedId: this.currentManager?.id || null
+      assignedId: this.selectedManagerId
     };
 
-    const currentLevel = this.jobStep1.get('managementLevel')?.value;
-    if (currentLevel) {
-      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
-    }
+    // Don't automatically fetch here — callers decide whether to load the table.
   }
 
 
@@ -388,7 +496,8 @@ export class EditJobComponent {
 
     // --- reset dependent controls
     departmentControl?.reset('');
-    sectionControl?.reset('');
+    // reset multi-select to empty array
+    sectionControl?.reset([]);
     this.sections = [];
     this.sectionsLoading = false;
 
@@ -426,8 +535,9 @@ export class EditJobComponent {
     this.removedManager = null;
     this.newManagerSelected = false;
     this.managerRemoved = false;
+    this.selectedManagerId = null;
 
-    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
   }
 
   get filteredJobTitles() {
@@ -435,7 +545,14 @@ export class EditJobComponent {
     if (!this.jobTitles?.length) return [];
 
     return this.jobTitles.map(job => {
-      const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
+      // If user explicitly selected a manager during this session, prefer that selection.
+      // Otherwise fall back to job.assigned or the original assignment returned by the API.
+      let isAssigned = false;
+      if (this.selectedManagerId !== null) {
+        isAssigned = job.id === this.selectedManagerId;
+      } else {
+        isAssigned = !!job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
+      }
 
       return {
         ...job,
@@ -503,12 +620,16 @@ export class EditJobComponent {
 
 
 
-  getsections(deptid: number, jobSection?: { id: number; name: string }) {
+  getsections(deptid: number, jobSectionOrSections?: { id: number; name: string } | Array<{ id: number; name: string }>) {
     if (!deptid) {
       this.sectionsLoading = false;
       return of([]);
     }
     this.sectionsLoading = true;
+    const jobSectionsList = Array.isArray(jobSectionOrSections)
+      ? jobSectionOrSections
+      : (jobSectionOrSections ? [jobSectionOrSections] : []);
+
     return this._DepartmentsService.showDepartment(deptid).pipe(
       map((response: any) => {
         const rawSections = response.data.object_info.sections;
@@ -519,11 +640,13 @@ export class EditJobComponent {
           name: s.name,
         }));
 
-        if (jobSection && !sections.some((s: { id: number; }) => s.id === jobSection.id)) {
-          sections.unshift({
-            id: jobSection.id,
-            name: `${jobSection.name} (Not active)`,
-          });
+        for (const js of jobSectionsList) {
+          if (js && !sections.some((s: { id: number }) => s.id === js.id)) {
+            sections.push({
+              id: js.id,
+              name: `${js.name} (Not active)`,
+            });
+          }
         }
 
         this.sectionsLoading = false;
@@ -540,14 +663,14 @@ export class EditJobComponent {
     if (!deptId) {
       this.sections = [];
       this.sectionsLoading = false;
-      this.jobStep1.get('section')?.reset('');
+      this.jobStep1.get('section')?.reset([]);
       return;
     }
 
     this.getsections(deptId).subscribe({
       next: (sections) => {
         this.sections = sections.filter((s: { name: string | string[]; }) => !s.name.includes('(Not active)'));
-        this.jobStep1.get('section')?.reset('');
+        this.jobStep1.get('section')?.reset([]);
       },
       error: (err) => {
         console.error('Error loading sections:', err);
@@ -575,7 +698,15 @@ export class EditJobComponent {
 
 
   allActiveJobTitles: any[] = [];
-  getAllJobTitles(ManageCurrentPage: number, searchTerm: string = ''): Observable<any> {
+  // persist selected manager across pagination
+  selectedManagerId: number | null = null;
+  /**
+   * Fetch job titles for the table.
+   * By default only fetches the paged list (main request).
+   * If `fetchAll` is true it will also fetch a full list (per_page=10000) used for checks
+   * such as determining if the original assigned manager exists in the active list.
+   */
+  getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '', fetchAll: boolean = false): Observable<any> {
     this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
 
@@ -590,6 +721,46 @@ export class EditJobComponent {
       }
     );
 
+    if (!fetchAll) {
+      // Only need the paged data
+      return mainRequest$.pipe(
+        tap((mainRes: any) => {
+          const activeList = mainRes.data.list_items.map((item: any) => {
+            const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+            // If the user has selected a new manager, the UI should show only that selection.
+            // Use selectedManagerId as the override; otherwise fall back to original assignment.
+            const assignedResolved = this.selectedManagerId !== null ? item.id === this.selectedManagerId : !!isAssigned;
+            return {
+              id: item.id,
+              name: item.name,
+              assigned: assignedResolved,
+              is_active: item.is_active
+            };
+          });
+
+          this.jobTitles = activeList;
+          this.allActiveJobTitles = activeList;
+
+          // pagination
+          this.ManageCurrentPage = Number(mainRes.data.page);
+          this.ManageTotalItems = mainRes.data.total_items;
+          this.ManagetotalPages = Math.ceil(this.ManageTotalItems / this.manageItemsPerPage);
+
+          // sorting
+          this.sortDirection = 'desc';
+          this.currentSortColumn = 'id';
+          this.sortBy();
+
+          this.loadJobs = false;
+        }),
+        catchError(err => {
+          this.loadJobs = false;
+          return of(null);
+        })
+      );
+    }
+
+    // When fetchAll is true, also request the full active list for checks (per_page=10000)
     const checkRequest$ = this._JobsService.getAllJobTitles(
       1,
       10000,
@@ -604,10 +775,12 @@ export class EditJobComponent {
       tap(([mainRes, checkRes]) => {
         const activeList = mainRes.data.list_items.map((item: any) => {
           const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+          // Respect user's current selection when present; otherwise show original assignment
+          const assignedResolved = this.selectedManagerId !== null ? item.id === this.selectedManagerId : !!isAssigned;
           return {
             id: item.id,
             name: item.name,
-            assigned: isAssigned || false,
+            assigned: assignedResolved,
             is_active: item.is_active
           };
         });
@@ -659,6 +832,13 @@ export class EditJobComponent {
     this.searchTerm = event.target.value;
     this.ManageCurrentPage = 1;
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
+  }
+
+  // update section multi-select control when selection changes
+  onSectionChange(event: any) {
+    const selectedOptions = Array.from(event.target.selectedOptions || []).map((o: any) => Number(o.value));
+    this.jobStep1.get('section')?.setValue(selectedOptions);
+    this.checkForChanges();
   }
 
   onPageChange(newPage: number): void {
@@ -744,7 +924,7 @@ export class EditJobComponent {
           if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
             this.selectJobError = true;
           }
-          this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+          this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
         }
         return;
       }
@@ -754,7 +934,7 @@ export class EditJobComponent {
     this.selectJobError = false;
 
     if (step === 3) {
-      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm).subscribe();
     }
   }
 
@@ -827,6 +1007,8 @@ export class EditJobComponent {
       current.assigned = false;
       current.assigns = [];
       this.managerRemoved = true;
+      // clear persisted selection when removing current manager
+      this.selectedManagerId = null;
       this.checkForChanges();
     }
   }
@@ -853,6 +1035,8 @@ export class EditJobComponent {
     }
 
     this.newManagerSelected = true;
+    // persist selection across pagination
+    this.selectedManagerId = selectedJob.id;
     this.checkForChanges();
   }
 
@@ -1007,6 +1191,26 @@ export class EditJobComponent {
     const managementLevel = Number(this.jobStep1.get('managementLevel')?.value);
 
 
+    const departmentId = Number(this.jobStep1.get('department')?.value);
+    const sectionValue = this.jobStep1.get('section')?.value;
+    const sectionId = Array.isArray(sectionValue) ? Number(sectionValue[0] || 0) : Number(sectionValue);
+
+    const selectedSections = Array.isArray(sectionValue)
+      ? sectionValue.map((v: any) => Number(v))
+      : (sectionId ? [sectionId] : []);
+
+    let originalSections: number[] = [];
+    if (Array.isArray(this.jobTitleData?.sections) && this.jobTitleData.sections.length > 0) {
+      originalSections = this.jobTitleData.sections.map((s: any) => (s && s.id ? Number(s.id) : Number(s)));
+    } else if (this.jobTitleData?.section?.id) {
+      originalSections = [Number(this.jobTitleData.section.id)];
+    }
+
+    const rmSections = originalSections.filter(id => !selectedSections.includes(id));
+
+    const setArray: number[] = this.selectedManagerId !== null ? [this.selectedManagerId] : [];
+    const removeArray: number[] = this.originalAssignedIds.filter(id => !setArray.includes(id));
+
     const requestData: any = {
       request_data: {
         id: Number(this.jobId),
@@ -1014,65 +1218,43 @@ export class EditJobComponent {
         name: this.jobStep1.get('jobName')?.value || '',
         management_level: managementLevel,
         job_level: Number(this.jobStep1.get('jobLevel')?.value) || null,
+        department: {
+          id: departmentId || null,
+          section_id: sectionId || null
+        },
+        sections: selectedSections,
+        rm_sections: rmSections,
         salary_ranges: {
           full_time: {
-            minimum: this.jobStep2.get('fullTime_minimum')?.value,
-            maximum: this.jobStep2.get('fullTime_maximum')?.value,
+            minimum: Number(this.jobStep2.get('fullTime_minimum')?.value),
+            maximum: Number(this.jobStep2.get('fullTime_maximum')?.value),
             currency: this.jobStep2.get('fullTime_currency')?.value,
-            status: this.jobStep2.get('fullTime_status')?.value ? true : false,
-            restrict: this.jobStep2.get('fullTime_restrict')?.value
+            status: !!this.jobStep2.get('fullTime_status')?.value,
+            restrict: !!this.jobStep2.get('fullTime_restrict')?.value
           },
           part_time: {
-            minimum: this.jobStep2.get('partTime_minimum')?.value,
-            maximum: this.jobStep2.get('partTime_maximum')?.value,
+            minimum: Number(this.jobStep2.get('partTime_minimum')?.value),
+            maximum: Number(this.jobStep2.get('partTime_maximum')?.value),
             currency: this.jobStep2.get('partTime_currency')?.value,
-            status: this.jobStep2.get('partTime_status')?.value ? true : false,
-            restrict: this.jobStep2.get('partTime_restrict')?.value
+            status: !!this.jobStep2.get('partTime_status')?.value,
+            restrict: !!this.jobStep2.get('partTime_restrict')?.value
           },
           per_hour: {
-            minimum: this.jobStep2.get('hourly_minimum')?.value,
-            maximum: this.jobStep2.get('hourly_maximum')?.value,
+            minimum: Number(this.jobStep2.get('hourly_minimum')?.value),
+            maximum: Number(this.jobStep2.get('hourly_maximum')?.value),
             currency: this.jobStep2.get('hourly_currency')?.value,
-            status: this.jobStep2.get('hourly_status')?.value ? true : false,
-            restrict: this.jobStep2.get('hourly_restrict')?.value
+            status: !!this.jobStep2.get('hourly_status')?.value,
+            restrict: !!this.jobStep2.get('hourly_restrict')?.value
           }
         },
+        assigns: {
+          set: setArray,
+          remove: removeArray
+        },
         description: this.jobStep4.get('jobDescription')?.value || '',
+        requirements: this.requirements,
         analysis: this.jobStep4.get('jobAnalysis')?.value || '',
-        requirements: this.requirements
       }
-    };
-
-    const departmentId = Number(this.jobStep1.get('department')?.value);
-    const sectionId = Number(this.jobStep1.get('section')?.value);
-
-    if (managementLevel === 3 && departmentId) {
-      requestData.request_data.department = {
-        id: departmentId
-      };
-    } else if ((managementLevel === 4 || managementLevel === 5) && departmentId && sectionId) {
-      requestData.request_data.department = {
-        id: departmentId,
-        section_id: sectionId
-      };
-    }
-
-    const assignedJob = this.jobTitles.find(j => j.assigned);
-    const setArray: number[] = [];
-    const removeArray: number[] = [];
-
-    if (assignedJob) {
-      setArray.push(assignedJob.id);
-    }
-
-    if (this.originalAssignedIds?.length) {
-      const toRemove = this.originalAssignedIds.filter((id: number) => !setArray.includes(id));
-      removeArray.push(...toRemove);
-    }
-
-    requestData.request_data.assigns = {
-      set: setArray,
-      remove: removeArray
     };
 
     this._JobsService.updateJobTitle(requestData).subscribe({

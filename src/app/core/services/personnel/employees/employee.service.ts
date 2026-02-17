@@ -122,6 +122,12 @@ export class EmployeeService {
     return this.http.get<any>(url, { params });
   }
 
+  getManagementProfile(employeeId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/management-relationships/profile-main-only`;
+    const params = new HttpParams().set('employee_id', employeeId.toString());
+    return this.http.get<any>(url, { params });
+  }
+
   // Update an existing employee record
   updateEmployee(requestData: any): Observable<CreateEmployeeResponse> {
     const url = `${this.apiBaseUrl}personnel/employees`;
@@ -393,5 +399,48 @@ export class EmployeeService {
   getEmployeeDashboard(employeeId: number, params: any = {}): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/employees-dashboard/${employeeId}/`;
     return this.http.get<any>(url, { params });
+  }
+
+  // Fast fetch employees for manager search (legacy, no employee_id)
+  fastFetchEmployees(search: string, page: number = 1, perPage: number = 10000): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-fast-fetch`;
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', perPage.toString());
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get<any>(url, { params });
+  }
+
+  // Fetch employees for manager dropdown (with employee_id)
+  employeeManagersFetch(employeeId: number, search: string = '', page: number = 1, perPage: number = 10000): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-mangers-fetch`;
+    let params = new HttpParams()
+      .set('employee_id', employeeId.toString())
+      .set('page', page.toString())
+      .set('per_page', perPage.toString());
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get<any>(url, { params });
+  }
+
+  // Set main manager for an employee
+  setMainManager(employee_id: number, manager_id: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/management-relationships/set-main`;
+    const formData = new FormData();
+    formData.append('employee_id', employee_id.toString());
+    formData.append('manager_id', manager_id.toString());
+    return this.http.put<any>(url, formData);
+  }
+
+  // Remove main manager from an employee
+  removeMainManager(employee_id: number, manager_id: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/management-relationships/remove-main`;
+    const formData = new FormData();
+    formData.append('employee_id', employee_id.toString());
+    formData.append('manager_id', manager_id.toString());
+    return this.http.put<any>(url, formData);
   }
 }

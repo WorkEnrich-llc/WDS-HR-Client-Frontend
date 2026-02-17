@@ -1,5 +1,4 @@
 
-
 import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,6 +18,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { HttpResponse } from '@angular/common/http';
 
 // Extend dayjs with isoWeek plugin - required for ngx-daterangepicker-material
 dayjs.extend(isoWeek);
@@ -534,7 +534,7 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   getFormattedCheckOut(log: any): string {
-    const checkOut = log?.times_object?.working_check_out;
+    const checkOut = log?.times_object?.actual_check_out;
     const finished = log?.working_details?.finished;
 
     if (!checkOut || checkOut === '00:00' || finished === false) {
@@ -568,7 +568,7 @@ export class AttendanceLogComponent implements OnDestroy {
 
   // Check if a record has check-out
   hasCheckOut(record: any): boolean {
-    const checkOut = record?.times_object?.working_check_out;
+    const checkOut = record?.times_object?.actual_check_out;
     const finished = record?.working_details?.finished;
 
     if (!checkOut) return false;
@@ -642,6 +642,8 @@ export class AttendanceLogComponent implements OnDestroy {
 
   shouldShowCancelOrActivate(record: any): boolean {
     if (!record) return false;
+    // If the record is a main record and not canceled, hide the cancel option.
+    if (record.main_record && !record.canceled) return false;
     // If canceled, show the action so user can activate it.
     if (record.canceled) return true;
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
@@ -857,7 +859,6 @@ export class AttendanceLogComponent implements OnDestroy {
     if (this.isExporting) return;
     this.isExporting = true;
 
-    // Build export params from current filterForm and searchTerm
     const raw = this.filterForm?.value ?? {};
     let from_date = '';
     let to_date = '';
@@ -879,7 +880,14 @@ export class AttendanceLogComponent implements OnDestroy {
     };
 
     this._AttendanceLogService.exportAttendanceLog(exportParams).subscribe({
-      next: (blob: Blob) => {
+      next: (response: HttpResponse<Blob>) => {
+        const blob = response.body;
+        if (!blob) {
+          this.isExporting = false;
+          return;
+        }
+
+        // Download file
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -889,12 +897,10 @@ export class AttendanceLogComponent implements OnDestroy {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
         this.isExporting = false;
-        this.toasterService.showSuccess('Attendance log exported successfully.');
       },
       error: (error) => {
         console.error('Error exporting attendance log:', error);
         this.isExporting = false;
-        this.toasterService.showError('Failed to export attendance log.');
       }
     });
   }
@@ -928,8 +934,8 @@ export class AttendanceLogComponent implements OnDestroy {
         const wasCanceled = attendance.canceled;
         attendance.canceled = !wasCanceled;
         this.isLoading = false;
-        const msg = wasCanceled ? 'Attendance log activated successfully.' : 'Attendance log canceled successfully.';
-        this.toasterService.showSuccess(msg);
+        // const msg = wasCanceled ? 'Attendance log activated successfully.' : 'Attendance log canceled successfully.';
+        // this.toasterService.showSuccess(msg);
         // Refresh current page to reflect changes while preserving filters
         this.loadFilteredAttendance();
       },
@@ -1098,9 +1104,9 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalLog = log;
     this.editModalEmp = emp;
     // Check if this is an add scenario (no existing check-out)
-    const hasExistingCheckOut = log?.times_object?.working_check_out && log?.times_object?.working_check_out !== '00:00';
+    const hasExistingCheckOut = log?.times_object?.actual_check_out && log?.times_object?.actual_check_out !== '00:00';
     this.isAddingCheckOut = !hasExistingCheckOut;
-    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.working_check_out : '';
+    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.actual_check_out : '';
     this.editModalOpen = true;
   }
 
@@ -1111,7 +1117,7 @@ export class AttendanceLogComponent implements OnDestroy {
     // Only set initial values if both check-in and check-out exist
     if (this.hasBothCheckInAndOut(log)) {
       this.editCheckInValue = log?.times_object?.actual_check_in || '';
-      this.editCheckOutValue = log?.times_object?.working_check_out || '';
+      this.editCheckOutValue = log?.times_object?.actual_check_out || '';
     } else {
       // For add log scenario, start with empty values
       this.editCheckInValue = '';
@@ -1217,7 +1223,6 @@ export class AttendanceLogComponent implements OnDestroy {
       next: () => {
         this.loadFilteredAttendance();
         this.closeDeductionModal();
-        this.toasterService.showSuccess('Deduction updated successfully.');
       },
       error: () => {
         this.deductionModalLoading = false;

@@ -43,11 +43,22 @@
     height: 18px;
 }
 
-/* Tabs Styling */
 .nav-tabs {
     border-bottom: 1px solid var(--color-neutral-300);
     margin: 0;
     padding: 0 !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE 10+ */
+}
+
+.nav-tabs::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
 }
 
 .nav-item {
@@ -58,6 +69,8 @@
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .nav-item svg {

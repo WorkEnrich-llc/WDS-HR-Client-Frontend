@@ -1,9 +1,10 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../components/shared/page-header/page-header.component';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PopupComponent } from '../../components/shared/popup/popup.component';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthenticationService } from '../../core/services/authentication/authentication.service';
+import { AuthHelperService } from '../../core/services/authentication/auth-helper.service';
 
 @Component({
   selector: 'app-settings',
@@ -14,7 +15,11 @@ import { AuthenticationService } from '../../core/services/authentication/authen
 })
 export class SettingsComponent {
 
-  constructor(private cookieService: CookieService, private _AuthenticationService: AuthenticationService, private _Router: Router) { }
+  constructor(
+    private cookieService: CookieService,
+    private _AuthenticationService: AuthenticationService,
+    private _AuthHelper: AuthHelperService
+  ) { }
 
   isLoading: boolean = false;
   isModalOpen = false;
@@ -32,27 +37,33 @@ export class SettingsComponent {
   }
 
 
-logout(): void {
-  this.isLoading = true;
+  logout(): void {
+    this.isLoading = true;
 
-  this._AuthenticationService.logout().subscribe({
-    next: () => {
-      const deviceToken = localStorage.getItem('device_token');
-      localStorage.clear();
-      if (deviceToken) {
-        localStorage.setItem('device_token', deviceToken);
+    this._AuthenticationService.logout().subscribe({
+      next: () => {
+        this.clearStorageAndRedirect();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Logout request failed:', err);
+        this.clearStorageAndRedirect();
+        this.isLoading = false;
       }
+    });
+  }
 
-      this.cookieService.deleteAll('/', window.location.hostname);
-      this._Router.navigate(['/auth/login']);
-      this.isLoading = false;
-    },
-    error: (err) => {
-      console.error('Logout request failed:', err);
-      this.isLoading = false;
+  /** Clear storage and cookies only after logout API has finished (success or error). */
+  private clearStorageAndRedirect(): void {
+    const deviceToken = localStorage.getItem('device_token');
+    localStorage.clear();
+    sessionStorage.clear();
+    if (deviceToken) {
+      localStorage.setItem('device_token', deviceToken);
     }
-  });
-}
+    this.cookieService.deleteAll('/', window.location.hostname);
+    this._AuthHelper.redirectToClientLogin();
+  }
 
 
 

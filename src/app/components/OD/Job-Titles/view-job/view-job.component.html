@@ -139,10 +139,19 @@
         <span>{{jobTitleData.department?.name}}</span>
       </div>
       }
-      @if (jobTitleData.section?.name) {
-      <div class="info">
-        <h6>Assigned Section</h6>
-        <span>{{jobTitleData.section?.name}}</span>
+
+      @if ((jobTitleData.sections?.length > 0) || jobTitleData.section?.name) {
+      <div class="info assigned-sections-block">
+        <h6>Assigned Sections</h6>
+        <div class="sections-pills">
+          @if (jobTitleData.sections?.length > 0) {
+          @for (sec of jobTitleData.sections; track sec.id) {
+          <span class="section-pill">{{ sec.name }}</span>
+          }
+          } @else if (jobTitleData.section?.name) {
+          <span class="section-pill">{{ jobTitleData.section.name }}</span>
+          }
+        </div>
       </div>
       }
       }

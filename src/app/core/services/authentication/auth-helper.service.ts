@@ -60,4 +60,28 @@ export class AuthHelperService {
     return true;
   }
 
+  /**
+   * Builds the login URL for the "client" tenant (company name replaced by "client").
+   * e.g. helmy.talentdot.org → client.talentdot.org, dev-helmy.teamtalent.org → dev-client.teamtalent.org
+   */
+  getClientLoginUrl(): string {
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const parts = hostname.split('.');
+    if (parts.length < 2) {
+      return origin ? `${origin}/auth/login` : `${protocol}//${hostname}/auth/login`;
+    }
+    const firstSegment = parts[0];
+    const rest = parts.slice(1).join('.');
+    const clientSubdomain = firstSegment.startsWith('dev-') ? 'dev-client' : 'client';
+    const clientHost = `${clientSubdomain}.${rest}`;
+    return `${protocol}//${clientHost}/auth/login`;
+  }
+
+  /** Redirect to the client login page (full page navigation). */
+  redirectToClientLogin(): void {
+    window.location.href = this.getClientLoginUrl();
+  }
+
 }

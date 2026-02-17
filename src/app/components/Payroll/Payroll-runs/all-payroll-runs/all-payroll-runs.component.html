@@ -61,7 +61,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="payrollRuns" [isLoading]="loadData" [columnsCount]="9" [totalItems]="payrollRuns.length"
+    <app-table [data]="payrollRuns" [isLoading]="loadData" [columnsCount]="4" [totalItems]="payrollRuns.length"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
       [rowTemplate]="payrollTableRow" [skeletonTemplate]="skeletonRow" [emptyTemplate]="noPayroll"></app-table>
@@ -164,7 +164,7 @@
 
     <ng-template #noPayroll>
       <tr>
-        <td colspan="7" class="no-data py-4">
+        <td colspan="4" class="no-data py-4">
           @if (searchTerm.trim()) {
           No Payroll Runs match your search.
           } @else {

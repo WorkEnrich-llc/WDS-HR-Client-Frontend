@@ -65,6 +65,8 @@ export class ViewEmployeeComponent implements OnInit {
   isLoading = false;
   customFieldValues: CustomFieldValueItem[] = [];
   readonly app_name = 'personnel';
+  managementProfile: any = null;
+  managementProfileLoading = false;
 
   // Onboarding modal state
   isOnboardingModalOpen = false;
@@ -93,6 +95,16 @@ export class ViewEmployeeComponent implements OnInit {
     // Close add flag input if clicking outside the input wrapper and not clicking the empty state trigger
     if (this.isAddingFlag && !target.closest('.flag-add-wrapper') && !target.closest('.empty-placeholder')) {
       this.isAddingFlag = false;
+    }
+
+    // Close add manager dropdown if clicking outside the dropdown wrapper
+    if (this.isAddingManager && !target.closest('.manager-add-wrapper')) {
+      this.isAddingManager = false;
+    }
+
+    // Close manager removal modal if clicking outside the modal
+    if (this.isRemoveManagerModalOpen && !target.closest('app-popup')) {
+      this.isRemoveManagerModalOpen = false;
     }
   }
 
@@ -136,6 +148,124 @@ export class ViewEmployeeComponent implements OnInit {
         if (inputEl) inputEl.focus();
       }, 100);
     }
+  }
+
+  // Manager management state
+  isAddingManager = false;
+  managerSearchControl = new FormControl('');
+  managerSuggestions: any[] = [];
+  allManagersList: any[] = [];
+  isSavingManagers = false;
+  datePipe = inject(DatePipe);
+
+  allManagersLoading = false;
+
+  loadAllManagersForDropdown(): void {
+    if (!this.employeeId) return;
+    this.allManagersLoading = true;
+    this.employeeService.employeeManagersFetch(this.employeeId, '').subscribe({
+      next: (response) => {
+        if (response?.data?.list_items) {
+          this.allManagersList = response.data.list_items;
+          if (this.isAddingManager && !this.managerSearchControl.value) {
+            this.managerSuggestions = [...this.allManagersList];
+          }
+        }
+      },
+      complete: () => {
+        this.allManagersLoading = false;
+      },
+      error: () => {
+        this.allManagersLoading = false;
+      }
+    });
+  }
+
+  private filterManagersClientSide(query: string): any[] {
+    if (!query || query.trim().length < 1) {
+      return [...this.allManagersList];
+    }
+    const q = query.trim().toLowerCase();
+    return this.allManagersList.filter(
+      (m: any) =>
+        (m.name && String(m.name).toLowerCase().includes(q)) ||
+        (m.code && String(m.code).toLowerCase().includes(q))
+    );
+  }
+
+  private setupManagerSearchDebounce(): void {
+    this.managerSearchControl.valueChanges
+      .pipe(debounceTime(200), distinctUntilChanged())
+      .subscribe(value => {
+        this.managerSuggestions = this.filterManagersClientSide(value ?? '');
+      });
+  }
+
+  toggleAddManager(): void {
+    this.isAddingManager = !this.isAddingManager;
+    if (this.isAddingManager) {
+      this.managerSearchControl.setValue('');
+      this.managerSuggestions = [...this.allManagersList];
+      setTimeout(() => {
+        const inputEl = document.getElementById('newManagerInput');
+        if (inputEl) inputEl.focus();
+      }, 100);
+    }
+  }
+
+  selectManagerSuggestion(manager: any): void {
+    this.saveNewManager(manager.id);
+  }
+
+  saveNewManager(managerId: number): void {
+    if (!this.employeeId) return;
+    this.isSavingManagers = true;
+    this.employeeService.setMainManager(this.employeeId, managerId).subscribe({
+      next: () => {
+        this.loadManagementProfile();
+        this.loadAllManagersForDropdown();
+        this.isAddingManager = false;
+        this.managerSearchControl.setValue('');
+      },
+      error: (err) => {
+        console.error('Error adding manager:', err);
+        this.toasterMessageService.showError('Failed to add manager');
+      },
+      complete: () => {
+        this.isSavingManagers = false;
+      }
+    });
+  }
+
+  // Manager removal
+  managerToRemoveId: number | null = null;
+  managerToDelete: any | null = null;
+  isRemoveManagerModalOpen = false;
+
+  openRemoveManagerModal(managerId: number): void {
+    this.managerToRemoveId = managerId;
+    this.managerToDelete = this.managementProfile?.direct_manager?.find((manager: any) => manager.id === managerId) || null;
+    this.isRemoveManagerModalOpen = true;
+  }
+
+  closeRemoveManagerModal(): void {
+    this.managerToRemoveId = null;
+    this.isRemoveManagerModalOpen = false;
+  }
+
+  confirmRemoveManager(): void {
+    if (!this.employeeId || !this.managerToRemoveId) return;
+
+    this.employeeService.removeMainManager(this.employeeId, this.managerToRemoveId).subscribe({
+      next: () => {
+        this.loadManagementProfile();
+        this.closeRemoveManagerModal();
+      },
+      error: (err) => {
+        console.error('Error removing manager:', err);
+        this.toasterMessageService.showError('Failed to remove manager');
+      }
+    });
   }
 
   selectSuggestion(suggestion: string): void {
@@ -754,11 +884,14 @@ export class ViewEmployeeComponent implements OnInit {
       this.employeeId = +params['id'];
       if (this.employeeId) {
         this.loadEmployeeData();
+        this.loadManagementProfile();
+        this.loadAllManagersForDropdown();
       }
     });
     this.loadCustomValues();
     this.loadEmployeeContracts();
     this.setupFlagSearchDebounce();
+    this.setupManagerSearchDebounce();
   }
 
   get onboardingCompleted(): number {
@@ -969,6 +1102,21 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
+  private loadManagementProfile(): void {
+    if (!this.employeeId) return;
+    this.managementProfileLoading = true;
+    this.employeeService.getManagementProfile(this.employeeId).subscribe({
+      next: (response) => {
+        this.managementProfile = response.data?.object_info || response.data;
+        this.managementProfileLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading management profile:', error);
+        this.managementProfileLoading = false;
+      }
+    });
+  }
+
   onContractsDataUpdated(): void {
     // Keep the contracts tab open - set it before loading data
     this.setCurrentTab('contracts');
@@ -1055,7 +1203,8 @@ export class ViewEmployeeComponent implements OnInit {
         accountStatus: "inactive" as 'active' | 'inactive' | 'pending' | 'disabled',
         jobTitle: "",
         branch: "",
-        joinDate: ""
+        joinDate: "",
+        contractEndDate: ""
       };
     }
     return {
@@ -1065,7 +1214,8 @@ export class ViewEmployeeComponent implements OnInit {
       accountStatus: this.getAccountStatus(this.employee.employee_active),
       jobTitle: this.employee.job_info.job_title.name,
       branch: this.employee.job_info.branch.name,
-      joinDate: this.employee.job_info.start_contract
+      joinDate: this.employee.job_info.start_contract,
+      contractEndDate: this.employee.current_contract?.end_contract ? this.datePipe.transform(this.employee.current_contract.end_contract, 'mediumDate') : 'Indefinite term contract',
     };
   }
 
@@ -1710,5 +1860,10 @@ export class ViewEmployeeComponent implements OnInit {
   // Message for activate popup
   get activateMessage(): string {
     return `Are you sure you want to Activate the Employee "${this.employee?.contact_info?.name || ''}"?`;
+  }
+
+  // Message for remove manager popup
+  get managerMessage(): string {
+    return `Are you sure you want to remove "${this.managerToDelete?.name || ''}" as a direct manager?`;
   }
 }

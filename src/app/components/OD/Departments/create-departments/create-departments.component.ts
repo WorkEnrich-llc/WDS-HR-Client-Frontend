@@ -174,13 +174,22 @@ export class CreateDepartmentsComponent {
     subSections.removeAt(childIndex);
   }
   get isStep2Valid(): boolean {
-    if (this.sectionsFormArray.length < 1) {
-      return false;
+
+    if (this.sectionsFormArray.length === 0) {
+      return true;
     }
 
+    // Only validate sections if they are not empty and have a name
     return this.sectionsFormArray.controls.every((section: FormGroup) => {
-      const subSections = this.getSubSections(section);
-      return section.valid && subSections.controls.every((sub: FormGroup) => sub.valid);
+      const sectionNameControl = section.get('secName');
+      const hasSectionName = sectionNameControl?.value && sectionNameControl.value.trim().length > 0;
+
+      // If a section has a name, it must be valid. If it doesn't have a name, it's considered optional at this step.
+      if (hasSectionName) {
+        const subSections = this.getSubSections(section);
+        return section.valid && subSections.controls.every((sub: FormGroup) => sub.valid);
+      }
+      return true; // Section is considered valid if no name is entered (optional)
     });
   }
 
@@ -338,26 +347,36 @@ export class CreateDepartmentsComponent {
 
   // create Department
   createDept() {
-    if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
-      this.errMsg = 'Please complete both steps with valid data and at least one section.';
+    if (this.deptStep1.invalid || !this.isStep2Valid) {
+      this.errMsg = 'Please complete both steps with valid data.';
       return;
     }
 
     const form1Data = this.deptStep1.value;
 
-    const sections = this.sectionsFormArray.controls.map((group, index) => {
-      const subSections = this.getSubSections(group).controls.map((subGroup, subIndex) => ({
-        id: 0,
-        index: subIndex + 1,
-        record_type: 'create',
-        code: subGroup.get('secCode')?.value,
-        name: subGroup.get('secName')?.value,
-        status: subGroup.get('status')?.value.toString()
-      }));
+    // Only include sections that have a name (sections are optional)
+    const sectionsWithData = this.sectionsFormArray.controls
+      .map((group, index) => ({ group, index }))
+      .filter(({ group }) => {
+        const name = group.get('secName')?.value;
+        return name != null && String(name).trim().length > 0;
+      });
+
+    const sections = sectionsWithData.map(({ group, index }, mappedIndex) => {
+      const subSections = this.getSubSections(group).controls
+        .map((subGroup, subIndex) => ({
+          id: 0,
+          index: subIndex + 1,
+          record_type: 'create',
+          code: subGroup.get('secCode')?.value,
+          name: subGroup.get('secName')?.value,
+          status: subGroup.get('status')?.value.toString()
+        }))
+        .filter(sub => sub.name != null && String(sub.name).trim().length > 0);
 
       return {
         id: 0,
-        index: index + 1,
+        index: mappedIndex + 1,
         record_type: 'create',
         code: group.get('secCode')?.value,
         name: group.get('secName')?.value,
