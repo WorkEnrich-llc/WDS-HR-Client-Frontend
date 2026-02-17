@@ -153,7 +153,7 @@ export const authInterceptor: HttpInterceptorFn = (
     }
 
     cookieService.deleteAll('/', window.location.hostname);
-    router.navigate(['/auth/login']);
+    authHelper.redirectToClientLogin();
   };
 
   return next(cloned).pipe(

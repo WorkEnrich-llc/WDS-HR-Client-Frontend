@@ -13,6 +13,7 @@ import { ToasterMessageService } from '../services/tostermessage/tostermessage.s
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthenticationService } from '../services/authentication/authentication.service';
+import { AuthHelperService } from '../services/authentication/auth-helper.service';
 
 // Helper function to extract error messages from the complex API error structure
 function extractErrorMessages(error: HttpErrorResponse): string[] {
@@ -96,6 +97,7 @@ export const toastInterceptor: HttpInterceptorFn = (
   const router = inject(Router);
   const cookieService = inject(CookieService);
   const authService = inject(AuthenticationService);
+  const authHelper = inject(AuthHelperService);
 
   const skipToastMethods = ['GET'];
   const shouldShowToast = !skipToastMethods.includes(req.method);
@@ -111,7 +113,7 @@ export const toastInterceptor: HttpInterceptorFn = (
         }
 
         cookieService.deleteAll('/', window.location.hostname);
-        router.navigate(['/auth/login']);
+        authHelper.redirectToClientLogin();
       },
       error: (err) => {
         console.error('Logout error:', err);
@@ -122,7 +124,7 @@ export const toastInterceptor: HttpInterceptorFn = (
         }
 
         cookieService.deleteAll('/', window.location.hostname);
-        router.navigate(['/auth/login']);
+        authHelper.redirectToClientLogin();
       }
     });
   };
