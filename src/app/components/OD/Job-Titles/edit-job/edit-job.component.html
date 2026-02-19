@@ -652,52 +652,25 @@
 @if (currentStep === 3) {
 <div class="content-hug">
   <div class="d-flex flex-column gap-4">
-    @if (currentManager) {
+    <!-- Direct Manager(s) - display assigns from API response (like Managers in view-employee job info) -->
     <div class="content-box d-flex flex-column gap-3 w-100">
-      <h2>Direct Manager</h2>
-
-      <div class="info">
-        <h6>Job Title ID</h6>
-        <span>{{ currentManager?.id?.toString().padStart(4, '0') }}</span>
-      </div>
-
-      @if (currentManager?.code) {
-      <div class="info">
-        <h6>Job Title Code</h6>
-        <span>{{ currentManager?.code }}</span>
-      </div>
-      }
-
-      <div class="info">
-        <h6>Job Title</h6>
-        <span [ngClass]="currentManager?.is_active === false ? 'text-danger' : ''">
-          {{ currentManager?.name }}
-        </span>
-      </div>
-
-      <!-- <div>
-        <button class="btn btn-lg w-auto"
-          [ngClass]="removedManagerId !== null || managerRemoved || newManagerSelected ? 'btn-danger' : 'btn-outline-danger'"
-          [disabled]="!selectedManagerExists()" (click)="removeCurrentManager()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M20.5 6h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
-              <path
-                d="M6.5 6h.11a2 2 0 0 0 1.83-1.32l.034-.103l.097-.291c.083-.249.125-.373.18-.479a1.5 1.5 0 0 1 1.094-.788C9.962 3 10.093 3 10.355 3h3.29c.262 0 .393 0 .51.019a1.5 1.5 0 0 1 1.094.788c.055.106.097.23.18.479l.097.291A2 2 0 0 0 17.5 6" />
-            </g>
-          </svg>
-
-          @if (removedManagerId !== null || managerRemoved || newManagerSelected) {
-          <span>Manager removed</span>
-          } @else if (selectedManagerExists()) {
-          <span>Remove as Manager</span>
+      <h2>Direct Manager@if ((jobTitleData?.assigns?.length || 0) > 1) {(s)}</h2>
+      <div class="assigns-section mt-2">
+        <div class="flags-container assigns-flags">
+          @for (assign of (jobTitleData?.assigns || []); track assign.id) {
+          <span class="pill-base flag-pill assign-pill" [title]="assign.code || assign.name">
+            {{ assign.name }}
+            @if (assign.code) {
+            <span class="assign-code text-muted ms-1">({{ assign.code }})</span>
+            }
+          </span>
           }
-        </button>
-
-      </div> -->
+          @if (!jobTitleData?.assigns?.length) {
+          <span class="text-muted">No direct managers assigned.</span>
+          }
+        </div>
+      </div>
     </div>
-    }
 
     <div class="content-box d-flex flex-column gap-3">
       <h2>Assign a Job Title as Direct Manager</h2>
@@ -925,7 +898,7 @@
       </button>
       @if (jobTitleSub?.update){
       <button class="btn btn-lg btn-success" (click)="updateJobTitle()"
-        [disabled]="!jobStep4.valid || requirements.length === 0|| !jobStep1.valid || !jobStep2.valid || !hasChanges || isLoading || !hasAssignedManager()">
+        [disabled]="!jobStep4.valid || requirements.length === 0|| !jobStep1.valid || !jobStep2.valid || !hasChanges || isLoading ||!hasAssignedManager()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }

@@ -154,3 +154,31 @@ textarea {
 .custom-dropdown-container .dropdown-item-wrapper .text-danger {
   color: #000 !important;
 }
+
+/* Direct Manager(s) read-only assigns display (step 3) */
+.assigns-section {
+  padding-top: 0.25rem;
+}
+
+.assigns-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.assign-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  background-color: var(--color-primary-50, #eff6ff);
+  color: var(--color-primary-700, #1d4ed8);
+  border: 1px solid var(--color-primary-100, #dbeafe);
+  cursor: default;
+}
+
+.assign-pill .assign-code {
+  font-size: 12px;
+}
