@@ -748,7 +748,9 @@
         </button>
         <button
           class="btn btn-lg btn-success"
-          [disabled]="isSubmitting"
+          [disabled]="
+            isSubmitting || !bonusDeductionForm.valid || !hasSelectedRecipients()
+          "
           (click)="onSubmit()"
         >
           <svg
