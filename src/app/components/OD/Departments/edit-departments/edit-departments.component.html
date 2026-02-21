@@ -9,7 +9,7 @@
   @if(!loadData){
   @if(departmentsSub?.update){
   <button class="btn btn-lg btn-success"
-    [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
+    [disabled]="isLoading || !deptStep1.valid || !hasChanges() || addedGoal.length === 0"
     (click)="updateDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -471,7 +471,7 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
+      <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid"
         (click)="goNext()">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -606,7 +606,7 @@
       </button>
       @if(departmentsSub?.update){
       <button class="btn btn-lg w-auto btn-success"
-        [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
+        [disabled]="isLoading || !deptStep1.valid || !hasChanges() || addedGoal.length === 0"
         (click)="updateDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
