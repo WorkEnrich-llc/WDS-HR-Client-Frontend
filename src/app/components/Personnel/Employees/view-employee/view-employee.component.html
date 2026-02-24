@@ -1061,6 +1061,13 @@
     </div>
   </div>
 
+  @if (hasNoActiveContract && employee && employee.contact_info.name) {
+  <div class="content-box d-flex flex-column gap-3 w-100">
+    <h5 class="m-0 text-center">
+      <span class="text-danger">No active contract found for : </span>{{ employee.contact_info.name }}
+    </h5>
+  </div>
+  }
   <div class="row mt-4">
     <div class="col-12">
       <div class="info-card-base d-flex flex-column gap-3 w-100">
