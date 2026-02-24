@@ -2,6 +2,12 @@
   color: #85252d !important;
 }
 
+/* Message when no active contract but employee has upcoming join date (contract history area) */
+.join-at-message {
+  color: var(--color-primary-600, #2563eb);
+  font-weight: 600;
+}
+
 /* New status badge styles */
 .badge-terminated {
   background-color: #feeaea;

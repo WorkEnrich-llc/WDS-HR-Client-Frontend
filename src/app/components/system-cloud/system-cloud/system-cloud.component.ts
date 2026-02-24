@@ -6,7 +6,7 @@ import { PopupComponent } from '../../shared/popup/popup.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
+import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 import { Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
@@ -40,7 +40,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
 
   constructor(
     private _systemCloudService: SystemCloudService,
-    private toasterService: ToastrService,
+    private toasterService: ToasterMessageService,
     private router: Router,
     private breadcrumbService: BreadcrumbService,
     private sanitizer: DomSanitizer
@@ -460,14 +460,14 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
     this.uploadProgress = 0;
     const file = formData.get('file') as File;
     if (!file) {
-      this.toasterService.error('No file selected.');
+      this.toasterService.showError('No file selected.');
       this.isLoading = false;
       return;
     }
 
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     if (!fileExtension || !this.allowedFileTypes.includes(fileExtension)) {
-      this.toasterService.error('This file type is not allowed for security reasons.');
+      this.toasterService.showError('This file type is not allowed for security reasons.');
       this.isLoading = false;
       return;
     }
@@ -532,7 +532,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
             errorMessage = err.message;
           }
 
-          this.toasterService.error(errorMessage);
+          this.toasterService.showError(errorMessage);
         }
       });
   }
@@ -564,7 +564,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
     if (!files || files.length === 0) return;
 
     if (files.length > 1) {
-      this.toasterService.error('Please upload one file');
+      this.toasterService.showError('Please upload one file');
       return;
     }
 
@@ -800,6 +800,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
 
   // delete Popup
   deletePOP = false;
+  deleteLoading = false;
   folderIdToDelete: string = '';
   folderNameToDelete: string = '';
   folderTypeToDelete: string = '';
@@ -811,13 +812,16 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
   }
 
   closeModalDelete() {
+    if (this.deleteLoading) return;
     this.deletePOP = false;
   }
 
   deleteFile(id: string): void {
+    if (this.deleteLoading) return;
+
+    this.deleteLoading = true;
     this.errMsg = '';
-    this.uploadProgress = 0;
-    this.closeModalDelete();
+
     this._systemCloudService.deleteFile(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -825,7 +829,9 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
           this.files = this.files.filter(file => file.id !== id);
           this.filteredFiles = this.filteredFiles.filter(file => file.id !== id);
           this.allFiles = this.allFiles.filter(file => file.id !== id);
-
+          this.deleteLoading = false;
+          this.closeModalDelete();
+          this.toasterService.showSuccess('Deleted successfully.');
         },
         error: (err: any) => {
           let errorMessage = 'An error occurred';
@@ -841,10 +847,12 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
             errorMessage = err.message;
           }
 
-          this.toasterService.error(errorMessage);
+          this.toasterService.showError(errorMessage);
+        },
+        complete: () => {
+          this.deleteLoading = false;
         },
       });
-
   }
 
 

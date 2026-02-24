@@ -6,6 +6,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { TableComponent } from '../../../shared/table/table.component';
 import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
 import { ILeaveBalance, ILeaveBalanceFilters, ILeaveBalanceResponse } from 'app/core/models/leave-balance';
@@ -40,21 +41,20 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     sortDirection: string = 'asc';
     currentSortColumn: string = '';
     private searchSubject = new Subject<string>();
-    private toasterSubscription!: Subscription;
-    private routeQueryParamsSubscription!: Subscription;
-    private searchSubscription!: Subscription;
-    private employeesSubscription!: Subscription;
-    private leaveTypesSubscription!: Subscription;
-    private leaveBalancesSubscription!: Subscription;
-    private updateLeaveBalanceSubscription!: Subscription;
+    private employeesSubscription: Subscription | undefined;
+    private leaveTypesSubscription: Subscription | undefined;
+    private leaveBalancesSubscription: Subscription | undefined;
+    private updateLeaveBalanceSubscription: Subscription | undefined;
     private destroy$ = new Subject<void>();
     isLoading: boolean = false;
 
-    // Filter overlay loading states
+    // Filter overlay: loading states and cache so we don't refetch when reopening
     isLoadingEmployees: boolean = false;
     isLoadingLeaveTypes: boolean = false;
     employees: any[] = [];
     leaveTypes: any[] = [];
+    private employeesLoaded = false;
+    private leaveTypesLoaded = false;
 
     loadData: boolean = false;
 
@@ -65,55 +65,66 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     currentPage = 1;
     itemsPerPage = 10;
 
-    ngOnInit(): void {
-        this.routeQueryParamsSubscription = this.route.queryParams.subscribe(params => {
-            this.currentPage = +params['page'] || 1;
-            this.getAllLLeaveBalances(this.currentPage);
-        });
+    /** Applied filters sent to API; used on every fetch (page change, search, etc.) so filtering is server-side over full dataset */
+    private appliedFilters: ILeaveBalanceFilters | undefined;
 
-        this.toasterSubscription = this.toasterMessageService.currentMessage$
-            .pipe(filter(msg => !!msg && msg.trim() !== ''))
+    ngOnInit(): void {
+        this.route.queryParams
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(params => {
+                this.currentPage = +params['page'] || 1;
+                this.getAllLLeaveBalances(this.currentPage, this.searchTerm, this.appliedFilters);
+            });
+
+        this.toasterMessageService.currentMessage$
+            .pipe(
+                filter(msg => !!msg && msg.trim() !== ''),
+                takeUntil(this.destroy$)
+            )
             .subscribe(msg => {
                 this.toastr.clear();
                 this.toastr.success(msg, '', { timeOut: 3000 });
                 this.toasterMessageService.clearMessage();
             });
 
-        this.searchSubscription = this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-            this.getAllLLeaveBalances(this.currentPage, value);
-        });
+        this.searchSubject
+            .pipe(debounceTime(300), takeUntil(this.destroy$))
+            .subscribe(value => {
+                this.currentPage = 1;
+                this.getAllLLeaveBalances(1, value, this.appliedFilters);
+            });
 
         this.initializeFilterForm();
     }
 
 
     ngOnDestroy(): void {
-        // Unsubscribe from all subscriptions
-        if (this.routeQueryParamsSubscription) {
-            this.routeQueryParamsSubscription.unsubscribe();
-        }
-        if (this.toasterSubscription) {
-            this.toasterSubscription.unsubscribe();
-        }
-        if (this.searchSubscription) {
-            this.searchSubscription.unsubscribe();
-        }
-        if (this.employeesSubscription) {
-            this.employeesSubscription.unsubscribe();
-        }
-        if (this.leaveTypesSubscription) {
-            this.leaveTypesSubscription.unsubscribe();
-        }
+        this.unsubscribeFilterOverlayRequests();
         if (this.leaveBalancesSubscription) {
             this.leaveBalancesSubscription.unsubscribe();
         }
         if (this.updateLeaveBalanceSubscription) {
             this.updateLeaveBalanceSubscription.unsubscribe();
         }
-        // Complete subjects
         this.searchSubject.complete();
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    /** Unsubscribe filter-overlay requests when overlay closes (and on component destroy). */
+    onFilterOverlayClose(): void {
+        this.unsubscribeFilterOverlayRequests();
+    }
+
+    private unsubscribeFilterOverlayRequests(): void {
+        if (this.employeesSubscription) {
+            this.employeesSubscription.unsubscribe();
+            this.employeesSubscription = undefined;
+        }
+        if (this.leaveTypesSubscription) {
+            this.leaveTypesSubscription.unsubscribe();
+            this.leaveTypesSubscription = undefined;
+        }
     }
 
     initializeFilterForm(): void {
@@ -124,22 +135,29 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
         });
     }
 
-    // Load employees and leave types when filter overlay opens
+    /** Load employees and leave types when filter overlay opens; uses cache if already loaded. */
     loadFilterData(): void {
-        this.loadEmployeesData();
-        this.loadLeaveTypesData();
+        if (!this.employeesLoaded) {
+            this.loadEmployeesData();
+        }
+        if (!this.leaveTypesLoaded) {
+            this.loadLeaveTypesData();
+        }
     }
 
+    /** Load all employees for filter dropdown; response is cached so we don't call API again on reopen. */
     private loadEmployeesData(): void {
+        this.unsubscribeFilterOverlayRequests();
         this.isLoadingEmployees = true;
-        this.employeesSubscription = this.employeeService.getEmployees(1, 1000).subscribe({
+        this.employeesSubscription = this.employeeService.getAllEmployees().subscribe({
             next: (res: any) => {
                 const rawEmployees = res.data?.list_items || res.data || res;
-                // Extract employee data from object_info if it exists
-                this.employees = rawEmployees.map((emp: any) => ({
+                const list = Array.isArray(rawEmployees) ? rawEmployees : [];
+                this.employees = list.map((emp: any) => ({
                     id: emp.object_info?.id || emp.id,
                     name: emp.object_info?.contact_info?.name || emp.name || 'N/A'
                 })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+                this.employeesLoaded = true;
                 this.isLoadingEmployees = false;
             },
             error: (err) => {
@@ -150,15 +168,19 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     }
 
     private loadLeaveTypesData(): void {
+        if (this.leaveTypesSubscription) {
+            this.leaveTypesSubscription.unsubscribe();
+            this.leaveTypesSubscription = undefined;
+        }
         this.isLoadingLeaveTypes = true;
         this.leaveTypesSubscription = this.leaveTypeService.getAllLeavetypes(1, 1000).subscribe({
             next: (res: any) => {
                 const rawLeaveTypes = res.data?.list_items || res.data || res;
-                // Ensure we have properly formatted leave type data
                 this.leaveTypes = rawLeaveTypes.map((leave: any) => ({
                     id: leave.id,
                     name: leave.name || 'N/A'
                 }));
+                this.leaveTypesLoaded = true;
                 this.isLoadingLeaveTypes = false;
             },
             error: (err) => {
@@ -171,13 +193,20 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
 
     getAllLLeaveBalances(pageNumber: number, searchTerm: string = '', filters?: ILeaveBalanceFilters): void {
+        if (this.leaveBalancesSubscription) {
+            this.leaveBalancesSubscription.unsubscribe();
+        }
         this.loadData = true;
-        this.leaveBalancesSubscription = this.leaveBalanceService.getAllLeaveBalance({
+        const params: ILeaveBalanceFilters = {
             page: pageNumber,
             per_page: this.itemsPerPage,
             search: searchTerm || undefined,
+            ...this.appliedFilters,
             ...filters
-        }).subscribe({
+        };
+        this.leaveBalancesSubscription = this.leaveBalanceService.getAllLeaveBalance(params)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
             next: (res: ILeaveBalanceResponse) => {
                 this.leaveBalances = res.data.list_items;
                 this.totalItems = res.data.total_items;
@@ -197,13 +226,13 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
     onPageChange(page: number): void {
         this.currentPage = page;
-        this.getAllLLeaveBalances(page);
+        this.getAllLLeaveBalances(page, this.searchTerm, this.appliedFilters);
     }
 
     onItemsPerPageChange(itemsPerPage: number): void {
         this.itemsPerPage = itemsPerPage;
         this.currentPage = 1;
-        this.getAllLLeaveBalances(this.currentPage);
+        this.getAllLLeaveBalances(1, this.searchTerm, this.appliedFilters);
     }
 
 
@@ -228,16 +257,15 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     applyFilters(): void {
         if (this.filterForm.valid) {
             const rawFilters = this.filterForm.value;
-            const filters = {
+            this.appliedFilters = {
                 leave_id: rawFilters.leave_id || undefined,
                 employee_id: rawFilters.employee_id || undefined,
             };
             this.filterBox.closeOverlay();
-            this.getAllLLeaveBalances(this.currentPage, this.searchTerm, filters);
+            this.currentPage = 1;
+            this.getAllLLeaveBalances(1, this.searchTerm, this.appliedFilters);
         }
     }
-
-
 
     resetFilterForm(): void {
         this.filterForm.reset({
@@ -245,8 +273,10 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
             leave_id: '',
             // status: ''
         });
+        this.appliedFilters = undefined;
         this.filterBox.closeOverlay();
-        this.getAllLLeaveBalances(this.currentPage);
+        this.currentPage = 1;
+        this.getAllLLeaveBalances(1, this.searchTerm);
     }
 
     // Edit modal support
@@ -269,13 +299,18 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
             leave_id: this.selectedBalance.leave.id,
             total: this.editTotal ?? this.selectedBalance.total
         };
-        this.updateLeaveBalanceSubscription = this.leaveBalanceService.updateLeaveBalance(data).subscribe({
+        if (this.updateLeaveBalanceSubscription) {
+            this.updateLeaveBalanceSubscription.unsubscribe();
+        }
+        this.updateLeaveBalanceSubscription = this.leaveBalanceService.updateLeaveBalance(data)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
             next: () => {
                 this.isLoading = false;
                 this.editBox.closeOverlay();
                 this.selectedBalance.total = this.editTotal;
                 this.toasterService.showSuccess('Leave balance updated successfully', "Updated Successfully");
-                this.getAllLLeaveBalances(this.currentPage);
+                this.getAllLLeaveBalances(this.currentPage, this.searchTerm, this.appliedFilters);
             },
             error: (err) => {
                 this.isLoading = false;

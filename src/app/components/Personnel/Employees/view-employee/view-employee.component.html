@@ -477,6 +477,16 @@
             </svg>
             <span>Resigned</span>
           </span>
+          } @if (employeeData.employeeStatus === 'Contract Expired') {
+          <span class="badge-gray">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+              </g>
+            </svg>
+            <span>Contract Expired</span>
+          </span>
           }
 
           <!-- @switch (employeeDisplayStatus) {
@@ -804,7 +814,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
               </g>
             </svg>
-            <span>Deactivated</span>
+            <span>{{ employee.employee_active || 'Disabled' }}</span>
           </span>
           } @if (isEmployeeInactive) {
           <span class="badge-gray">
@@ -1051,6 +1061,13 @@
     </div>
   </div>
 
+  @if (hasNoActiveContract && employee && employee.contact_info.name) {
+  <div class="content-box d-flex flex-column gap-3 w-100">
+    <h5 class="m-0 text-center">
+      <span class="text-danger">No active contract found for : </span>{{ employee.contact_info.name }}
+    </h5>
+  </div>
+  }
   <div class="row mt-4">
     <div class="col-12">
       <div class="info-card-base d-flex flex-column gap-3 w-100">

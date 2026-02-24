@@ -7,7 +7,7 @@ import { WorkSchedule } from '../../../../../core/interfaces/work-schedule';
 import { COUNTRIES, Country } from '../countries-list';
 import { Employee } from 'app/core/interfaces/employee';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
@@ -119,6 +119,8 @@ export class ManageEmployeeSharedService {
   suppressWatchers = false;
   applicantId: number | null = null;
   employeeSource: number = 1; // 1 = direct creation, 2 = from recruitment
+
+  private static readonly PER_PAGE_EDIT = 10000;
 
   constructor() {
     this.initializeForm();
@@ -468,30 +470,30 @@ export class ManageEmployeeSharedService {
         this.employeeData.set(data);
         this.suppressWatchers = true;
 
-        if (data.job_info.branch) {
-          const branch = data.job_info.branch;
-          (branch as any).is_active = true;
-
-          this.branches.set([data.job_info.branch]);
+        const jobInfo = data.job_info;
+        if (jobInfo.branch) {
+          (jobInfo.branch as any).is_active = true;
+          this.branches.set([jobInfo.branch]);
         }
-        if (data.job_info.department) {
-          const department = data.job_info.department;
-          (department as any).is_active = true;
-          this.departments.set([data.job_info.department]);
+        if (jobInfo.department) {
+          (jobInfo.department as any).is_active = true;
+          this.departments.set([jobInfo.department]);
         }
-        if (data.job_info.section) {
-          const section = data.job_info.section;
-          (section as any).is_active = true;
-          this.sections.set([data.job_info.section]);
+        if (jobInfo.section) {
+          (jobInfo.section as any).is_active = true;
+          this.sections.set([jobInfo.section]);
         }
-        if (data.job_info.job_title) {
-          this.jobTitles.set([data.job_info.job_title]);
+        if (jobInfo.job_title) {
+          this.jobTitles.set([jobInfo.job_title]);
         }
-        if (data.job_info.work_schedule) {
-          this.workSchedules.set([data.job_info.work_schedule]);
+        if (jobInfo.work_schedule) {
+          this.workSchedules.set([jobInfo.work_schedule]);
         }
 
         this.patchEmployeeForm(data);
+
+        // Fetch full dropdown lists (per_page=10000) and merge employee's selection so dropdowns show full data with current value selected
+        this.loadFullJobDetailsOptionsForEdit(jobInfo);
         this.createdAt.set(data.created_at || '');
         this.updatedAt.set(data.updated_at || '');
 
@@ -526,6 +528,104 @@ export class ManageEmployeeSharedService {
         this.isLoading.set(false);
         this.suppressWatchers = false;
         console.error('Failed to load employee', error);
+      }
+    });
+  }
+
+  /**
+   * In edit mode, fetch full lists for job details dropdowns (per_page=10000) and merge employee's current selection so the selected value from the response is in the list.
+   */
+  private loadFullJobDetailsOptionsForEdit(jobInfo: any): void {
+    const level = jobInfo.management_level;
+    const branchId = jobInfo.branch?.id;
+    const deptId = jobInfo.department?.id;
+    const sectionId = jobInfo.section?.id;
+    const employmentTypeId = jobInfo.employment_type?.id;
+
+    this.isLoadingBranches.set(true);
+    this.isLoadingDepartments.set(true);
+    this.isLoadingJobTitles.set(true);
+
+    const branches$ = this.branchesService.getAllBranches(1, ManageEmployeeSharedService.PER_PAGE_EDIT).pipe(
+      map((res) => {
+        const list = res.data?.list_items || [];
+        return this.mergeItemIntoList(list, jobInfo.branch);
+      }),
+      catchError(() => of(this.branches()))
+    );
+
+    const departments$ = (level >= 3 && level <= 5 && branchId)
+      ? this.departmentsService.getAllDepartment(1, ManageEmployeeSharedService.PER_PAGE_EDIT, { branch_id: branchId, status: 'true' }).pipe(
+        map((res) => {
+          const list = res.data?.list_items || [];
+          return this.mergeItemIntoList(list, jobInfo.department);
+        }),
+        catchError(() => of(this.departments()))
+      )
+      : of(this.departments());
+
+    const jobTitleParams: any = {
+      request_in: 'create-employee',
+      status: true
+    };
+    if (level == 1) {
+      jobTitleParams.management_level = '1';
+    } else if (level === 2 && branchId) {
+      jobTitleParams.management_level = '2';
+      jobTitleParams.branch_id = String(branchId);
+    } else if (level === 3 && deptId) {
+      jobTitleParams.management_level = '3';
+      jobTitleParams.department = String(deptId);
+    } else if ((level === 4 || level === 5) && sectionId) {
+      jobTitleParams.management_level = String(level);
+      jobTitleParams.section = String(sectionId);
+    }
+    const jobTitles$ = this.jobsService.getAllJobTitles(1, ManageEmployeeSharedService.PER_PAGE_EDIT, jobTitleParams).pipe(
+      map((res) => {
+        const list = res.data?.list_items || [];
+        return this.mergeItemIntoList(list, jobInfo.job_title);
+      }),
+      catchError(() => of(this.jobTitles()))
+    );
+
+    const workScheduleParams: any = { status: true };
+    if (deptId) workScheduleParams.department = String(deptId);
+    if (employmentTypeId) workScheduleParams.schedules_type = String(employmentTypeId);
+    const workSchedules$ = this.workScheduleService.getAllWorkSchadule(1, ManageEmployeeSharedService.PER_PAGE_EDIT, workScheduleParams).pipe(
+      map((res) => {
+        const list = res.data?.list_items || [];
+        return this.mergeItemIntoList(list, jobInfo.work_schedule);
+      }),
+      catchError(() => of(this.workSchedules()))
+    );
+
+    forkJoin({
+      branches: branches$,
+      departments: departments$,
+      jobTitles: jobTitles$,
+      workSchedules: workSchedules$
+    }).subscribe({
+      next: (result) => {
+        this.branches.set(result.branches);
+        this.departments.set(result.departments);
+        this.jobTitles.set(result.jobTitles);
+        this.workSchedules.set(result.workSchedules);
+
+        if ((level === 4 || level === 5) && jobInfo.department) {
+          const selectedDept = result.departments.find((d: any) => d.id == jobInfo.department.id);
+          const deptSections = selectedDept?.sections ?? [];
+          const sectionsList = this.mergeItemIntoList(deptSections, jobInfo.section);
+          this.sections.set(sectionsList);
+        }
+
+        this.isLoadingBranches.set(false);
+        this.isLoadingDepartments.set(false);
+        this.isLoadingJobTitles.set(false);
+      },
+      error: () => {
+        this.isLoadingBranches.set(false);
+        this.isLoadingDepartments.set(false);
+        this.isLoadingJobTitles.set(false);
       }
     });
   }

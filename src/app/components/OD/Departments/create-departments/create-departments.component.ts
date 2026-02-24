@@ -173,23 +173,34 @@ export class CreateDepartmentsComponent {
     const subSections = this.getSubSections(parent);
     subSections.removeAt(childIndex);
   }
+
+  /** Mark all section and subsection name controls as touched so inline validation messages show. */
+  markSectionControlsTouched(): void {
+    this.sectionsFormArray.controls.forEach((section: FormGroup) => {
+      section.get('secName')?.markAsTouched();
+      this.getSubSections(section).controls.forEach((sub: FormGroup) => {
+        sub.get('secName')?.markAsTouched();
+      });
+    });
+  }
+
   get isStep2Valid(): boolean {
 
     if (this.sectionsFormArray.length === 0) {
       return true;
     }
 
-    // Only validate sections if they are not empty and have a name
+    // Each section row must have a name (or be removed). Sections with a name must be fully valid.
     return this.sectionsFormArray.controls.every((section: FormGroup) => {
       const sectionNameControl = section.get('secName');
       const hasSectionName = sectionNameControl?.value && sectionNameControl.value.trim().length > 0;
 
-      // If a section has a name, it must be valid. If it doesn't have a name, it's considered optional at this step.
-      if (hasSectionName) {
-        const subSections = this.getSubSections(section);
-        return section.valid && subSections.controls.every((sub: FormGroup) => sub.valid);
+      // If section has no name, it's invalid - user must fill it or remove the row
+      if (!hasSectionName) {
+        return false;
       }
-      return true; // Section is considered valid if no name is entered (optional)
+      const subSections = this.getSubSections(section);
+      return section.valid && subSections.controls.every((sub: FormGroup) => sub.valid);
     });
   }
 
@@ -347,8 +358,14 @@ export class CreateDepartmentsComponent {
 
   // create Department
   createDept() {
-    if (this.deptStep1.invalid || !this.isStep2Valid) {
+    if (this.deptStep1.invalid) {
       this.errMsg = 'Please complete both steps with valid data.';
+      return;
+    }
+    if (!this.isStep2Valid) {
+      this.currentStep = 2;
+      this.markSectionControlsTouched();
+      this.errMsg = 'Please enter a name for each section or remove empty section rows.';
       return;
     }
 

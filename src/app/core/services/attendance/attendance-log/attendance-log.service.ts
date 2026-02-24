@@ -72,7 +72,7 @@ export class AttendanceLogService {
         httpParams = httpParams.set(key, String(value));
       }
     });
-    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/log`;
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/export-log`;
     return this.http.get(url, {
       params: httpParams,
       responseType: 'blob',

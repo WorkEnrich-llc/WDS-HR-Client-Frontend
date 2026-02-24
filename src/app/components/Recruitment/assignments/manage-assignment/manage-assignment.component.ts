@@ -1429,16 +1429,12 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     // Open delete answer confirmation
     openDeleteAnswerConfirmation(questionIndex: number, answerIndex: number): void {
         const question = this.questions[questionIndex];
-        // For MCQ questions, must have at least 2 answers, and the first two cannot be deleted
+        // For MCQ questions: hide delete when only 2 answers; allow delete for any answer when 3+
         if (question.question_type === 'mcq') {
             if (!question.answers || question.answers.length <= 2) {
-                // Cannot remove if there are only 2 answers (minimum required)
-                return;
+                return; // No delete when there are only 2 answers
             }
-            // Cannot delete the first two answers (indices 0 and 1)
-            if (answerIndex < 2) {
-                return;
-            }
+            // When 3+ answers, any answer can be deleted (no restriction on first two)
         } else {
             // For other question types, must have at least 1 answer
             if (!question.answers || question.answers.length <= 1) {
@@ -1451,25 +1447,22 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     }
 
     // Check if an answer can be deleted (for UI display)
+    // MCQ: hide delete when 2 answers; show delete for all answers when 3+
     canDeleteAnswer(questionIndex: number, answerIndex: number): boolean {
         const question = this.questions[questionIndex];
         if (!question || !question.answers) {
             return false;
         }
         
-        // For MCQ questions, must have at least 2 answers, and the first two cannot be deleted
         if (question.question_type === 'mcq') {
             if (question.answers.length <= 2) {
-                return false; // Cannot delete if there are only 2 answers
+                return false; // Hide delete for all when only 2 answers
             }
-            if (answerIndex < 2) {
-                return false; // Cannot delete the first two answers
-            }
-        } else {
-            // For other question types, must have at least 1 answer
-            if (question.answers.length <= 1) {
-                return false;
-            }
+            return true; // Show delete for all answers when 3 or more
+        }
+        // For other question types, must have at least 1 answer
+        if (question.answers.length <= 1) {
+            return false;
         }
         return true;
     }

@@ -1239,6 +1239,13 @@ export class ViewEmployeeComponent implements OnInit {
     return this.employee?.employee_active?.toLowerCase() === 'active';
   }
 
+  /** True when current contract is Expired or Terminated (no active contract). */
+  get hasNoActiveContract(): boolean {
+    const status = this.employee?.current_contract?.status?.name;
+    if (!status) return true;
+    return status === 'Expired' || status === 'Terminate' || status === 'Resign';
+  }
+
   // Check if employee is pending
   get isEmployeePending(): boolean {
     return this.employee?.employee_active?.toLowerCase() === 'pending';

@@ -40,6 +40,8 @@ export class ViewNewJoinerComponent implements OnInit {
   newJoinDate: string = '';
 
   upcomingContractId: number | null = null;
+  /** Start date of upcoming contract (from contracts API) when job_info.start_contract is not set */
+  upcomingContractStartDate: string | null = null;
 
   // popups
   isModalOpen = false;
@@ -140,6 +142,16 @@ export class ViewNewJoinerComponent implements OnInit {
 
   setUpcomingContractId(contractId: number | null): void {
     this.upcomingContractId = contractId;
+  }
+
+  setUpcomingContractStartDate(date: string | null): void {
+    this.upcomingContractStartDate = date;
+  }
+
+  /** Formatted join date from upcoming contract (when job_info.start_contract is empty). */
+  getUpcomingContractFormattedDate(): string {
+    if (!this.upcomingContractStartDate) return '';
+    return this.datePipe.transform(this.upcomingContractStartDate, 'dd MMMM yyyy') || '';
   }
 
   loadEmployeeData(): void {

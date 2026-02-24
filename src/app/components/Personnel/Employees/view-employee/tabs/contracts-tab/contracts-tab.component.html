@@ -312,8 +312,11 @@
   <ng-template #emptyTemplate>
     <tr>
       <td colspan="7" class="text-center py-4">
-        <div class="no-data">
-          No contracts found
+        <div class="no-data d-flex flex-column gap-2 align-items-center">
+          <span><span class="text-danger">No active contract found for : </span>{{ employee?.contact_info?.name }}</span>
+          @if (showWillJoinAtMessage()) {
+          <span class="join-at-message">{{ employee?.contact_info?.name }} will join at {{ getUpcomingJoinDate() }}</span>
+          }
         </div>
       </td>
     </tr>
