@@ -126,7 +126,7 @@
 </div>
 
 <!-- Filter Overlay -->
-<app-overlay-filter-box #filterBox title="Filter Leave Balance">
+<app-overlay-filter-box #filterBox title="Filter Leave Balance" (onClose)="onFilterOverlayClose()">
   <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
     <div class="input">
       <label for="employeeId">Employee(s)</label>
