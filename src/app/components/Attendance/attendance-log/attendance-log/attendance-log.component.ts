@@ -640,12 +640,21 @@ export class AttendanceLogComponent implements OnDestroy {
     return this.hasBothCheckInAndOut(record) || (!this.hasCheckIn(record) && !this.hasCheckOut(record));
   }
 
-  shouldShowCancelOrActivate(record: any): boolean {
+  shouldShowCancelOrActivate(record: any, listItems?: any[]): boolean {
     if (!record) return false;
-    // If the record is a main record and not canceled, hide the cancel option.
-    if (record.main_record && !record.canceled) return false;
     // If canceled, show the action so user can activate it.
     if (record.canceled) return true;
+    // For main_record and not canceled: show Cancel only for records with status "Present" that are NOT the first Present in the list.
+    if (record.main_record && !record.canceled) {
+      if (record.status !== 'Present') return false;
+      if (!listItems?.length) return false;
+      const firstPresentIndex = listItems.findIndex((item: any) => item?.status === 'Present');
+      if (firstPresentIndex === -1) return false;
+      const currentIndex = listItems.findIndex(
+        (item: any) => (item?.record_id ?? item?.id) === (record?.record_id ?? record?.id)
+      );
+      return currentIndex !== firstPresentIndex;
+    }
     if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
     return this.hasCheckIn(record) || this.hasCheckOut(record);
   }

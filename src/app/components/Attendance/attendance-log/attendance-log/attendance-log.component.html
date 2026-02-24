@@ -418,8 +418,8 @@
                         </span> Edit Log
                       </button>
                       }
-                      <!-- Show "Cancel Log" or "Activate Log" (toggle based on canceled flag) -->
-                      @if (shouldShowCancelOrActivate(log)) {
+                      <!-- Show "Cancel Log" or "Activate Log" (toggle based on canceled flag); for main_record only show for first record with status Present -->
+                      @if (shouldShowCancelOrActivate(log, emp.list_items)) {
                       <button class="action-menu-item" [ngClass]="log.canceled ? 'text-success' : 'text-danger'"
                         (click)="openModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
