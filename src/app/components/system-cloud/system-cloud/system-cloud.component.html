@@ -800,15 +800,18 @@
 <app-popup [title]="'Are you sure to delete?'"
   [paragraph1]="'Are you sure you want to delete the &quot;' + getCleanName(folderNameToDelete) + '&quot; ' + folderTypeToDelete + '?'"
   [paragraph2]="'This action cannot be undone.'" [isOpen]="deletePOP" (close)="closeModalDelete()">
-  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="deleteFile(folderIdToDelete)">
-    @if (!isLoading) {
+  <button modal-btn-left class="btn btn-lg btn-danger w-100 btn-delete-confirm" [disabled]="deleteLoading"
+    (click)="deleteFile(folderIdToDelete)">
+    @if (!deleteLoading) {
     <span>Delete</span>
     }
-    @if (isLoading) {
-    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    @if (deleteLoading) {
+    <span class="spinner-bubble" role="status" aria-hidden="true"></span>
+    <span>Deleting...</span>
     }
   </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalDelete()">
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" [disabled]="deleteLoading"
+    (click)="closeModalDelete()">
     Cancel
   </button>
 </app-popup>
