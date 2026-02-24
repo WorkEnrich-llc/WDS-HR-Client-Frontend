@@ -223,6 +223,24 @@ export class SmartGridSheetComponent {
     return form.get(col.name) as FormControl;
   }
 
+  /** Clear select/date/time cell value and emit update so parent can sync (e.g. call API with empty). */
+  clearCellValue(form: FormGroup, col: TableColumn, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const control = this.getFormControl(form, col);
+    control.setValue('', { emitEvent: true });
+    control.markAsTouched();
+    this.inputChanged.emit();
+    this.emitUpdatedRows();
+    this.cdr.detectChanges();
+  }
+
+  /** True when cell is select/date/time and has a non-empty value (so clear icon can show). */
+  hasClearableValue(form: FormGroup, col: TableColumn): boolean {
+    if (col.type !== 'select' && col.type !== 'date' && col.type !== 'time') return false;
+    const val = this.getFormControl(form, col)?.value;
+    return val != null && val !== '';
+  }
 
   private copyArea: HTMLTextAreaElement | null = null;
 

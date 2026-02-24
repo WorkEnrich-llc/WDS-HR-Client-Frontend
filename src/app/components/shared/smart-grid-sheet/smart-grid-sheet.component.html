@@ -25,6 +25,7 @@
           <div class="position-relative w-100 p-0">
             @if (col.type === 'select') {
             <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
+              (change)="emitUpdatedRows()"
               class="form-select no-radius no-padding-input" [ngClass]="{
             'invalid': isCellInvalid(form, col, rowIndex)
 ,
@@ -48,10 +49,25 @@
             @else {
             <input [type]="col.type === 'date' ? 'date' : (col.type === 'time' ? 'time' : 'text')"
               [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
+              (change)="emitUpdatedRows()"
               class="form-control no-radius no-padding-input ps-4" [ngClass]="{ 'is-invalid': isCellInvalid(form, col, rowIndex)
  }" (paste)="paste($event, rowIndex, col.name)" (focus)="handleFocus(rowIndex, col.name)"
               (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
               (keydown)="handleKeyDown($event, rowIndex, colIndex)" />
+            }
+            @if (hasClearableValue(form, col)) {
+            <button
+              type="button"
+              class="cell-clear-btn"
+              [style.inset-inline-end]="col.type === 'select' ? '32px' : '12px'"
+              (click)="clearCellValue(form, col, $event)"
+              title="Clear selection"
+              aria-label="Clear"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
             }
             @if (isCellInvalid(form, col, rowIndex)
             ) {
