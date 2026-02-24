@@ -43,6 +43,22 @@ table tbody {
     background-color: var(--color-secondary-300) !important;
 }
 
+/* Prevent one cell with long content from stretching the row and causing blue blocks in adjacent cells */
+table tbody tr td {
+    vertical-align: middle !important;
+    overflow: hidden;
+    max-height: 3rem;
+}
+
+table tbody tr td > div {
+    overflow: hidden;
+    min-height: 0;
+    max-height: 3rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
 .no-radius {
     border-radius: 0 !important;
 }
@@ -74,6 +90,13 @@ input,
 select {
     min-width: 250px !important;
     width: max-content !important;
+    max-width: 100%;
+    height: 2.25rem !important;
+    min-height: 2.25rem !important;
+    max-height: 2.25rem !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .form-control.is-invalid,
@@ -120,18 +143,18 @@ select:focus {
     padding: 0;
     border: none;
     border-radius: 50%;
-    background: var(--color-neutral-200);
-    color: var(--color-neutral-600);
+    background: var(--color-danger-100);
+    color: var(--color-danger-600);
     cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .cell-clear-btn:hover {
-    background: var(--color-neutral-300);
-    color: var(--color-neutral-800);
+    background: var(--color-danger-200);
+    color: var(--color-danger-700);
 }
 
 .cell-clear-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px var(--color-primary-200);
+    box-shadow: 0 0 0 2px var(--color-danger-200);
 }

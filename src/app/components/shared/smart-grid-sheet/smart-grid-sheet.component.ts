@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output
 import { NgClass, NgStyle } from '@angular/common';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { PopupComponent } from '../popup/popup.component';
-import {Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 export interface TableColumn {
   key: string;
@@ -22,7 +22,7 @@ export interface TableColumn {
 @Component({
   selector: 'app-smart-grid-sheet',
   standalone: true,
-  imports: [ReactiveFormsModule, PopupComponent,NgClass, NgStyle],
+  imports: [ReactiveFormsModule, PopupComponent, NgClass, NgStyle],
   templateUrl: './smart-grid-sheet.component.html',
   styleUrl: './smart-grid-sheet.component.css'
 })
