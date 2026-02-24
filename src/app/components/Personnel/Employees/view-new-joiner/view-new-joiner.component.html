@@ -334,9 +334,14 @@
         </h5>
         }  -->
 
-        @if (isCancelContract()) {
+        @if (isCancelContract() && !upcomingContractStartDate) {
         <h5 class="m-0 text-center">
             <span class="text-danger">No active contract found for : </span>{{ employee.contact_info.name }}
+        </h5>
+        }
+        @else if (isCancelContract() && upcomingContractStartDate) {
+        <h5 class="m-0 text-center">
+            <span class="join-at-message">{{ employee.contact_info.name }} will join at {{ getUpcomingContractFormattedDate() }}</span>
         </h5>
         }
         @else if (isJoiningFuture()) {
@@ -378,6 +383,7 @@
 
     <div class="content-box d-flex flex-column gap-3 w-100 my-3">
         <app-contracts-tab [employee]="employee" (upcomingContractIdChange)="setUpcomingContractId($event)"
+            (upcomingContractStartDateChange)="setUpcomingContractStartDate($event)"
             (contractsDataUpdated)="handleContractsUpdate()"></app-contracts-tab>
     </div>
     <!-- Contracts Section -->

@@ -40,6 +40,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   private employeeService = inject(EmployeeService);
 
   @Output() upcomingContractIdChange = new EventEmitter<number | null>();
+  @Output() upcomingContractStartDateChange = new EventEmitter<string | null>();
   private upcomingContractId: number | null = null;
 
   @Output() contractsDataUpdated = new EventEmitter<void>();
@@ -112,15 +113,18 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.totalItems = this.contractsData.length;
         this.isLoading = false;
 
-        const activeContract = this.contractsData.find(contract => contract.status === 'Upcoming');
-        this.upcomingContractId = activeContract ? activeContract.id : null;
+        const upcomingContract = this.contractsData.find(contract => contract.status === 'Upcoming');
+        this.upcomingContractId = upcomingContract ? upcomingContract.id : null;
         this.upcomingContractIdChange.emit(this.upcomingContractId);
+        const rawStart = upcomingContract ? ((upcomingContract as any)?.start_contract ?? null) : null;
+        this.upcomingContractStartDateChange.emit(rawStart);
 
       },
       error: (error) => {
         console.error('Error loading contracts:', error);
         this.isLoading = false;
         this.upcomingContractIdChange.emit(null);
+        this.upcomingContractStartDateChange.emit(null);
         // Show error message to user
       }
     });
@@ -207,6 +211,21 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Format salary
   getFormattedSalary(salary: number, currency: string): string {
     return `${salary.toLocaleString()} ${currency || 'EGP'}`;
+  }
+
+  /** Upcoming join date for "will join at" message (from employee start_contract or first Upcoming contract). */
+  getUpcomingJoinDate(): string {
+    const fromEmployee = this.employee?.job_info?.start_contract;
+    if (fromEmployee) return this.formatDateToDisplay(fromEmployee);
+    const upcoming = this.contractsData.find(c => c.status === 'Upcoming');
+    if (upcoming?.startDate) return upcoming.startDate;
+    if ((upcoming as any)?.start_contract) return this.formatDateToDisplay((upcoming as any).start_contract);
+    return '';
+  }
+
+  /** True when we should show "{{name}} will join at [date]" in the contract history (no active contract but has upcoming join date). */
+  showWillJoinAtMessage(): boolean {
+    return !!this.getUpcomingJoinDate() && !!this.employee?.contact_info?.name;
   }
 
   // Cancel contract actions
