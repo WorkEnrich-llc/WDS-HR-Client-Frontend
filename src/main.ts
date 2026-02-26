@@ -35,7 +35,8 @@ function restoreAuthFromSubdomainHandoff(): void {
   const match = /^#auth=(.+)$/.exec(hash);
   if (!match) return;
   try {
-    const json = decodeURIComponent(escape(atob(match[1])));
+    const bytes = atob(match[1]);
+    const json = new TextDecoder().decode(Uint8Array.from(bytes, c => c.charCodeAt(0)));
     const data = JSON.parse(json);
     if (data.token != null) localStorage.setItem('token', data.token);
     if (data.session_token != null) localStorage.setItem('session_token', data.session_token);

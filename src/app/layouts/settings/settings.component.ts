@@ -1,10 +1,9 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../components/shared/page-header/page-header.component';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PopupComponent } from '../../components/shared/popup/popup.component';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthenticationService } from '../../core/services/authentication/authentication.service';
-import { AuthHelperService } from '../../core/services/authentication/auth-helper.service';
 
 @Component({
   selector: 'app-settings',
@@ -18,7 +17,7 @@ export class SettingsComponent {
   constructor(
     private cookieService: CookieService,
     private _AuthenticationService: AuthenticationService,
-    private _AuthHelper: AuthHelperService
+    private _Router: Router
   ) { }
 
   isLoading: boolean = false;
@@ -42,19 +41,19 @@ export class SettingsComponent {
 
     this._AuthenticationService.logout().subscribe({
       next: () => {
-        this.clearStorageAndRedirect();
         this.isLoading = false;
+        this.clearStorageAndNavigateToLogin();
       },
       error: (err) => {
         console.error('Logout request failed:', err);
-        this.clearStorageAndRedirect();
         this.isLoading = false;
+        this.clearStorageAndNavigateToLogin();
       }
     });
   }
 
-  /** Clear storage and cookies only after logout API has finished (success or error). */
-  private clearStorageAndRedirect(): void {
+  /** Clear storage and cookies only after logout API has finished, then navigate to login via Angular Router (no hard page reload). */
+  private clearStorageAndNavigateToLogin(): void {
     const deviceToken = localStorage.getItem('device_token');
     localStorage.clear();
     sessionStorage.clear();
@@ -62,7 +61,7 @@ export class SettingsComponent {
       localStorage.setItem('device_token', deviceToken);
     }
     this.cookieService.deleteAll('/', window.location.hostname);
-    this._AuthHelper.redirectToClientLogin();
+    this._Router.navigate(['/auth/login']);
   }
 
 

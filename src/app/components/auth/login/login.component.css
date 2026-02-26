@@ -1,28 +1,178 @@
-/* Ensure login form and inputs always receive pointer/touch events */
-:host {
-  display: block;
-  pointer-events: auto;
-  touch-action: manipulation;
+/* Login card landmark */
+.login-card {
+  width: 100%;
 }
 
-.card-bottom form,
-.card-bottom input,
-.card-bottom button,
-.card-bottom .btn {
-  pointer-events: auto !important;
-  touch-action: manipulation;
+.login-title {
+  font-weight: 600;
+  font-size: var(--font-size-h2, 1.5rem);
+  color: var(--color-secondary-700);
+  line-height: var(--line-height-lg);
+  margin-bottom: var(--spacing-12);
+}
+
+.login-desc {
+  font-size: var(--font-size-b1);
+  line-height: var(--line-height-md);
+  color: var(--color-secondary-700);
+}
+
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.input-icon {
+  stroke: var(--color-secondary-500);
+  flex-shrink: 0;
+}
+
+/* Password visibility toggle: button for accessibility, clear focus ring */
+.password-input-wrapper {
+  position: relative;
 }
 
 .toggle-password {
-  width: 24px;
-  height: 24px;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-secondary-500, #4A6D97);
+  cursor: pointer;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s;
 }
 
-/* Full-viewport overlay so first tap/click anywhere unlocks the form (browser user-gesture requirement) */
-.login-interaction-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
-  cursor: pointer;
-  background: transparent;
+.toggle-password:hover {
+  color: var(--color-secondary-700);
+}
+
+.toggle-password:focus {
+  outline: none;
+}
+
+.toggle-password:focus-visible {
+  outline: 2px solid var(--color-primary-500, #0d6efd);
+  outline-offset: 2px;
+}
+
+.toggle-password-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.icon-eye-outline,
+.icon-eye-pupil {
+  transition: fill 0.2s ease;
+}
+
+.icon-eye-slash {
+  stroke: currentColor;
+}
+
+/* Screen-reader only text */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Login button: spacing, states, and smooth transitions */
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  transition: opacity 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-login .btn-icon {
+  flex-shrink: 0;
+}
+
+.btn-login-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: btn-content-in 0.3s ease;
+}
+
+@keyframes btn-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.btn-login-spinner {
+  flex-shrink: 0;
+}
+
+.btn-login--loading:not(:hover) {
+  opacity: 0.95;
+}
+
+.btn-login--redirecting {
+  opacity: 1;
+  background-color: var(--color-primary-600, #0a58ca);
+}
+
+.btn-login-check {
+  flex-shrink: 0;
+  animation: check-pop 0.35s ease;
+}
+
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.btn-login:disabled {
+  cursor: not-allowed;
+  opacity: 0.92;
+  transform: scale(1);
+}
+
+.btn-login:not(:disabled):active {
+  transform: scale(0.99);
+}
+
+.register-link {
+  font-weight: 600;
+}
+
+/* Slight softening of form while loading/redirecting */
+.login-info form.form-loading .input,
+.login-info form.form-loading .forgrt-pass {
+  transition: opacity 0.25s ease;
+  opacity: 0.85;
 }

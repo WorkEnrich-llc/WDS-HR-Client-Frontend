@@ -1,8 +1,9 @@
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
@@ -21,12 +22,8 @@ import DeviceDetector from 'device-detector-js';
 })
 export class LoginComponent implements OnInit {
 
-  @ViewChild('emailInput') emailInputRef?: ElementRef<HTMLInputElement>;
+  isPasswordVisible = false;
 
-  /** Becomes true after first user click (or after short delay) so inputs/button work. */
-  interactionReady = false;
-
-  isPasswordVisible = false
   ngOnInit(): void {
     this.toasterMessageService.currentMessage$.subscribe(msg => {
       if (msg) {
@@ -34,21 +31,12 @@ export class LoginComponent implements OnInit {
         this.toasterMessageService.sendMessage('');
       }
     });
-    // Unlock form after view is stable (fixes inputs/button disabled until first click)
-    setTimeout(() => { this.interactionReady = true; }, 150);
   }
 
-  /** Call when user taps/clicks overlay to unlock form immediately (before timeout). */
-  activateForm(event?: Event): void {
-    if (this.interactionReady) return;
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-    this.interactionReady = true;
-    if (typeof document !== 'undefined') document.body.focus?.();
-    setTimeout(() => this.emailInputRef?.nativeElement?.focus(), 50);
-  }
   errMsg: string = '';
   isLoading: boolean = false;
+  /** True when login/session succeeded and we're about to redirect (shows "Redirecting…" for a smooth handoff). */
+  isRedirecting: boolean = false;
   private loginRetryCount: number = 0;
   private readonly MAX_LOGIN_RETRIES: number = 1;
   loginForm: FormGroup = new FormGroup({
@@ -62,25 +50,10 @@ export class LoginComponent implements OnInit {
   ) { }
 
 
-  /** Initialize session against the API origin so the backend can set CSRF/session cookies (required for deployed cross-origin). */
-  private async initializeSession(): Promise<void> {
-    try {
-      const apiBase = this._AuthenticationService.getApiBaseUrl();
-      await fetch(apiBase, {
-        method: 'GET',
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error('Session initialization error:', error);
-    }
-  }
-
   async login(): Promise<void> {
+    if (this.isLoading) return;
     this.isLoading = true;
     this.errMsg = '';
-
-    // Initialize session against API origin so backend can set cookies (critical for deployed)
-    await this.initializeSession();
 
     const device_token = localStorage.getItem('device_token');
     const hasValidDeviceToken = device_token && device_token !== 'true' && device_token !== 'false';
@@ -111,7 +84,6 @@ export class LoginComponent implements OnInit {
 
     this._AuthenticationService.login(formData).subscribe({
       next: (response) => {
-        this.isLoading = false;
         // Check both root level and data level for response structure
         const session = response?.session || response?.data?.session;
         const companyInfo = response?.company_info || response?.data?.company_info;
@@ -149,7 +121,6 @@ export class LoginComponent implements OnInit {
           const subDomain = companyInfo?.sub_domain;
           const redirectUrl = this.constructSubdomainUrl(subDomain);
 
-          // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
           const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
           const hasSLT = session?.s_l_t?.nonce && session?.s_l_t?.ciphertext;
 
@@ -167,36 +138,27 @@ export class LoginComponent implements OnInit {
               }
             };
 
-            this._AuthenticationService.sessionLogin(requestData).subscribe({
-              next: () => {
-                // S-L API call successful, now call subscription status
-                this.subService.getSubscription().subscribe({
-                  next: (sub) => {
-                    if (sub) {
-                      this.subService.setSubscription(sub);
-                    }
-                    // Redirect to subdomain URL
-                    this.redirectToSubdomain(redirectUrl);
-                  },
-                  error: (err) => {
-                    console.error('Subscription load error:', err);
-                    // Redirect even if subscription fails
-                    this.redirectToSubdomain(redirectUrl);
-                  }
-                });
+            // Run S-L and subscription in parallel, then show brief "Redirecting…" and navigate
+            forkJoin({
+              sessionLogin: this._AuthenticationService.sessionLogin(requestData),
+              subscription: this.subService.getSubscription()
+            }).subscribe({
+              next: ({ subscription }) => {
+                if (subscription) this.subService.setSubscription(subscription);
+                this.smoothRedirect(redirectUrl);
               },
               error: (err) => {
-                console.error('S-L API call error:', err);
-                // If S-L fails, redirect directly
-                this.redirectToSubdomain(redirectUrl);
+                console.error('S-L or subscription error:', err);
+                this.smoothRedirect(redirectUrl);
               }
             });
           } else {
-            // Missing session data, redirect directly without S-L or subscription
-            this.redirectToSubdomain(redirectUrl);
+            this.smoothRedirect(redirectUrl);
           }
+          // Keep isLoading true until redirect (button stays "Signing you in…" and disabled)
         } else {
-          this.loginRetryCount = 0; // Reset on invalid response
+          this.loginRetryCount = 0;
+          this.isLoading = false;
           this.errMsg = 'Invalid response from server.';
         }
       },
@@ -227,9 +189,6 @@ export class LoginComponent implements OnInit {
   }
 
   private async registerDevice(): Promise<void> {
-    // Initialize session before device registration
-    await this.initializeSession();
-
     const deviceDetector = new DeviceDetector();
     const userAgent = navigator.userAgent;
     const device = deviceDetector.parse(userAgent);
@@ -317,6 +276,14 @@ export class LoginComponent implements OnInit {
   }
 
   /**
+   * Show "Redirecting…" state briefly, then redirect. Keeps the transition feeling smooth instead of an abrupt jump.
+   */
+  private smoothRedirect(url: string | null): void {
+    this.isRedirecting = true;
+    setTimeout(() => this.redirectToSubdomain(url), 320);
+  }
+
+  /**
    * Redirect to subdomain URL or fallback to router navigation.
    * When redirecting to another origin, pass auth data in the hash so the subdomain can restore localStorage (same-origin storage is not shared).
    */
@@ -328,12 +295,9 @@ export class LoginComponent implements OnInit {
       const companyInfo = localStorage.getItem('company_info');
       if (token && userInfo && companyInfo) {
         try {
-          const payload = btoa(unescape(encodeURIComponent(JSON.stringify({
-            token,
-            session_token: sessionToken,
-            user_info: userInfo,
-            company_info: companyInfo
-          }))));
+          const str = JSON.stringify({ token, session_token: sessionToken, user_info: userInfo, company_info: companyInfo });
+          const bytes = new TextEncoder().encode(str);
+          const payload = btoa(String.fromCharCode(...bytes));
           window.location.href = `${url}#auth=${payload}`;
           return;
         } catch (e) {

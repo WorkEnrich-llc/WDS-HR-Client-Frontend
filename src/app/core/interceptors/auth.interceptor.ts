@@ -145,15 +145,13 @@ export const authInterceptor: HttpInterceptorFn = (
     sessionStorage.clear();
 
     if (deviceToken !== null && deviceToken !== undefined) {
-      // Ensure we save it as a string (handles both boolean and string types)
-      const tokenToSave = typeof deviceToken === 'boolean'
-        ? String(deviceToken)
-        : deviceToken;
+      const tokenToSave = typeof deviceToken === 'boolean' ? String(deviceToken) : deviceToken;
       localStorage.setItem('device_token', tokenToSave);
     }
 
     cookieService.deleteAll('/', window.location.hostname);
-    authHelper.redirectToClientLogin();
+    // Use Angular Router so logout is a smooth in-app navigation, not a hard page reload
+    router.navigate(['/auth/login']);
   };
 
   return next(cloned).pipe(
@@ -195,7 +193,7 @@ export const authInterceptor: HttpInterceptorFn = (
           localStorage.clear();
           sessionStorage.clear();
           cookieService.deleteAll('/', window.location.hostname);
-          setTimeout(() => window.location.reload(), 2000);
+          setTimeout(() => router.navigate(['/auth/login']), 2000);
           break;
 
         case 425:
