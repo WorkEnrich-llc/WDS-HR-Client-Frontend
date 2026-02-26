@@ -173,8 +173,13 @@ export const authInterceptor: HttpInterceptorFn = (
           }
 
           // If this is a logout request (e.g. from settings), let the caller handle cleanup
-          // after the request completes so the loader can stay until API finishes
           if (req.url.includes('logout')) {
+            break;
+          }
+
+          // subscription-status can return 401 right after login (e.g. session not yet ready).
+          // Don't trigger global logout or we'll cancel the S-L request and redirect away.
+          if (req.url.includes('subscription-status')) {
             break;
           }
 
