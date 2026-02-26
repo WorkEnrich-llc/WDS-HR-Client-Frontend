@@ -167,8 +167,10 @@ export const toastInterceptor: HttpInterceptorFn = (
 
       error: (error) => {
         if (error instanceof HttpErrorResponse && shouldShowToast) {
+          // 401 is handled by auth interceptor (router.navigate to login). Do NOT call
+          // performLogout() here — it does a full page redirect to client login and causes
+          // an extra reload when navigating from login to dashboard on deployed.
           if (error.status === 401) {
-            performLogout();
             return;
           }
 

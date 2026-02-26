@@ -1,9 +1,10 @@
 /**
  * Global patch to ensure withCredentials is always true for all XMLHttpRequest instances
- * This is applied once at application startup to ensure cookies are sent with ALL requests
- * 
- * This is the cleanest global approach - it patches XMLHttpRequest once at startup,
- * ensuring all HTTP requests (including Angular HttpClient) automatically send cookies.
+ * This is applied once at application startup to ensure cookies are sent with ALL requests.
+ *
+ * For login → dashboard (subdomain) flow: the backend must set session/CSRF cookies
+ * so they are sent to the dashboard origin (e.g. Domain=.example.com). Otherwise the
+ * first API call from the subdomain may get 401 and trigger a redirect back to login.
  */
 export function enableCredentialsGlobally(): void {
   // Store original methods
