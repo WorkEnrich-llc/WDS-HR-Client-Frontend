@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
@@ -138,17 +137,22 @@ export class LoginComponent implements OnInit {
               }
             };
 
-            // Run S-L and subscription in parallel, then show brief "Redirecting…" and navigate
-            forkJoin({
-              sessionLogin: this._AuthenticationService.sessionLogin(requestData),
-              subscription: this.subService.getSubscription()
-            }).subscribe({
-              next: ({ subscription }) => {
-                if (subscription) this.subService.setSubscription(subscription);
-                this.smoothRedirect(redirectUrl);
+            // Run S-L first; only when it's done run subscription-status, then redirect
+            this._AuthenticationService.sessionLogin(requestData).subscribe({
+              next: () => {
+                this.subService.getSubscription().subscribe({
+                  next: (sub) => {
+                    if (sub) this.subService.setSubscription(sub);
+                    this.smoothRedirect(redirectUrl);
+                  },
+                  error: (err) => {
+                    console.error('Subscription load error:', err);
+                    this.smoothRedirect(redirectUrl);
+                  }
+                });
               },
               error: (err) => {
-                console.error('S-L or subscription error:', err);
+                console.error('S-L error:', err);
                 this.smoothRedirect(redirectUrl);
               }
             });
