@@ -1,4 +1,28 @@
+/* Ensure login form and inputs always receive pointer/touch events */
+:host {
+  display: block;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.card-bottom form,
+.card-bottom input,
+.card-bottom button,
+.card-bottom .btn {
+  pointer-events: auto !important;
+  touch-action: manipulation;
+}
+
 .toggle-password {
   width: 24px;
   height: 24px;
+}
+
+/* Full-viewport overlay so first tap/click anywhere unlocks the form (browser user-gesture requirement) */
+.login-interaction-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  cursor: pointer;
+  background: transparent;
 }

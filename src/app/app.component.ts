@@ -96,15 +96,13 @@ export class AppComponent {
     this.checkTokenSub?.unsubscribe();
   }
 
+  /** Initialize session against the API origin so the backend can set CSRF/session cookies (required for deployed cross-origin). */
   private async initializeSession(): Promise<void> {
     try {
-      await fetch("/", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const apiBase = this._AuthenticationService.getApiBaseUrl();
+      await fetch(apiBase, {
+        method: 'GET',
+        credentials: 'include'
       });
     } catch (error) {
       console.error('Session initialization error:', error);

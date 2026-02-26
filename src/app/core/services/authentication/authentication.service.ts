@@ -17,6 +17,11 @@ export class AuthenticationService {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
+  /** Expose API base URL so login/app can initialize session (CSRF/cookies) against the API origin. */
+  getApiBaseUrl(): string {
+    return this.apiBaseUrl;
+  }
+
   private getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);

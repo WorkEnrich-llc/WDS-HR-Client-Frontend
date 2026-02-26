@@ -1,3 +1,16 @@
+<!-- Full-viewport overlay: captures first tap/click so form becomes interactive (browser user-gesture requirement). Must cover entire screen. -->
+@if (!interactionReady) {
+  <div
+    class="login-interaction-overlay"
+    (click)="activateForm($event)"
+    (touchstart)="activateForm($event)"
+    role="button"
+    tabindex="0"
+    (keydown.enter)="activateForm($event)"
+    (keydown.space)="activateForm($event)"
+    aria-label="Tap or click anywhere to continue"></div>
+}
+
 <div class="card-top">
   <div class="row align-items-center g-3">
     <div class="col-8">
@@ -31,7 +44,7 @@
               </svg> Email</label>
             <div class="d-flex align-items-center gap-4">
               <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input formControlName="email" type="email" id="email" class="form-control" placeholder="Input Here" autocomplete = "email" inputmode = "email"
+                <input #emailInput formControlName="email" type="email" id="email" class="form-control" placeholder="Input Here" autocomplete = "email" inputmode = "email"
                   [ngClass]="{
           'error-input': loginForm.get('email')?.touched && loginForm.get('email')?.invalid,
           'success-input': loginForm.get('email')?.touched && loginForm.get('email')?.valid

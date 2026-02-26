@@ -24,6 +24,30 @@ import { enableCredentialsGlobally } from './app/core/services/http/credentials-
 // This ensures withCredentials: true is set for ALL XMLHttpRequest instances
 enableCredentialsGlobally();
 
+/**
+ * When redirecting from login (e.g. client.example.com) to subdomain (company.example.com),
+ * auth is passed in the hash. Restore it to localStorage here so the subdomain has the same
+ * auth state (localStorage is per-origin, so the new origin would otherwise be empty).
+ */
+function restoreAuthFromSubdomainHandoff(): void {
+  if (typeof window === 'undefined') return;
+  const hash = window.location.hash;
+  const match = /^#auth=(.+)$/.exec(hash);
+  if (!match) return;
+  try {
+    const json = decodeURIComponent(escape(atob(match[1])));
+    const data = JSON.parse(json);
+    if (data.token != null) localStorage.setItem('token', data.token);
+    if (data.session_token != null) localStorage.setItem('session_token', data.session_token);
+    if (data.user_info != null) localStorage.setItem('user_info', data.user_info);
+    if (data.company_info != null) localStorage.setItem('company_info', data.company_info);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch (e) {
+    console.warn('Failed to restore auth from hash', e);
+  }
+}
+restoreAuthFromSubdomainHandoff();
+
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }

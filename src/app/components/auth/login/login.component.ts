@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -21,15 +21,31 @@ import DeviceDetector from 'device-detector-js';
 })
 export class LoginComponent implements OnInit {
 
+  @ViewChild('emailInput') emailInputRef?: ElementRef<HTMLInputElement>;
+
+  /** Becomes true after first user click (or after short delay) so inputs/button work. */
+  interactionReady = false;
+
   isPasswordVisible = false
   ngOnInit(): void {
-
     this.toasterMessageService.currentMessage$.subscribe(msg => {
       if (msg) {
         this.toastr.success(msg);
         this.toasterMessageService.sendMessage('');
       }
     });
+    // Unlock form after view is stable (fixes inputs/button disabled until first click)
+    setTimeout(() => { this.interactionReady = true; }, 150);
+  }
+
+  /** Call when user taps/clicks overlay to unlock form immediately (before timeout). */
+  activateForm(event?: Event): void {
+    if (this.interactionReady) return;
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    this.interactionReady = true;
+    if (typeof document !== 'undefined') document.body.focus?.();
+    setTimeout(() => this.emailInputRef?.nativeElement?.focus(), 50);
   }
   errMsg: string = '';
   isLoading: boolean = false;
@@ -46,15 +62,13 @@ export class LoginComponent implements OnInit {
   ) { }
 
 
+  /** Initialize session against the API origin so the backend can set CSRF/session cookies (required for deployed cross-origin). */
   private async initializeSession(): Promise<void> {
     try {
-      await fetch("/", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const apiBase = this._AuthenticationService.getApiBaseUrl();
+      await fetch(apiBase, {
+        method: 'GET',
+        credentials: 'include'
       });
     } catch (error) {
       console.error('Session initialization error:', error);
@@ -65,17 +79,28 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.errMsg = '';
 
-    // Initialize session before login
+    // Initialize session against API origin so backend can set cookies (critical for deployed)
     await this.initializeSession();
 
     const device_token = localStorage.getItem('device_token');
+    const hasValidDeviceToken = device_token && device_token !== 'true' && device_token !== 'false';
+
+    // On deployed, ensure device is registered before first login (match localhost behavior)
+    if (!hasValidDeviceToken) {
+      try {
+        await this.registerDevice();
+      } catch (e) {
+        console.warn('Proactive device registration failed, continuing with login', e);
+      }
+    }
+
     const formData = new FormData();
     formData.append('username', this.loginForm.get('email')?.value);
     formData.append('password', this.loginForm.get('password')?.value);
 
-    // Only send device_token if it exists and is not "true" or "false"
-    if (device_token && device_token !== 'true' && device_token !== 'false') {
-      formData.append('device_token', device_token);
+    const currentDeviceToken = localStorage.getItem('device_token');
+    if (currentDeviceToken && currentDeviceToken !== 'true' && currentDeviceToken !== 'false') {
+      formData.append('device_token', currentDeviceToken);
     }
 
     // Add r_IN only if running on localhost
@@ -292,14 +317,31 @@ export class LoginComponent implements OnInit {
   }
 
   /**
-   * Redirect to subdomain URL or fallback to router navigation
+   * Redirect to subdomain URL or fallback to router navigation.
+   * When redirecting to another origin, pass auth data in the hash so the subdomain can restore localStorage (same-origin storage is not shared).
    */
   private redirectToSubdomain(url: string | null): void {
     if (url) {
-      // Full page redirect to subdomain
+      const token = localStorage.getItem('token');
+      const sessionToken = localStorage.getItem('session_token');
+      const userInfo = localStorage.getItem('user_info');
+      const companyInfo = localStorage.getItem('company_info');
+      if (token && userInfo && companyInfo) {
+        try {
+          const payload = btoa(unescape(encodeURIComponent(JSON.stringify({
+            token,
+            session_token: sessionToken,
+            user_info: userInfo,
+            company_info: companyInfo
+          }))));
+          window.location.href = `${url}#auth=${payload}`;
+          return;
+        } catch (e) {
+          console.warn('Could not encode auth for subdomain handoff', e);
+        }
+      }
       window.location.href = url;
     } else {
-      // Fallback to router navigation (e.g., for localhost)
       this._Router.navigate(['/dashboard']);
     }
   }
