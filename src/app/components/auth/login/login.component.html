@@ -122,7 +122,7 @@
               class="btn btn-lg btn-primary w-100 btn-login"
               [class.btn-login--loading]="isLoading && !isRedirecting"
               [class.btn-login--redirecting]="isRedirecting"
-              [disabled]="isLoading || isRedirecting || !loginForm.valid"
+              [disabled]="isLoading || isRedirecting"
               [attr.aria-busy]="isLoading || isRedirecting"
               aria-label="Sign in">
               @if (isRedirecting) {

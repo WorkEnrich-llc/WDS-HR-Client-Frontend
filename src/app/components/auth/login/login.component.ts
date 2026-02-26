@@ -51,6 +51,10 @@ export class LoginComponent implements OnInit {
 
   async login(): Promise<void> {
     if (this.isLoading) return;
+    this.loginForm.markAllAsTouched();
+    if (this.loginForm.invalid) {
+      return;
+    }
     this.isLoading = true;
     this.errMsg = '';
 
