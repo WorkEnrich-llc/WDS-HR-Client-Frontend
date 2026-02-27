@@ -658,18 +658,6 @@
         </div>
         }
 
-        <!-- <div class="info">
-      <h6>Contract Type</h6>
-      <span>{{ employee.job_info.contract_type.name || 'N/A' }}</span>
-    </div> -->
-        <!-- <div class="info">
-    <h6>Salary</h6>
-    <span>{{ employee.job_info.salary || 'N/A' }} EGP</span>
-  </div> -->
-        <!-- <div class="info" *ngIf="employee.job_info.days_on_site">
-  <h6>Days On Site</h6>
-  <span>{{ employee.job_info.days_on_site }} days/week</span>
-</div> -->
         <!-- Managers Section following Flags Pattern -->
         <div class="managers-section mt-2">
           <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1060,6 +1048,14 @@
       </div>
     </div>
   </div>
+
+  @if (isActiveContract && employee && employee.contact_info.name) {
+  <div class="content-box d-flex flex-column gap-3 w-100">
+    <h5 class="m-0 text-center text-success">
+      {{ employee.contact_info.name }} · Joined {{ (employee.current_contract?.start_contract | date : 'dd/MM/yyyy') || '—' }} · Contract ends {{ (employee.current_contract?.end_contract | date : 'dd/MM/yyyy') || '—' }}
+    </h5>
+  </div>
+  }
 
   @if (hasNoActiveContract && employee && employee.contact_info.name) {
   <div class="content-box d-flex flex-column gap-3 w-100">

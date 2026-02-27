@@ -1060,6 +1060,48 @@
   border-radius: 999px;
 }
 
+/* --- Active contract pill (when status is Active) --- */
+.active-contract-section {
+  padding-top: var(--spacing-16);
+  border-top: 1px solid var(--color-neutral-100);
+}
+
+.active-contract-pill {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  background-color: var(--color-success-50, #ecfdf5) !important;
+  color: var(--color-success-800, #166534) !important;
+  border: 1px solid var(--color-success-200, #bbf7d0) !important;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.active-contract-pill:hover {
+  background-color: var(--color-success-100, #d1fae5) !important;
+  border-color: var(--color-success-300, #86efac) !important;
+}
+
+.active-contract-pill__name {
+  font-weight: 600;
+}
+
+.active-contract-pill__sep {
+  color: var(--color-success-600, #16a34a);
+  opacity: 0.8;
+  user-select: none;
+}
+
+.active-contract-pill__label {
+  color: var(--color-success-700, #15803d);
+  font-weight: 500;
+}
+
+.active-contract-pill__value {
+  font-weight: 600;
+}
+
 /* --- Managers Section Styles --- */
 .managers-section {
   padding-top: var(--spacing-16);
