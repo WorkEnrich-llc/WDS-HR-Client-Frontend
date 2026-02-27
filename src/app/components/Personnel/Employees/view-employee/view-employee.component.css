@@ -692,13 +692,15 @@
   display: inline-flex;
 }
 
-/* --- Interest Suggestion UI --- */
+/* --- Interest Suggestion UI / All Managers popup --- */
 .flags-cloud {
   position: absolute;
   bottom: calc(100% + 15px);
   left: 50%;
   transform: translateX(-50%);
-  width: 280px;
+  min-width: 280px;
+  max-width: min(520px, 90vw);
+  width: max-content;
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
@@ -740,10 +742,12 @@
 .flags-cloud-body {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  max-height: 200px;
+  gap: 8px;
+  max-height: 240px;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
+  min-width: 0;
 }
 
 .flags-cloud-arrow {
@@ -777,14 +781,25 @@
   align-items: center;
 }
 
-/* Manager add: wider input and dropdown */
+/* Manager add: container and dropdown same width; input fills container */
 .manager-add-wrapper .flag-input-container {
-  min-width: 320px;
+  min-width: 280px;
   width: 320px;
+  max-width: min(420px, 85vw);
+  box-sizing: border-box;
+}
+
+.manager-add-wrapper .flag-input-container input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .manager-add-wrapper .flag-suggestions {
-  min-width: 320px;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .flag-add-btn {
@@ -978,7 +993,9 @@
 
 @media (max-width: 768px) {
   .flags-cloud {
-    width: 220px;
+    min-width: 220px;
+    max-width: min(360px, 90vw);
+    width: max-content;
     left: auto;
     right: 0;
     transform: none;
