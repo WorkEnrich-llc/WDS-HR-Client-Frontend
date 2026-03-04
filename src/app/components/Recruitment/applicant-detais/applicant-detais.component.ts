@@ -1075,23 +1075,43 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Submit feedback
+  onFeedbackOverlayClose(): void {
+    this.currentInterviewForFeedback = null;
+  }
+
+  // Submit feedback (edit feedback per interview: send interview_id; otherwise application_id)
   submitFeedback(): void {
-    if (!this.applicationId) return;
+    const interviewId = this.currentInterviewForFeedback?.id;
+    const useInterview = interviewId != null;
+
+    if (useInterview) {
+      if (!interviewId) return;
+    } else {
+      if (!this.applicationId) return;
+    }
 
     this.isFeedbackSubmitting = true;
 
-    this.jobOpeningsService.addApplicationFeedback(
-      this.applicationId,
-      this.feedbackRating,
-      this.feedbackComment
-    ).pipe(takeUntil(this.destroy$)).subscribe({
+    const request = useInterview
+      ? this.jobOpeningsService.addInterviewFeedback(interviewId, this.feedbackRating, this.feedbackComment)
+      : this.jobOpeningsService.addApplicationFeedback(
+          this.applicationId!,
+          this.feedbackRating,
+          this.feedbackComment
+        );
+
+    request.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isFeedbackSubmitting = false;
         this.feedbackOverlay?.closeOverlay();
         this.feedbackRating = 0;
         this.feedbackComment = '';
-        this.fetchFeedbacks();
+        this.currentInterviewForFeedback = null;
+        if (useInterview) {
+          this.fetchInterviews();
+        } else {
+          this.fetchFeedbacks();
+        }
       },
       error: () => {
         this.isFeedbackSubmitting = false;
