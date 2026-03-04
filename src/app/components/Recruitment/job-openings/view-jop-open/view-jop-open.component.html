@@ -912,8 +912,9 @@
           style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;"
           (click)="onApplicantClick(application.id)" #badgeContainer [attr.data-badge-id]="application.id">
           <span class="badge-newjoiner" style="margin-top: 4px;">
-            {{ application.evaluation?.applicantEvaluation.score.toFixed(0)
-            || '-' }}/{{ application.evaluation?.applicantEvaluation.maxScore || '-' }}
+            {{ application.evaluation?.applicantEvaluation?.score != null
+            ? application.evaluation.applicantEvaluation.score.toFixed(1)
+            : '-' }}/{{ application.evaluation?.applicantEvaluation?.maxScore ?? '-' }}
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M7.99967 11.8334C8.27582 11.8334 8.49967 11.6095 8.49967 11.3334V7.33337C8.49967 7.05723 8.27582 6.83337 7.99967 6.83337C7.72353 6.83337 7.49967 7.05723 7.49967 7.33337V11.3334C7.49967 11.6095 7.72353 11.8334 7.99967 11.8334Z"
