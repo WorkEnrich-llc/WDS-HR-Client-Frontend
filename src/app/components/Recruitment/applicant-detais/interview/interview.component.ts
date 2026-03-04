@@ -622,6 +622,18 @@ export class InterviewComponent implements OnChanges {
       hasErrors = true;
     }
 
+    // Start time must be at least 10 minutes from now
+    if (this.date && this.time_from && !this.validationErrors.time_from) {
+      const scheduleStart = this.getScheduleStartDate(this.date, this.time_from);
+      if (scheduleStart) {
+        const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+        if (scheduleStart.getTime() < tenMinutesFromNow.getTime()) {
+          this.validationErrors.time_from = 'Start time must be at least 10 minutes from now';
+          hasErrors = true;
+        }
+      }
+    }
+
     if (hasErrors) {
       return;
     }
@@ -714,6 +726,22 @@ export class InterviewComponent implements OnChanges {
     return false;
   }
 
+  /** Parse date (YYYY-MM-DD) and time (HH:mm or HH:mm:ss) into a local Date for comparison. */
+  private getScheduleStartDate(dateStr: string, timeStr: string): Date | null {
+    const parts = dateStr.trim().split('-');
+    const timeParts = timeStr.trim().split(':');
+    if (parts.length !== 3 || timeParts.length < 2) return null;
+    const y = parseInt(parts[0], 10);
+    const mo = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    const h = parseInt(timeParts[0], 10);
+    const m = parseInt(timeParts[1], 10);
+    if (isNaN(y) || isNaN(mo) || isNaN(d) || isNaN(h) || isNaN(m)) return null;
+    const date = new Date(y, mo, d, h, m, 0, 0);
+    if (isNaN(date.getTime())) return null;
+    return date;
+  }
+
   clearValidationError(field: keyof typeof this.validationErrors): void {
     if (this.validationErrors[field]) {
       delete this.validationErrors[field];
@@ -728,6 +756,7 @@ export class InterviewComponent implements OnChanges {
   }
 
   onInterviewDateChange(dateValue: string): void {
+    this.clearValidationError('time_from');
     if (dateValue) {
       const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
       this.date = dateOnly;

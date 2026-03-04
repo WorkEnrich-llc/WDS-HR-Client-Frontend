@@ -351,7 +351,15 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         }
 
         this.displayValue = this.formatDateForDisplay(this.selectedDate);
-        this.value = this.selectedDate.toISOString();
+        // Use local date (YYYY-MM-DD) for date-only to avoid timezone shifting the day (e.g. today showing as yesterday)
+        if (this.showTime) {
+            this.value = this.selectedDate.toISOString();
+        } else {
+            const y = this.selectedDate.getFullYear();
+            const m = String(this.selectedDate.getMonth() + 1).padStart(2, '0');
+            const d = String(this.selectedDate.getDate()).padStart(2, '0');
+            this.value = `${y}-${m}-${d}`;
+        }
 
         this.onChange(this.value);
         this.dateChange.emit(this.value);
