@@ -139,6 +139,9 @@ export class AttendanceLogComponent implements OnDestroy {
   // Caches to avoid re-fetching when opening filters repeatedly
   private cachedDepartments: any[] | undefined;
   private cachedEmployees: any[] | undefined;
+  // Subscriptions for filter overlay data fetches – cancelled when overlay closes if still in progress
+  private departmentFilterSub?: Subscription;
+  private employeeFilterSub?: Subscription;
   skeletonRows = Array.from({ length: 5 });
   // Modal state for editing logs
   editModalOpen: boolean = false;
@@ -379,21 +382,23 @@ export class AttendanceLogComponent implements OnDestroy {
       this.departmentList$ = of(this.cachedDepartments);
       this.isDepartmentLoading = false;
     } else {
-      // Fetch departments with per_page=500 and cache result.
-      // We must subscribe here so the API request is executed even if the template
-      // shows the skeleton (which would prevent the async pipe from subscribing).
-      this.departmentService.getAllDepartment(1, 500, { status: 'true' }).pipe(
+      // Fetch departments with per_page=500 and cache result when complete.
+      // Subscription is cancelled if overlay is closed before the request finishes.
+      this.departmentFilterSub?.unsubscribe();
+      this.departmentFilterSub = this.departmentService.getAllDepartment(1, 500, { status: 'true' }).pipe(
         map((res: any) => res?.data?.list_items ?? [])
       ).subscribe({
         next: (list: any[]) => {
           this.cachedDepartments = list;
           this.departmentList$ = of(list);
           this.isDepartmentLoading = false;
+          this.departmentFilterSub = undefined;
         },
         error: () => {
           this.cachedDepartments = [];
           this.departmentList$ = of([]);
           this.isDepartmentLoading = false;
+          this.departmentFilterSub = undefined;
         }
       });
     }
@@ -403,8 +408,10 @@ export class AttendanceLogComponent implements OnDestroy {
       this.employeeList = this.cachedEmployees;
       this.isEmployeeLoading = false;
     } else {
-      // Fetch employees with per_page=2000 and cache result
-      this.employeeService.getEmployees(1, 2000, '').subscribe({
+      // Fetch employees with per_page=2000 and cache result when complete.
+      // Subscription is cancelled if overlay is closed before the request finishes.
+      this.employeeFilterSub?.unsubscribe();
+      this.employeeFilterSub = this.employeeService.getEmployees(1, 2000, '').subscribe({
         next: (res: any) => {
           this.employeeList = (res?.data?.list_items ?? []).map((emp: any) => ({
             id: emp.object_info.id,
@@ -412,17 +419,33 @@ export class AttendanceLogComponent implements OnDestroy {
           }));
           this.cachedEmployees = this.employeeList;
           this.isEmployeeLoading = false;
+          this.employeeFilterSub = undefined;
         },
         error: () => {
           this.employeeList = [];
           this.cachedEmployees = [];
           this.isEmployeeLoading = false;
+          this.employeeFilterSub = undefined;
         }
       });
     }
 
     // Open the overlay (data will be provided by observables/arrays above)
     this.overlay.openOverlay();
+  }
+
+  /** Called when the filter overlay is closed. Cancels any in-flight department/employee requests. */
+  onFilterOverlayClosed(): void {
+    if (this.departmentFilterSub) {
+      this.departmentFilterSub.unsubscribe();
+      this.departmentFilterSub = undefined;
+      this.isDepartmentLoading = false;
+    }
+    if (this.employeeFilterSub) {
+      this.employeeFilterSub.unsubscribe();
+      this.employeeFilterSub = undefined;
+      this.isEmployeeLoading = false;
+    }
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
@@ -851,6 +874,12 @@ export class AttendanceLogComponent implements OnDestroy {
         }, { emitEvent: true });
         this.selectedRange = { startDate: params['from_date'], endDate: params['to_date'] };
         this.hasSelectedDateRange = true;
+        // Keep day strip visible: ensure baseDate and days are set when restoring a date range
+        if (!dateStr) {
+          this.selectedDate = start.toDate();
+          this.baseDate = this.getStartOfWeek(this.selectedDate);
+          this.generateDays(this.baseDate);
+        }
       }
     }
   }
@@ -884,14 +913,20 @@ export class AttendanceLogComponent implements OnDestroy {
 
     this.filterForm.patchValue({ from_date: '' });
     this.selectedRange = null;
+    this.hasSelectedDateRange = false;
 
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+    const raw = this.filterForm.value;
 
     this.getAllAttendanceLog({
       page: this.currentPage,
       per_page: this.itemsPerPage,
       from_date: formattedDate,
       to_date: '',
+      department_id: raw.department_id || undefined,
+      employee: raw.employee || undefined,
+      offenses: raw.offenses || undefined,
+      day_type: raw.day_type || undefined,
       search: this.searchTerm || undefined
     });
     this.syncStateToQueryParams();
@@ -1059,6 +1094,10 @@ export class AttendanceLogComponent implements OnDestroy {
       if (raw.from_date?.startDate && raw.from_date?.endDate) {
         from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
         to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
+        // Keep day strip visible when filtering by date range
+        this.selectedDate = raw.from_date.startDate.toDate();
+        this.baseDate = this.getStartOfWeek(this.selectedDate);
+        this.generateDays(this.baseDate);
       } else if (this.selectedDate) {
         from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
       }
@@ -1361,6 +1400,14 @@ export class AttendanceLogComponent implements OnDestroy {
     if (this.attendanceRequestSubscription) {
       try { this.attendanceRequestSubscription.unsubscribe(); } catch (e) { /* ignore */ }
       this.attendanceRequestSubscription = undefined;
+    }
+    if (this.departmentFilterSub) {
+      this.departmentFilterSub.unsubscribe();
+      this.departmentFilterSub = undefined;
+    }
+    if (this.employeeFilterSub) {
+      this.employeeFilterSub.unsubscribe();
+      this.employeeFilterSub = undefined;
     }
 
     // Complete the search subject

@@ -581,7 +581,7 @@
 </div>
 
 <!-- filter popup -->
-<app-overlay-filter-box #filterBox [title]="'Filters'">
+<app-overlay-filter-box #filterBox [title]="'Filters'" (onClose)="onFilterOverlayClosed()">
   <form [formGroup]="filterForm" class="w-100 d-flex flex-column gap-3" (ngSubmit)="applyFilters()">
     <div class="input">
       <label for="department">Departments</label>
