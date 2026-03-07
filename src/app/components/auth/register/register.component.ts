@@ -1,5 +1,5 @@
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { AbstractControl, FormControl, FormControlOptions, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -512,19 +512,27 @@ export class RegisterComponent implements OnDestroy, OnInit {
     }
   }
 
+  @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput?: NgOtpInputComponent;
+
   otpCode: string = '';
   otpForm: FormGroup = new FormGroup({
     otp: new FormControl('', [Validators.required, Validators.minLength(6)]),
 
   });
 
+  private isResettingOtp = false;
+
   onOtpChange(otp: string): void {
     this.otpCode = otp;
     const control = this.otpForm.controls['otp'];
-    control.setValue(otp);
-    control.markAsTouched();
-    control.markAsDirty();
+    control.setValue(otp ?? '', { emitEvent: false });
     control.updateValueAndValidity();
+    if (!this.isResettingOtp) {
+      control.markAsTouched();
+      control.markAsDirty();
+    } else {
+      this.isResettingOtp = false;
+    }
   }
 
 
@@ -573,11 +581,23 @@ export class RegisterComponent implements OnDestroy, OnInit {
     if (!emailControl?.value) return;
 
     this.canResend = false;
+    this.errMsg = '';
 
     this._AuthenticationService.sendCode(emailControl.value).subscribe({
       next: (response) => {
         this.timeLeftResend = response.data.re_send_seconds_left;
         this.startCountdown();
+        // Reset OTP input and hide validation message after successful resend
+        this.errMsg = '';
+        this.otpCode = '';
+        this.otpForm.get('otp')?.setValue('');
+        this.otpForm.get('otp')?.markAsUntouched();
+        this.otpForm.get('otp')?.markAsPristine();
+        this.otpForm.get('otp')?.updateValueAndValidity();
+        this.isResettingOtp = true;
+        this.ngOtpInput?.setValue('');
+        // Clear flag after a tick in case ng-otp-input does not emit on setValue
+        setTimeout(() => { this.isResettingOtp = false; }, 0);
       },
       error: (err: HttpErrorResponse) => {
         this.canResend = true;
