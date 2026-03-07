@@ -55,7 +55,7 @@
     }@else {
     <div class="info">
       <h6>Department Code</h6>
-      <span>{{ departmentData?.id?.toString()?.padStart(4, '0') || 'N/A' }}</span>
+      <span>{{ departmentData?.code ?? 'N/A' }}</span>
     </div>
     <div class="info">
       <h6>Department Name</h6>
