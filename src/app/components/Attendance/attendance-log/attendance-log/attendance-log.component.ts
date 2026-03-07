@@ -587,15 +587,30 @@ export class AttendanceLogComponent implements OnDestroy {
     return this.hasCheckIn(record) && this.hasCheckOut(record);
   }
 
+  /** True when the record's date (from parent emp) is Friday. Used so Friday works like other weekdays for actions. */
+  isFridayRecord(emp: any): boolean {
+    if (!emp?.date) return false;
+    const d = typeof emp.date === 'string' ? new Date(emp.date) : emp.date;
+    return d.getDay() === 5; // 5 = Friday
+  }
+
+  /** Whether to hide actions based on status. Weekly leave on Friday is treated as a normal workday. */
+  shouldHideActionsForStatus(record: any, emp?: any): boolean {
+    if (!record?.status) return false;
+    if (record.status === 'On Leave' || record.status === 'Holiday') return true;
+    if (record.status === 'Weekly leave') return !this.isFridayRecord(emp);
+    return false;
+  }
+
   // Unified helpers for template action visibility
-  shouldShowActionMenu(record: any): boolean {
+  shouldShowActionMenu(record: any, emp?: any): boolean {
     if (!record) return false;
 
     // If the record is canceled, only show the action menu so the user can activate it.
     if (record.canceled) return true;
 
-    // Do not show actions for certain statuses
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    // Do not show actions for certain statuses (Friday with Weekly leave is treated as workday)
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
 
     const hasIn = this.hasCheckIn(record);
     const hasOut = this.hasCheckOut(record);
@@ -608,39 +623,39 @@ export class AttendanceLogComponent implements OnDestroy {
     return hasIn || hasOut || hasDeduction || (!hasIn && !hasOut);
   }
 
-  shouldShowAddCheckIn(record: any): boolean {
+  shouldShowAddCheckIn(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow adding check-in on canceled logs
     if (record.canceled) return false;
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
     return !this.hasCheckIn(record);
   }
 
-  shouldShowAddCheckOut(record: any): boolean {
+  shouldShowAddCheckOut(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow adding check-out on canceled logs
     if (record.canceled) return false;
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
-  shouldShowEditCheckIn(record: any): boolean {
+  shouldShowEditCheckIn(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow editing check-in on canceled logs
     if (record.canceled) return false;
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
-  shouldShowEditLog(record: any): boolean {
+  shouldShowEditLog(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow editing logs on canceled records
     if (record.canceled) return false;
-    if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (record.status === 'Absent' || this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasBothCheckInAndOut(record) || (!this.hasCheckIn(record) && !this.hasCheckOut(record));
   }
 
-  shouldShowCancelOrActivate(record: any, listItems?: any[]): boolean {
+  shouldShowCancelOrActivate(record: any, listItems?: any[], emp?: any): boolean {
     if (!record) return false;
     // If canceled, show the action so user can activate it.
     if (record.canceled) return true;
@@ -655,7 +670,7 @@ export class AttendanceLogComponent implements OnDestroy {
       );
       return currentIndex !== firstPresentIndex;
     }
-    if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (record.status === 'Absent' || this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasCheckIn(record) || this.hasCheckOut(record);
   }
 

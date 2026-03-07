@@ -292,7 +292,7 @@
                 <div class="text-danger" [ngStyle]="{ width: columnWidths[7] }">
                   {{ emp.deduction }}
                 </div>
-                <div [ngStyle]="{ width: columnWidths[8] }" class="text-end position-relative">
+                <div [ngStyle]="{ width: columnWidths[8] }" class="d-flex justify-content-end position-relative">
                   <!-- No actions on main record - all actions are in sub-records -->
                 </div>
               </div>
@@ -333,8 +333,8 @@
                     </small>
                   </div>
                   <div class="text-danger" [style.width]="columnWidths[7]">{{ log?.hours_object?.deduction }}</div>
-                  <div [style.width]="columnWidths[8]" class="text-end position-relative">
-                    @if (shouldShowActionMenu(log)) {
+                  <div [style.width]="columnWidths[8]" class="d-flex justify-content-end position-relative">
+                    @if (shouldShowActionMenu(log, emp)) {
                     <button class="action-menu-btn" (click)="openSubLogMenu(i, j)" type="button">
                       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
                     </button>
@@ -344,7 +344,7 @@
                       @if (!log.canceled) {
                       <!-- Scenario 1: NO check-in AND NO check-out → Show "Add Check In" + "Add Check Out" + "Cancel Log" -->
                       <!-- Show "Add Check In" when check-in doesn't exist or is '00:00' -->
-                      @if (shouldShowAddCheckIn(log)) {
+                      @if (shouldShowAddCheckIn(log, emp)) {
                       <button class="action-menu-item" (click)="openEditCheckInModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -363,7 +363,7 @@
                       </button>
                       }
                       <!-- Show "Add Check Out" when check-in EXISTS AND check-out DOESN'T exist -->
-                      @if (shouldShowAddCheckOut(log)) {
+                      @if (shouldShowAddCheckOut(log, emp)) {
                       <button class="action-menu-item" (click)="openEditCheckOutModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -382,7 +382,7 @@
                       </button>
                       }
                       <!-- Show "Edit Check In" when check-in EXISTS AND check-out DOESN'T exist -->
-                      @if (shouldShowEditCheckIn(log)) {
+                      @if (shouldShowEditCheckIn(log, emp)) {
                       <button class="action-menu-item" (click)="openEditCheckInModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -401,7 +401,7 @@
                       </button>
                       }
                       <!-- Show "Edit Log" when both check-in and check-out exist OR neither exist -->
-                      @if (shouldShowEditLog(log)) {
+                      @if (shouldShowEditLog(log, emp)) {
                       <button class="action-menu-item" (click)="openEditLogModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -444,7 +444,7 @@
                       }
                       }
                       <!-- Show "Cancel Log" or "Activate Log" (toggle based on canceled flag); for main_record only show for first record with status Present -->
-                      @if (shouldShowCancelOrActivate(log, emp.list_items)) {
+                      @if (shouldShowCancelOrActivate(log, emp.list_items, emp)) {
                       <button class="action-menu-item" [ngClass]="log.canceled ? 'text-success' : 'text-danger'"
                         (click)="openModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
