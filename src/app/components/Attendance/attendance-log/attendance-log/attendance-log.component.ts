@@ -257,21 +257,17 @@ export class AttendanceLogComponent implements OnDestroy {
 
 
     this.today.setHours(0, 0, 0, 0);
-    this.selectedDate = new Date(this.today);
-    this.baseDate = this.getStartOfWeek(this.today);
-    this.generateDays(this.baseDate);
-    // this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!);
-
-    this.getAllAttendanceLog({
-      page: this.currentPage,
-      per_page: this.itemsPerPage,
-      from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-      to_date: ''
-    });
-
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-    });
+    const qp = this.route.snapshot.queryParams as Record<string, string>;
+    const hasParams = qp && (qp['date'] || qp['search'] || qp['page'] || qp['department_id'] || qp['employee'] || qp['from_date'] || qp['to_date'] || qp['offenses'] || qp['day_type']);
+    if (hasParams) {
+      this.restoreStateFromQueryParams(qp);
+    } else {
+      this.selectedDate = new Date(this.today);
+      this.baseDate = this.getStartOfWeek(this.today);
+      this.generateDays(this.baseDate);
+    }
+    this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -347,6 +343,7 @@ export class AttendanceLogComponent implements OnDestroy {
         this.totalPages = info.total_pages;
         this.loadData = false;
         this.isLoading = false;
+        this.syncStateToQueryParams();
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
@@ -801,6 +798,85 @@ export class AttendanceLogComponent implements OnDestroy {
     return this.selectedDate && this.selectedDate.toDateString() === date.toDateString();
   }
   hasSelectedDateRange: boolean = false;
+
+  /** Persist current state to URL query params so refresh/back restores the same view. */
+  syncStateToQueryParams(): void {
+    const dateStr = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
+    const raw = this.filterForm?.value ?? {};
+    const params: Record<string, string | number> = {
+      date: dateStr,
+      page: this.currentPage,
+    };
+    if (this.searchTerm?.trim()) params['search'] = this.searchTerm.trim();
+    if (raw.department_id) params['department_id'] = raw.department_id;
+    if (raw.employee) params['employee'] = raw.employee;
+    if (raw.offenses) params['offenses'] = raw.offenses;
+    if (raw.day_type) params['day_type'] = raw.day_type;
+    if (raw.from_date?.startDate && raw.from_date?.endDate) {
+      params['from_date'] = raw.from_date.startDate.format('YYYY-MM-DD');
+      params['to_date'] = raw.from_date.endDate.format('YYYY-MM-DD');
+    }
+    this.router.navigate([], { relativeTo: this.route, queryParams: params, queryParamsHandling: '' });
+  }
+
+  /** Restore state from URL query params (used on init and when navigating back). */
+  private restoreStateFromQueryParams(params: Record<string, string>): void {
+    const dateStr = params['date'];
+    if (dateStr) {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime()) && d <= this.today) {
+        this.selectedDate = d;
+        this.baseDate = this.getStartOfWeek(d);
+        this.generateDays(this.baseDate);
+      }
+    }
+    const page = params['page'];
+    if (page) {
+      const p = +page;
+      if (p >= 1) this.currentPage = p;
+    }
+    if (params['search'] !== undefined) this.searchTerm = params['search'] || '';
+    this.filterForm.patchValue({
+      department_id: params['department_id'] || '',
+      employee: params['employee'] || '',
+      offenses: params['offenses'] || '',
+      day_type: params['day_type'] || '',
+    }, { emitEvent: false });
+    if (params['from_date'] && params['to_date']) {
+      const start = dayjs(params['from_date']);
+      const end = dayjs(params['to_date']);
+      if (start.isValid() && end.isValid() && start.toDate() <= this.today && end.toDate() <= this.today) {
+        this.filterForm.patchValue({
+          from_date: { startDate: start, endDate: end },
+        }, { emitEvent: true });
+        this.selectedRange = { startDate: params['from_date'], endDate: params['to_date'] };
+        this.hasSelectedDateRange = true;
+      }
+    }
+  }
+
+  /** Reset selected day, search, filters, and page to today's view. */
+  resetToToday(): void {
+    this.selectedDate = new Date(this.today);
+    this.baseDate = this.getStartOfWeek(this.today);
+    this.generateDays(this.baseDate);
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.filterForm.reset({
+      department_id: '',
+      employee: '',
+      from_date: '',
+      to_date: '',
+      offenses: '',
+      day_type: '',
+    }, { emitEvent: false });
+    this.selectedRange = null;
+    this.hasSelectedDateRange = false;
+    this.filterBox?.closeOverlay();
+    this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
+  }
+
   selectDate(date: Date): void {
     if (date > this.today) return;
 
@@ -818,6 +894,7 @@ export class AttendanceLogComponent implements OnDestroy {
       to_date: '',
       search: this.searchTerm || undefined
     });
+    this.syncStateToQueryParams();
   }
 
 
@@ -835,12 +912,14 @@ export class AttendanceLogComponent implements OnDestroy {
   onPageChange(page: number): void {
     this.currentPage = page;
     this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
   }
 
   onItemsPerPageChange(newItemsPerPage: number): void {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
   }
 
   private loadFilteredAttendance(): void {
@@ -977,23 +1056,27 @@ export class AttendanceLogComponent implements OnDestroy {
       const raw = this.filterForm.value;
       let from_date = '';
       let to_date = '';
-      if (raw.from_date) {
-        from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
-        to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+      if (raw.from_date?.startDate && raw.from_date?.endDate) {
+        from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
+        to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
+      } else if (this.selectedDate) {
+        from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
       }
       const filters: IAttendanceFilters = {
-        department_id: raw.department_id,
-        employee: raw.employee,
-        offenses: raw.offenses,
-        day_type: raw.day_type,
+        page: this.currentPage,
+        per_page: this.itemsPerPage,
+        department_id: raw.department_id || undefined,
+        employee: raw.employee || undefined,
+        offenses: raw.offenses || undefined,
+        day_type: raw.day_type || undefined,
         from_date,
-        to_date
+        to_date,
+        search: this.searchTerm || undefined,
       };
       this.filterBox.closeOverlay();
       this.getAllAttendanceLog(filters);
+      this.syncStateToQueryParams();
     }
-
-
   }
 
 
@@ -1023,24 +1106,26 @@ export class AttendanceLogComponent implements OnDestroy {
       to_date: '',
       offenses: '',
       day_type: ''
-    });
+    }, { emitEvent: false });
 
     this.selectedRange = null;
+    this.hasSelectedDateRange = false;
 
     const filters: IAttendanceFilters = {
       page: this.currentPage,
       per_page: this.itemsPerPage,
       department_id: undefined,
       employee: undefined,
-      from_date: '',
+      from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '',
       to_date: '',
-      offenses: '',
-      day_type: '',
-      search: this.searchTerm || ''
+      offenses: undefined,
+      day_type: undefined,
+      search: this.searchTerm || undefined
     };
 
     this.filterBox.closeOverlay();
     this.getAllAttendanceLog(filters);
+    this.syncStateToQueryParams();
   }
 
 
