@@ -63,6 +63,12 @@
         <span>{{jobTitleData.name}}</span>
       </div>
       }
+      @if (jobTitleData.code) {
+      <div class="info">
+        <h6>Job Code</h6>
+        <span>{{ jobTitleData.code }}</span>
+      </div>
+      }
       @if (jobTitleData.job_level > 0) {
       <div class="info">
         <h6>Job Level</h6>
