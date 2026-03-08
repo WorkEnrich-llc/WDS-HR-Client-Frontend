@@ -787,3 +787,12 @@ button[title="Copy description"]:hover {
     width: 18px;
     height: 18px;
 }
+
+/* Job offer outcome status: Accepted / Rejected */
+.status-offer-accepted .d-block.fw-semibold {
+    color: var(--color-success-600, #059669) !important;
+}
+
+.status-offer-rejected .d-block.fw-semibold {
+    color: var(--color-danger-600, #dc2626) !important;
+}
