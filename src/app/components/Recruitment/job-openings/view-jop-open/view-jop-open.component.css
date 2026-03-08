@@ -734,6 +734,11 @@ button[title="Copy description"]:hover {
     animation-delay: -0.16s;
 }
 
+/* Qualified confirm button – white bubbles on primary */
+.btn-qualified-confirm .loading-bubble {
+    background: rgba(255, 255, 255, 0.9);
+}
+
 @keyframes bounce {
 
     0%,

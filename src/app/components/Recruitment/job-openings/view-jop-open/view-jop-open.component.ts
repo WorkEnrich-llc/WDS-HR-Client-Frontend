@@ -149,6 +149,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Action confirmation modals
   isCandidateModalOpen: boolean = false;
   isQualifiedModalOpen: boolean = false;
+  isQualifiedLoading: boolean = false;
   isAcceptOfferModalOpen: boolean = false;
   isDeclineOfferModalOpen: boolean = false;
   // Loading states for accept/decline actions
@@ -2031,6 +2032,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeQualifiedModal(): void {
     this.isQualifiedModalOpen = false;
     this.selectedApplicant = null;
+    this.isQualifiedLoading = false;
   }
 
   /**
@@ -2040,12 +2042,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     if (!this.selectedApplicant?.applicationId) return;
 
     const applicationId = this.selectedApplicant.applicationId;
+    this.isQualifiedLoading = true;
 
     // Status 4 = Qualified
     this.jobOpeningsService.updateApplicationStatus(applicationId, 4).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.isQualifiedLoading = false;
         this.closeQualifiedModal();
         this.loadApplicants();
         if (this.jobOpening?.id) {
@@ -2054,6 +2058,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.toastr.showSuccess('Applicant marked as qualified successfully');
       },
       error: (error) => {
+        this.isQualifiedLoading = false;
         console.error('Error marking applicant as qualified:', error);
         this.toastr.showError('Failed to mark applicant as qualified');
         this.closeQualifiedModal();
