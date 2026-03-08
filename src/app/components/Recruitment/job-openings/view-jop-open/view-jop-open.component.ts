@@ -942,6 +942,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // =====================================================
 
   /**
+   * Check if job offer info status means "offer sent" (pending acceptance).
+   * Handles API variations: "Sent", "sent", "Offer Sent", etc.
+   */
+  isOfferStatusSent(offerStatus: string | undefined): boolean {
+    const s = (offerStatus ?? '').toLowerCase().trim();
+    return s === 'sent' || s.includes('offer sent') || s === 'offer sent';
+  }
+
+  /**
    * Check if applicant has job offer sent status
    */
   isJobOfferSent(status: string): boolean {
