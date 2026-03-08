@@ -155,6 +155,27 @@
   border-radius: 0.7rem;
 }
 
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 7.25rem;
+  height: 3.125rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.7rem;
+  border: 0.0625rem solid var(--color-secondary-300, #4A6D97);
+  color: var(--color-secondary-600, #22314b);
+  background: #fff;
+}
+
+.reset-btn:hover {
+  background: var(--color-secondary-50, #f5f8fa);
+  border-color: var(--color-secondary-400, #3b4a6b);
+  color: var(--color-secondary-700, #1a2332);
+}
+
 .export-btn {
   display: flex;
   align-items: center;

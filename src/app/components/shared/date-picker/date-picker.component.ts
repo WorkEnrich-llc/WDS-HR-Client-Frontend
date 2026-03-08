@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, forwardRef, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, forwardRef, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
         }
     ]
 })
-export class DatePickerComponent implements OnInit, ControlValueAccessor {
+export class DatePickerComponent implements OnInit, OnChanges, ControlValueAccessor {
     @Input() label: string = '';
     @Input() placeholder: string = 'Select a date';
     @Input() required: boolean = false;
@@ -73,6 +73,14 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         this.currentMonth = now.getMonth();
         this.currentYear = now.getFullYear();
         this.generateYearList();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['minDate'] || changes['maxDate']) {
+            this.updateMinDate();
+            this.generateYearList();
+            this.buildCalendar();
+        }
     }
 
     ngOnInit(): void {
@@ -184,9 +192,10 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
 
 
     private updateMinDate(): void {
+        const toYYYYMMDD = (s: string | null) => (s && s.length >= 10 ? s.substring(0, 10) : (s || ''));
         if (this.disableBeforeDate) {
             if (this.minDate) {
-                this.minDateValue = this.minDate;
+                this.minDateValue = toYYYYMMDD(this.minDate);
             } else {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -196,12 +205,10 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
                 this.minDateValue = `${y}-${m}-${d}`;
             }
         } else {
-            this.minDateValue = this.minDate || '';
+            this.minDateValue = toYYYYMMDD(this.minDate);
         }
 
-        if (this.maxDate) {
-            this.maxDateValue = this.maxDate;
-        }
+        this.maxDateValue = toYYYYMMDD(this.maxDate);
 
         // Regenerate year list when min/max dates change
         if (this.years.length > 0) {
@@ -351,7 +358,15 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         }
 
         this.displayValue = this.formatDateForDisplay(this.selectedDate);
-        this.value = this.selectedDate.toISOString();
+        // Use local date (YYYY-MM-DD) for date-only to avoid timezone shifting the day (e.g. today showing as yesterday)
+        if (this.showTime) {
+            this.value = this.selectedDate.toISOString();
+        } else {
+            const y = this.selectedDate.getFullYear();
+            const m = String(this.selectedDate.getMonth() + 1).padStart(2, '0');
+            const d = String(this.selectedDate.getDate()).padStart(2, '0');
+            this.value = `${y}-${m}-${d}`;
+        }
 
         this.onChange(this.value);
         this.dateChange.emit(this.value);

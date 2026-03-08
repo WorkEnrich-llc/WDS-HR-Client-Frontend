@@ -40,11 +40,15 @@ export class SystemSetupService {
   public moduleChange$ = this.moduleChangeSubject.asObservable();
 
   getSystemSetup(): Observable<ISystemSetupResponse> {
+    if (this.cached$) {
+      return this.cached$;
+    }
     const url = `${this.apiBaseUrl}main/system-setup`;
-    return this._HttpClient.get<ISystemSetupResponse>(url).pipe(
+    this.cached$ = this._HttpClient.get<ISystemSetupResponse>(url).pipe(
       tap(response => this.systemSetupSubject.next(response)),
       shareReplay(1)
     );
+    return this.cached$;
   }
 
   /**

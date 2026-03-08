@@ -139,6 +139,9 @@ export class AttendanceLogComponent implements OnDestroy {
   // Caches to avoid re-fetching when opening filters repeatedly
   private cachedDepartments: any[] | undefined;
   private cachedEmployees: any[] | undefined;
+  // Subscriptions for filter overlay data fetches – cancelled when overlay closes if still in progress
+  private departmentFilterSub?: Subscription;
+  private employeeFilterSub?: Subscription;
   skeletonRows = Array.from({ length: 5 });
   // Modal state for editing logs
   editModalOpen: boolean = false;
@@ -257,21 +260,17 @@ export class AttendanceLogComponent implements OnDestroy {
 
 
     this.today.setHours(0, 0, 0, 0);
-    this.selectedDate = new Date(this.today);
-    this.baseDate = this.getStartOfWeek(this.today);
-    this.generateDays(this.baseDate);
-    // this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!);
-
-    this.getAllAttendanceLog({
-      page: this.currentPage,
-      per_page: this.itemsPerPage,
-      from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-      to_date: ''
-    });
-
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-    });
+    const qp = this.route.snapshot.queryParams as Record<string, string>;
+    const hasParams = qp && (qp['date'] || qp['search'] || qp['page'] || qp['department_id'] || qp['employee'] || qp['from_date'] || qp['to_date'] || qp['offenses'] || qp['day_type']);
+    if (hasParams) {
+      this.restoreStateFromQueryParams(qp);
+    } else {
+      this.selectedDate = new Date(this.today);
+      this.baseDate = this.getStartOfWeek(this.today);
+      this.generateDays(this.baseDate);
+    }
+    this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -347,6 +346,7 @@ export class AttendanceLogComponent implements OnDestroy {
         this.totalPages = info.total_pages;
         this.loadData = false;
         this.isLoading = false;
+        this.syncStateToQueryParams();
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
@@ -382,21 +382,23 @@ export class AttendanceLogComponent implements OnDestroy {
       this.departmentList$ = of(this.cachedDepartments);
       this.isDepartmentLoading = false;
     } else {
-      // Fetch departments with per_page=500 and cache result.
-      // We must subscribe here so the API request is executed even if the template
-      // shows the skeleton (which would prevent the async pipe from subscribing).
-      this.departmentService.getAllDepartment(1, 500, { status: 'true' }).pipe(
+      // Fetch departments with per_page=500 and cache result when complete.
+      // Subscription is cancelled if overlay is closed before the request finishes.
+      this.departmentFilterSub?.unsubscribe();
+      this.departmentFilterSub = this.departmentService.getAllDepartment(1, 500, { status: 'true' }).pipe(
         map((res: any) => res?.data?.list_items ?? [])
       ).subscribe({
         next: (list: any[]) => {
           this.cachedDepartments = list;
           this.departmentList$ = of(list);
           this.isDepartmentLoading = false;
+          this.departmentFilterSub = undefined;
         },
         error: () => {
           this.cachedDepartments = [];
           this.departmentList$ = of([]);
           this.isDepartmentLoading = false;
+          this.departmentFilterSub = undefined;
         }
       });
     }
@@ -406,8 +408,10 @@ export class AttendanceLogComponent implements OnDestroy {
       this.employeeList = this.cachedEmployees;
       this.isEmployeeLoading = false;
     } else {
-      // Fetch employees with per_page=2000 and cache result
-      this.employeeService.getEmployees(1, 2000, '').subscribe({
+      // Fetch employees with per_page=2000 and cache result when complete.
+      // Subscription is cancelled if overlay is closed before the request finishes.
+      this.employeeFilterSub?.unsubscribe();
+      this.employeeFilterSub = this.employeeService.getEmployees(1, 2000, '').subscribe({
         next: (res: any) => {
           this.employeeList = (res?.data?.list_items ?? []).map((emp: any) => ({
             id: emp.object_info.id,
@@ -415,17 +419,33 @@ export class AttendanceLogComponent implements OnDestroy {
           }));
           this.cachedEmployees = this.employeeList;
           this.isEmployeeLoading = false;
+          this.employeeFilterSub = undefined;
         },
         error: () => {
           this.employeeList = [];
           this.cachedEmployees = [];
           this.isEmployeeLoading = false;
+          this.employeeFilterSub = undefined;
         }
       });
     }
 
     // Open the overlay (data will be provided by observables/arrays above)
     this.overlay.openOverlay();
+  }
+
+  /** Called when the filter overlay is closed. Cancels any in-flight department/employee requests. */
+  onFilterOverlayClosed(): void {
+    if (this.departmentFilterSub) {
+      this.departmentFilterSub.unsubscribe();
+      this.departmentFilterSub = undefined;
+      this.isDepartmentLoading = false;
+    }
+    if (this.employeeFilterSub) {
+      this.employeeFilterSub.unsubscribe();
+      this.employeeFilterSub = undefined;
+      this.isEmployeeLoading = false;
+    }
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
@@ -587,15 +607,30 @@ export class AttendanceLogComponent implements OnDestroy {
     return this.hasCheckIn(record) && this.hasCheckOut(record);
   }
 
+  /** True when the record's date (from parent emp) is Friday. Used so Friday works like other weekdays for actions. */
+  isFridayRecord(emp: any): boolean {
+    if (!emp?.date) return false;
+    const d = typeof emp.date === 'string' ? new Date(emp.date) : emp.date;
+    return d.getDay() === 5; // 5 = Friday
+  }
+
+  /** Whether to hide actions based on status. Weekly leave on Friday is treated as a normal workday. */
+  shouldHideActionsForStatus(record: any, emp?: any): boolean {
+    if (!record?.status) return false;
+    if (record.status === 'On Leave' || record.status === 'Holiday') return true;
+    if (record.status === 'Weekly leave') return !this.isFridayRecord(emp);
+    return false;
+  }
+
   // Unified helpers for template action visibility
-  shouldShowActionMenu(record: any): boolean {
+  shouldShowActionMenu(record: any, emp?: any): boolean {
     if (!record) return false;
 
     // If the record is canceled, only show the action menu so the user can activate it.
     if (record.canceled) return true;
 
-    // Do not show actions for certain statuses
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    // Do not show actions for certain statuses (Friday with Weekly leave is treated as workday)
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
 
     const hasIn = this.hasCheckIn(record);
     const hasOut = this.hasCheckOut(record);
@@ -608,45 +643,54 @@ export class AttendanceLogComponent implements OnDestroy {
     return hasIn || hasOut || hasDeduction || (!hasIn && !hasOut);
   }
 
-  shouldShowAddCheckIn(record: any): boolean {
+  shouldShowAddCheckIn(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow adding check-in on canceled logs
     if (record.canceled) return false;
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
     return !this.hasCheckIn(record);
   }
 
-  shouldShowAddCheckOut(record: any): boolean {
+  shouldShowAddCheckOut(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow adding check-out on canceled logs
     if (record.canceled) return false;
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
-  shouldShowEditCheckIn(record: any): boolean {
+  shouldShowEditCheckIn(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow editing check-in on canceled logs
     if (record.canceled) return false;
-    if (['On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasCheckIn(record) && !this.hasCheckOut(record);
   }
 
-  shouldShowEditLog(record: any): boolean {
+  shouldShowEditLog(record: any, emp?: any): boolean {
     if (!record) return false;
     // Do not allow editing logs on canceled records
     if (record.canceled) return false;
-    if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    if (record.status === 'Absent' || this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasBothCheckInAndOut(record) || (!this.hasCheckIn(record) && !this.hasCheckOut(record));
   }
 
-  shouldShowCancelOrActivate(record: any): boolean {
+  shouldShowCancelOrActivate(record: any, listItems?: any[], emp?: any): boolean {
     if (!record) return false;
-    // If the record is a main record and not canceled, hide the cancel option.
-    if (record.main_record && !record.canceled) return false;
     // If canceled, show the action so user can activate it.
     if (record.canceled) return true;
-    if (['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(record.status)) return false;
+    // For main_record and not canceled: show Cancel only for records with status "Present" that are NOT the first Present in the list.
+    if (record.main_record && !record.canceled) {
+      if (record.status !== 'Present') return false;
+      if (!listItems?.length) return false;
+      const firstPresentIndex = listItems.findIndex((item: any) => item?.status === 'Present');
+      if (firstPresentIndex === -1) return false;
+      const currentIndex = listItems.findIndex(
+        (item: any) => (item?.record_id ?? item?.id) === (record?.record_id ?? record?.id)
+      );
+      return currentIndex !== firstPresentIndex;
+    }
+    if (record.status === 'Absent' || this.shouldHideActionsForStatus(record, emp)) return false;
     return this.hasCheckIn(record) || this.hasCheckOut(record);
   }
 
@@ -777,6 +821,91 @@ export class AttendanceLogComponent implements OnDestroy {
     return this.selectedDate && this.selectedDate.toDateString() === date.toDateString();
   }
   hasSelectedDateRange: boolean = false;
+
+  /** Persist current state to URL query params so refresh/back restores the same view. */
+  syncStateToQueryParams(): void {
+    const dateStr = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
+    const raw = this.filterForm?.value ?? {};
+    const params: Record<string, string | number> = {
+      date: dateStr,
+      page: this.currentPage,
+    };
+    if (this.searchTerm?.trim()) params['search'] = this.searchTerm.trim();
+    if (raw.department_id) params['department_id'] = raw.department_id;
+    if (raw.employee) params['employee'] = raw.employee;
+    if (raw.offenses) params['offenses'] = raw.offenses;
+    if (raw.day_type) params['day_type'] = raw.day_type;
+    if (raw.from_date?.startDate && raw.from_date?.endDate) {
+      params['from_date'] = raw.from_date.startDate.format('YYYY-MM-DD');
+      params['to_date'] = raw.from_date.endDate.format('YYYY-MM-DD');
+    }
+    this.router.navigate([], { relativeTo: this.route, queryParams: params, queryParamsHandling: '' });
+  }
+
+  /** Restore state from URL query params (used on init and when navigating back). */
+  private restoreStateFromQueryParams(params: Record<string, string>): void {
+    const dateStr = params['date'];
+    if (dateStr) {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime()) && d <= this.today) {
+        this.selectedDate = d;
+        this.baseDate = this.getStartOfWeek(d);
+        this.generateDays(this.baseDate);
+      }
+    }
+    const page = params['page'];
+    if (page) {
+      const p = +page;
+      if (p >= 1) this.currentPage = p;
+    }
+    if (params['search'] !== undefined) this.searchTerm = params['search'] || '';
+    this.filterForm.patchValue({
+      department_id: params['department_id'] || '',
+      employee: params['employee'] || '',
+      offenses: params['offenses'] || '',
+      day_type: params['day_type'] || '',
+    }, { emitEvent: false });
+    if (params['from_date'] && params['to_date']) {
+      const start = dayjs(params['from_date']);
+      const end = dayjs(params['to_date']);
+      if (start.isValid() && end.isValid() && start.toDate() <= this.today && end.toDate() <= this.today) {
+        this.filterForm.patchValue({
+          from_date: { startDate: start, endDate: end },
+        }, { emitEvent: true });
+        this.selectedRange = { startDate: params['from_date'], endDate: params['to_date'] };
+        this.hasSelectedDateRange = true;
+        // Keep day strip visible: ensure baseDate and days are set when restoring a date range
+        if (!dateStr) {
+          this.selectedDate = start.toDate();
+          this.baseDate = this.getStartOfWeek(this.selectedDate);
+          this.generateDays(this.baseDate);
+        }
+      }
+    }
+  }
+
+  /** Reset selected day, search, filters, and page to today's view. */
+  resetToToday(): void {
+    this.selectedDate = new Date(this.today);
+    this.baseDate = this.getStartOfWeek(this.today);
+    this.generateDays(this.baseDate);
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.filterForm.reset({
+      department_id: '',
+      employee: '',
+      from_date: '',
+      to_date: '',
+      offenses: '',
+      day_type: '',
+    }, { emitEvent: false });
+    this.selectedRange = null;
+    this.hasSelectedDateRange = false;
+    this.filterBox?.closeOverlay();
+    this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
+  }
+
   selectDate(date: Date): void {
     if (date > this.today) return;
 
@@ -784,16 +913,23 @@ export class AttendanceLogComponent implements OnDestroy {
 
     this.filterForm.patchValue({ from_date: '' });
     this.selectedRange = null;
+    this.hasSelectedDateRange = false;
 
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+    const raw = this.filterForm.value;
 
     this.getAllAttendanceLog({
       page: this.currentPage,
       per_page: this.itemsPerPage,
       from_date: formattedDate,
       to_date: '',
+      department_id: raw.department_id || undefined,
+      employee: raw.employee || undefined,
+      offenses: raw.offenses || undefined,
+      day_type: raw.day_type || undefined,
       search: this.searchTerm || undefined
     });
+    this.syncStateToQueryParams();
   }
 
 
@@ -811,12 +947,14 @@ export class AttendanceLogComponent implements OnDestroy {
   onPageChange(page: number): void {
     this.currentPage = page;
     this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
   }
 
   onItemsPerPageChange(newItemsPerPage: number): void {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     this.loadFilteredAttendance();
+    this.syncStateToQueryParams();
   }
 
   private loadFilteredAttendance(): void {
@@ -953,23 +1091,31 @@ export class AttendanceLogComponent implements OnDestroy {
       const raw = this.filterForm.value;
       let from_date = '';
       let to_date = '';
-      if (raw.from_date) {
-        from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
-        to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+      if (raw.from_date?.startDate && raw.from_date?.endDate) {
+        from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
+        to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
+        // Keep day strip visible when filtering by date range
+        this.selectedDate = raw.from_date.startDate.toDate();
+        this.baseDate = this.getStartOfWeek(this.selectedDate);
+        this.generateDays(this.baseDate);
+      } else if (this.selectedDate) {
+        from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
       }
       const filters: IAttendanceFilters = {
-        department_id: raw.department_id,
-        employee: raw.employee,
-        offenses: raw.offenses,
-        day_type: raw.day_type,
+        page: this.currentPage,
+        per_page: this.itemsPerPage,
+        department_id: raw.department_id || undefined,
+        employee: raw.employee || undefined,
+        offenses: raw.offenses || undefined,
+        day_type: raw.day_type || undefined,
         from_date,
-        to_date
+        to_date,
+        search: this.searchTerm || undefined,
       };
       this.filterBox.closeOverlay();
       this.getAllAttendanceLog(filters);
+      this.syncStateToQueryParams();
     }
-
-
   }
 
 
@@ -999,24 +1145,26 @@ export class AttendanceLogComponent implements OnDestroy {
       to_date: '',
       offenses: '',
       day_type: ''
-    });
+    }, { emitEvent: false });
 
     this.selectedRange = null;
+    this.hasSelectedDateRange = false;
 
     const filters: IAttendanceFilters = {
       page: this.currentPage,
       per_page: this.itemsPerPage,
       department_id: undefined,
       employee: undefined,
-      from_date: '',
+      from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '',
       to_date: '',
-      offenses: '',
-      day_type: '',
-      search: this.searchTerm || ''
+      offenses: undefined,
+      day_type: undefined,
+      search: this.searchTerm || undefined
     };
 
     this.filterBox.closeOverlay();
     this.getAllAttendanceLog(filters);
+    this.syncStateToQueryParams();
   }
 
 
@@ -1252,6 +1400,14 @@ export class AttendanceLogComponent implements OnDestroy {
     if (this.attendanceRequestSubscription) {
       try { this.attendanceRequestSubscription.unsubscribe(); } catch (e) { /* ignore */ }
       this.attendanceRequestSubscription = undefined;
+    }
+    if (this.departmentFilterSub) {
+      this.departmentFilterSub.unsubscribe();
+      this.departmentFilterSub = undefined;
+    }
+    if (this.employeeFilterSub) {
+      this.employeeFilterSub.unsubscribe();
+      this.employeeFilterSub = undefined;
     }
 
     // Complete the search subject

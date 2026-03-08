@@ -241,7 +241,7 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Fetch interviews for current application (and application + per-interview feedbacks, then merge)
+  // Fetch interviews for current application; fetch feedbacks per interview using interview_id only
   fetchInterviews(): void {
     const appId = this.applicationId;
     if (!appId) { this.interviews = []; this.isInterviewsLoading = false; return; }
@@ -250,52 +250,43 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
       next: (res) => {
         const raw = res?.data?.list_items ?? res?.list_items ?? [];
         const list = Array.isArray(raw) ? raw.map((it: any) => this.normaliseInterviewListItem(it)) : [];
-        this.jobOpeningsService.getApplicationFeedbacks(appId, 1, 50).pipe(takeUntil(this.tabSwitch$)).subscribe({
-          next: (fbRes) => {
-            const fbList = fbRes?.data?.list_items ?? fbRes?.list_items ?? [];
-            const feedbacks = Array.isArray(fbList) ? fbList : [];
-            let merged = this.mergeFeedbacksIntoInterviews(list, feedbacks);
-            const noFb = merged.filter((m) => this.getFeedbacksList(m).length === 0 && m.id != null);
-            if (noFb.length === 0) {
-              this.interviews = merged;
-              this.isInterviewsLoading = false;
-              return;
-            }
-            const requests = noFb.map((inv) =>
-              this.jobOpeningsService.getFeedbacksForInterview(inv.id!).pipe(
-                catchError(() => of({ data: { list_items: [] }, list_items: [] }))
-              )
-            );
-            forkJoin(requests).pipe(takeUntil(this.tabSwitch$)).subscribe({
-              next: (fbResponses) => {
-                const byId = new Map<number, any[]>();
-                noFb.forEach((inv, i) => {
-                  const arr = fbResponses[i]?.data?.list_items ?? fbResponses[i]?.list_items ?? [];
-                  byId.set(inv.id, Array.isArray(arr) ? arr : []);
-                });
-                merged = merged.map((m) => {
-                  const extra = byId.get(m.id);
-                  if (!extra?.length) return m;
-                  const existing = this.getFeedbacksList(m);
-                  const combined = existing.length
-                    ? [...existing, ...extra.filter((f) => !existing.some((e: any) => e.id != null && e.id === f.id))]
-                    : extra;
-                  return { ...m, feedbacks: combined };
-                });
-                this.interviews = merged;
-                this.isInterviewsLoading = false;
-              },
-              error: () => {
-                this.interviews = merged;
-                this.isInterviewsLoading = false;
-              }
-            });
-          },
-          error: () => {
-            this.interviews = list;
-            this.isInterviewsLoading = false;
-          }
-        });
+        // Feedbacks come from the interviews API; no separate feedback API calls
+        // const withIds = list.filter((m) => m.id != null);
+        // if (withIds.length === 0) {
+        //   this.interviews = list;
+        //   this.isInterviewsLoading = false;
+        //   return;
+        // }
+        // const requests = withIds.map((inv) =>
+        //   this.jobOpeningsService.getFeedbacksForInterview(inv.id).pipe(
+        //     catchError(() => of({ data: { list_items: [] }, list_items: [] }))
+        //   )
+        // );
+        // forkJoin(requests).pipe(takeUntil(this.tabSwitch$)).subscribe({
+        //   next: (fbResponses) => {
+        //     const byId = new Map<number, any[]>();
+        //     withIds.forEach((inv, i) => {
+        //       const arr = fbResponses[i]?.data?.list_items ?? fbResponses[i]?.list_items ?? [];
+        //       const raw = Array.isArray(arr) ? arr : [];
+        //       const forThisInterview = raw.filter(
+        //         (f: any) => (f.interview_id ?? f.interview?.id) == inv.id
+        //       );
+        //       byId.set(inv.id, forThisInterview);
+        //     });
+        //     const merged = list.map((m) => {
+        //       const feedbacks = m.id != null ? (byId.get(m.id) ?? []) : [];
+        //       return feedbacks.length ? { ...m, feedbacks } : m;
+        //     });
+        //     this.interviews = merged;
+        //     this.isInterviewsLoading = false;
+        //   },
+        //   error: () => {
+        //     this.interviews = list;
+        //     this.isInterviewsLoading = false;
+        //   }
+        // });
+        this.interviews = list;
+        this.isInterviewsLoading = false;
       },
       error: () => {
         this.interviews = [];
@@ -1091,23 +1082,43 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Submit feedback
+  onFeedbackOverlayClose(): void {
+    this.currentInterviewForFeedback = null;
+  }
+
+  // Submit feedback (edit feedback per interview: send interview_id; otherwise application_id)
   submitFeedback(): void {
-    if (!this.applicationId) return;
+    const interviewId = this.currentInterviewForFeedback?.id;
+    const useInterview = interviewId != null;
+
+    if (useInterview) {
+      if (!interviewId) return;
+    } else {
+      if (!this.applicationId) return;
+    }
 
     this.isFeedbackSubmitting = true;
 
-    this.jobOpeningsService.addApplicationFeedback(
-      this.applicationId,
-      this.feedbackRating,
-      this.feedbackComment
-    ).pipe(takeUntil(this.destroy$)).subscribe({
+    const request = useInterview
+      ? this.jobOpeningsService.addInterviewFeedback(interviewId, this.feedbackRating, this.feedbackComment)
+      : this.jobOpeningsService.addApplicationFeedback(
+          this.applicationId!,
+          this.feedbackRating,
+          this.feedbackComment
+        );
+
+    request.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.isFeedbackSubmitting = false;
         this.feedbackOverlay?.closeOverlay();
         this.feedbackRating = 0;
         this.feedbackComment = '';
-        this.fetchFeedbacks();
+        this.currentInterviewForFeedback = null;
+        if (useInterview) {
+          this.fetchInterviews();
+        } else {
+          this.fetchFeedbacks();
+        }
       },
       error: () => {
         this.isFeedbackSubmitting = false;

@@ -21,9 +21,9 @@ import DeviceDetector from 'device-detector-js';
 })
 export class LoginComponent implements OnInit {
 
-  isPasswordVisible = false
-  ngOnInit(): void {
+  isPasswordVisible = false;
 
+  ngOnInit(): void {
     this.toasterMessageService.currentMessage$.subscribe(msg => {
       if (msg) {
         this.toastr.success(msg);
@@ -31,8 +31,11 @@ export class LoginComponent implements OnInit {
       }
     });
   }
+
   errMsg: string = '';
   isLoading: boolean = false;
+  /** True when login/session succeeded and we're about to redirect (shows "Redirecting…" for a smooth handoff). */
+  isRedirecting: boolean = false;
   private loginRetryCount: number = 0;
   private readonly MAX_LOGIN_RETRIES: number = 1;
   loginForm: FormGroup = new FormGroup({
@@ -46,36 +49,34 @@ export class LoginComponent implements OnInit {
   ) { }
 
 
-  private async initializeSession(): Promise<void> {
-    try {
-      await fetch("/", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({}),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-    } catch (error) {
-      console.error('Session initialization error:', error);
-    }
-  }
-
   async login(): Promise<void> {
+    if (this.isLoading) return;
+    this.loginForm.markAllAsTouched();
+    if (this.loginForm.invalid) {
+      return;
+    }
     this.isLoading = true;
     this.errMsg = '';
 
-    // Initialize session before login
-    await this.initializeSession();
-
     const device_token = localStorage.getItem('device_token');
+    const hasValidDeviceToken = device_token && device_token !== 'true' && device_token !== 'false';
+
+    // On deployed, ensure device is registered before first login (match localhost behavior)
+    if (!hasValidDeviceToken) {
+      try {
+        await this.registerDevice();
+      } catch (e) {
+        console.warn('Proactive device registration failed, continuing with login', e);
+      }
+    }
+
     const formData = new FormData();
     formData.append('username', this.loginForm.get('email')?.value);
     formData.append('password', this.loginForm.get('password')?.value);
 
-    // Only send device_token if it exists and is not "true" or "false"
-    if (device_token && device_token !== 'true' && device_token !== 'false') {
-      formData.append('device_token', device_token);
+    const currentDeviceToken = localStorage.getItem('device_token');
+    if (currentDeviceToken && currentDeviceToken !== 'true' && currentDeviceToken !== 'false') {
+      formData.append('device_token', currentDeviceToken);
     }
 
     // Add r_IN only if running on localhost
@@ -86,7 +87,6 @@ export class LoginComponent implements OnInit {
 
     this._AuthenticationService.login(formData).subscribe({
       next: (response) => {
-        this.isLoading = false;
         // Check both root level and data level for response structure
         const session = response?.session || response?.data?.session;
         const companyInfo = response?.company_info || response?.data?.company_info;
@@ -124,7 +124,6 @@ export class LoginComponent implements OnInit {
           const subDomain = companyInfo?.sub_domain;
           const redirectUrl = this.constructSubdomainUrl(subDomain);
 
-          // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
           const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
           const hasSLT = session?.s_l_t?.nonce && session?.s_l_t?.ciphertext;
 
@@ -142,36 +141,32 @@ export class LoginComponent implements OnInit {
               }
             };
 
+            // Run S-L first; only when it's done run subscription-status, then redirect
             this._AuthenticationService.sessionLogin(requestData).subscribe({
               next: () => {
-                // S-L API call successful, now call subscription status
                 this.subService.getSubscription().subscribe({
                   next: (sub) => {
-                    if (sub) {
-                      this.subService.setSubscription(sub);
-                    }
-                    // Redirect to subdomain URL
-                    this.redirectToSubdomain(redirectUrl);
+                    if (sub) this.subService.setSubscription(sub);
+                    this.smoothRedirect(redirectUrl);
                   },
                   error: (err) => {
                     console.error('Subscription load error:', err);
-                    // Redirect even if subscription fails
-                    this.redirectToSubdomain(redirectUrl);
+                    this.smoothRedirect(redirectUrl);
                   }
                 });
               },
               error: (err) => {
-                console.error('S-L API call error:', err);
-                // If S-L fails, redirect directly
-                this.redirectToSubdomain(redirectUrl);
+                console.error('S-L error:', err);
+                this.smoothRedirect(redirectUrl);
               }
             });
           } else {
-            // Missing session data, redirect directly without S-L or subscription
-            this.redirectToSubdomain(redirectUrl);
+            this.smoothRedirect(redirectUrl);
           }
+          // Keep isLoading true until redirect (button stays "Signing you in…" and disabled)
         } else {
-          this.loginRetryCount = 0; // Reset on invalid response
+          this.loginRetryCount = 0;
+          this.isLoading = false;
           this.errMsg = 'Invalid response from server.';
         }
       },
@@ -202,9 +197,6 @@ export class LoginComponent implements OnInit {
   }
 
   private async registerDevice(): Promise<void> {
-    // Initialize session before device registration
-    await this.initializeSession();
-
     const deviceDetector = new DeviceDetector();
     const userAgent = navigator.userAgent;
     const device = deviceDetector.parse(userAgent);
@@ -292,14 +284,36 @@ export class LoginComponent implements OnInit {
   }
 
   /**
-   * Redirect to subdomain URL or fallback to router navigation
+   * Show "Redirecting…" state briefly, then redirect. Keeps the transition feeling smooth instead of an abrupt jump.
+   */
+  private smoothRedirect(url: string | null): void {
+    this.isRedirecting = true;
+    setTimeout(() => this.redirectToSubdomain(url), 320);
+  }
+
+  /**
+   * Redirect to subdomain URL or fallback to router navigation.
+   * When redirecting to another origin, pass auth data in the hash so the subdomain can restore localStorage (same-origin storage is not shared).
    */
   private redirectToSubdomain(url: string | null): void {
     if (url) {
-      // Full page redirect to subdomain
+      const token = localStorage.getItem('token');
+      const sessionToken = localStorage.getItem('session_token');
+      const userInfo = localStorage.getItem('user_info');
+      const companyInfo = localStorage.getItem('company_info');
+      if (token && userInfo && companyInfo) {
+        try {
+          const str = JSON.stringify({ token, session_token: sessionToken, user_info: userInfo, company_info: companyInfo });
+          const bytes = new TextEncoder().encode(str);
+          const payload = btoa(String.fromCharCode(...bytes));
+          window.location.href = `${url}#auth=${payload}`;
+          return;
+        } catch (e) {
+          console.warn('Could not encode auth for subdomain handoff', e);
+        }
+      }
       window.location.href = url;
     } else {
-      // Fallback to router navigation (e.g., for localhost)
       this._Router.navigate(['/dashboard']);
     }
   }

@@ -23,7 +23,64 @@
   text-decoration: underline;
 }
 
+/* Password visibility toggle (same as login) */
+.password-input-wrapper {
+  position: relative;
+}
+
 .toggle-password {
-  width: 24px;
-  height: 24px;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-secondary-500, #4A6D97);
+  cursor: pointer;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.toggle-password:hover {
+  color: var(--color-secondary-700);
+}
+
+.toggle-password:focus {
+  outline: none;
+}
+
+.toggle-password:focus-visible {
+  outline: 2px solid var(--color-primary-500, #0d6efd);
+  outline-offset: 2px;
+}
+
+.toggle-password-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.icon-eye-outline,
+.icon-eye-pupil {
+  transition: fill 0.2s ease;
+}
+
+.icon-eye-slash {
+  stroke: currentColor;
+}
+
+.resend-otp a {
+  color: var(--color-primary-500, #377AFD);
+  text-decoration: none;
+}
+.resend-otp a:hover {
+  text-decoration: underline;
 }

@@ -734,6 +734,11 @@ button[title="Copy description"]:hover {
     animation-delay: -0.16s;
 }
 
+/* Qualified confirm button – white bubbles on primary */
+.btn-qualified-confirm .loading-bubble {
+    background: rgba(255, 255, 255, 0.9);
+}
+
 @keyframes bounce {
 
     0%,
@@ -781,4 +786,53 @@ button[title="Copy description"]:hover {
 .status-icon-circle svg {
     width: 18px;
     height: 18px;
+}
+
+/* Job offer outcome status: Accepted / Rejected / Sent */
+.status-offer-accepted .d-block.fw-semibold {
+    color: var(--color-success-600, #059669) !important;
+}
+
+.status-offer-rejected .d-block.fw-semibold {
+    color: var(--color-danger-600, #dc2626) !important;
+}
+
+/* Job Offer Sent – left border + icon, no background */
+.status-offer-sent {
+    padding-left: 12px;
+    border-left: 4px solid rgba(55, 122, 253, 0.35);
+}
+
+.status-offer-sent .d-block.fw-semibold,
+.status-offer-sent-label {
+    color: #2563eb !important;
+}
+
+/* Offer Expired – left border + icon, no background */
+.status-offer-expired {
+    padding-left: 12px;
+    border-left: 4px solid rgba(107, 114, 128, 0.35);
+}
+
+.status-offer-expired-label,
+.status-offer-expired .d-block.fw-semibold {
+    color: #6B7280 !important;
+}
+
+/* Accept / Offer Accepted – green in color (#16a34a) */
+.take-action-dropdown .dropdown-item.accept-action {
+    color: #16a34a !important;
+}
+
+.take-action-dropdown .dropdown-item.accept-action:hover {
+    color: #15803d !important;
+    background-color: rgba(22, 163, 74, 0.08);
+}
+
+.take-action-dropdown .dropdown-item.accept-action svg {
+    color: #16a34a !important;
+}
+
+.take-action-dropdown .dropdown-item.accept-action:hover svg {
+    color: #15803d !important;
 }

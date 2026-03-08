@@ -145,15 +145,13 @@ export const authInterceptor: HttpInterceptorFn = (
     sessionStorage.clear();
 
     if (deviceToken !== null && deviceToken !== undefined) {
-      // Ensure we save it as a string (handles both boolean and string types)
-      const tokenToSave = typeof deviceToken === 'boolean'
-        ? String(deviceToken)
-        : deviceToken;
+      const tokenToSave = typeof deviceToken === 'boolean' ? String(deviceToken) : deviceToken;
       localStorage.setItem('device_token', tokenToSave);
     }
 
     cookieService.deleteAll('/', window.location.hostname);
-    authHelper.redirectToClientLogin();
+    // Use Angular Router so logout is a smooth in-app navigation, not a hard page reload
+    router.navigate(['/auth/login']);
   };
 
   return next(cloned).pipe(
@@ -175,8 +173,13 @@ export const authInterceptor: HttpInterceptorFn = (
           }
 
           // If this is a logout request (e.g. from settings), let the caller handle cleanup
-          // after the request completes so the loader can stay until API finishes
           if (req.url.includes('logout')) {
+            break;
+          }
+
+          // subscription-status can return 401 right after login (e.g. session not yet ready).
+          // Don't trigger global logout or we'll cancel the S-L request and redirect away.
+          if (req.url.includes('subscription-status')) {
             break;
           }
 
@@ -195,7 +198,7 @@ export const authInterceptor: HttpInterceptorFn = (
           localStorage.clear();
           sessionStorage.clear();
           cookieService.deleteAll('/', window.location.hostname);
-          setTimeout(() => window.location.reload(), 2000);
+          setTimeout(() => router.navigate(['/auth/login']), 2000);
           break;
 
         case 425:

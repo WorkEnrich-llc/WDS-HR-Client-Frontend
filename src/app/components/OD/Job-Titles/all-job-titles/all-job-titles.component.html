@@ -193,7 +193,7 @@
     </ng-template>
     <ng-template #noJobs>
       <tr>
-        <td colspan="7" class="no-data py-4">
+        <td colspan="6" class="no-data py-4">
           @if (searchTerm.trim()|| filterForm.dirty) {
           No Job titles match your search and filter.
           } @else {
@@ -316,20 +316,10 @@
     </div>
 
     <div class="input">
-      <label for="createdFrom">Created From</label>
       <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" formControlName="created_from" id="createdFrom" class="form-control custom-date-input"
-            placeholder="Min-Max" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-        </div>
+        <app-date-picker formControlName="created_from" label="Created From" [disableBeforeDate]="false"
+          placeholder="Select date" class="w-100"
+          [maxDate]="filterForm.get('created_to')?.value || null" />
         @if (!filterForm.get('created_from')?.value) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill="#e04f5f"
@@ -351,20 +341,10 @@
     </div>
 
     <div class="input">
-      <label for="createdTo">Created To</label>
       <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" formControlName="created_to" id="createdTo" class="form-control custom-date-input"
-            placeholder="Min-Max" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-        </div>
+        <app-date-picker formControlName="created_to" label="Created To" [disableBeforeDate]="false"
+          placeholder="Select date" class="w-100"
+          [minDate]="filterForm.get('created_from')?.value || null" />
         @if (!filterForm.get('created_to')?.value) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill="#e04f5f"
@@ -386,20 +366,10 @@
     </div>
 
     <div class="input">
-      <label for="updatedFrom">Updated From</label>
       <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" formControlName="updated_from" id="updatedFrom" class="form-control custom-date-input"
-            placeholder="Min-Max" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-        </div>
+        <app-date-picker formControlName="updated_from" label="Updated From" [disableBeforeDate]="false"
+          placeholder="Select date" class="w-100"
+          [maxDate]="filterForm.get('updated_to')?.value || null" />
         @if (!filterForm.get('updated_from')?.value) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill="#e04f5f"
@@ -421,20 +391,10 @@
     </div>
 
     <div class="input">
-      <label for="updatedTo">Updated To</label>
       <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" formControlName="updated_to" id="updatedTo" class="form-control custom-date-input"
-            placeholder="Min-Max" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-        </div>
+        <app-date-picker formControlName="updated_to" label="Updated To" [disableBeforeDate]="false"
+          placeholder="Select date" class="w-100"
+          [minDate]="filterForm.get('updated_from')?.value || null" />
         @if (!filterForm.get('updated_to')?.value) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill="#e04f5f"

@@ -24,6 +24,38 @@ import { enableCredentialsGlobally } from './app/core/services/http/credentials-
 // This ensures withCredentials: true is set for ALL XMLHttpRequest instances
 enableCredentialsGlobally();
 
+/**
+ * When redirecting from login (e.g. app.example.com) to dashboard subdomain (company.example.com),
+ * auth is passed in the hash. Restore it to localStorage here so the subdomain has the same
+ * auth state (localStorage is per-origin).
+ *
+ * Backend (cookie-based login): for login→dashboard to work without an extra reload or 401,
+ * the API must set session/CSRF cookies so they are sent to the subdomain. For example
+ * Set-Cookie with Domain=.example.com (parent domain) so both app.example.com and
+ * company.example.com send cookies to the API. Otherwise the first request from the
+ * dashboard may get 401 and trigger a redirect back to login.
+ */
+function restoreAuthFromSubdomainHandoff(): void {
+  if (typeof window === 'undefined') return;
+  const hash = window.location.hash;
+  const match = /^#auth=(.+)$/.exec(hash);
+  if (!match) return;
+  try {
+    const raw = decodeURIComponent(match[1]);
+    const bytes = atob(raw);
+    const json = new TextDecoder().decode(Uint8Array.from(bytes, (c) => c.charCodeAt(0)));
+    const data = JSON.parse(json);
+    if (data.token != null) localStorage.setItem('token', data.token);
+    if (data.session_token != null) localStorage.setItem('session_token', data.session_token);
+    if (data.user_info != null) localStorage.setItem('user_info', data.user_info);
+    if (data.company_info != null) localStorage.setItem('company_info', data.company_info);
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch (e) {
+    console.warn('Failed to restore auth from hash', e);
+  }
+}
+restoreAuthFromSubdomainHandoff();
+
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }

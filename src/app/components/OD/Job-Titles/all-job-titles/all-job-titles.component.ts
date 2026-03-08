@@ -8,14 +8,15 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
-import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged, merge } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-all-job-titles',
-  imports: [PageHeaderComponent, RouterLink, TableComponent, FormsModule, OverlayFilterBoxComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, RouterLink, TableComponent, FormsModule, OverlayFilterBoxComponent, ReactiveFormsModule, DatePickerComponent],
   providers: [DatePipe],
   templateUrl: './all-job-titles.component.html',
   styleUrl: './all-job-titles.component.css'
@@ -119,8 +120,45 @@ export class AllJobTitlesComponent {
       section: [''],
       status: ['']
     });
+    this.syncDateRanges();
   }
 
+  /** When "from" > "to" or "to" < "from", clear the conflicting date so the range stays valid. */
+  private syncDateRanges(): void {
+    const dateCompare = (a: string, b: string): number => {
+      if (!a || !b) return 0;
+      const d1 = new Date(String(a).trim());
+      const d2 = new Date(String(b).trim());
+      if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return 0;
+      return d1.getTime() - d2.getTime();
+    };
+
+    const createdFrom = this.filterForm.get('created_from');
+    const createdTo = this.filterForm.get('created_to');
+    const updatedFrom = this.filterForm.get('updated_from');
+    const updatedTo = this.filterForm.get('updated_to');
+
+    const sync = (): void => {
+      const cf = createdFrom?.value;
+      const ct = createdTo?.value;
+      if (cf && ct && dateCompare(cf, ct) > 0) {
+        createdTo?.setValue('', { emitEvent: false });
+      }
+      const uf = updatedFrom?.value;
+      const ut = updatedTo?.value;
+      if (uf && ut && dateCompare(uf, ut) > 0) {
+        updatedTo?.setValue('', { emitEvent: false });
+      }
+    };
+
+    merge(
+      createdFrom?.valueChanges ?? [],
+      createdTo?.valueChanges ?? [],
+      updatedFrom?.valueChanges ?? [],
+      updatedTo?.valueChanges ?? []
+    ).subscribe(() => sync());
+    sync(); // fix any invalid range already in the form (e.g. restored state)
+  }
 
   resetFilterForm(): void {
     this.filterForm.reset({

@@ -282,6 +282,19 @@ export class JobOpeningsService {
         return this._HttpClient.post(url, body);
     }
 
+    // add feedback for a specific interview (sends interview_id in payload)
+    addInterviewFeedback(interviewId: number, rating: number, comment: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/feedbacks`;
+        const body = {
+            request_data: {
+                interview_id: interviewId,
+                rating: rating,
+                comment: comment
+            }
+        };
+        return this._HttpClient.post(url, body);
+    }
+
     // update application status
     updateApplicationStatus(applicationId: number, status: number): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/${applicationId}/`;
