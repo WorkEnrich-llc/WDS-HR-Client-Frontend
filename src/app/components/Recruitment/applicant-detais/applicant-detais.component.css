@@ -859,6 +859,47 @@
     stroke: #FFFFFF;
 }
 
+/* Send Job Offer button – loading state with bubble animation */
+.btn-send-job-offer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.send-offer-bubbles {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-send-job-offer .send-offer-bubbles .loading-bubble {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: sendOfferBounce 1.4s infinite ease-in-out both;
+}
+
+.btn-send-job-offer .send-offer-bubbles .loading-bubble:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.btn-send-job-offer .send-offer-bubbles .loading-bubble:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes sendOfferBounce {
+  0%, 80%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Job Offers styling */
 .job-offers-tab {
     width: 100%;

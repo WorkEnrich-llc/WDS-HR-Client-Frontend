@@ -1681,7 +1681,15 @@
     </div>
     } @else {
     <div class="d-flex align-items-center gap-3 mt-2">
-      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="isLoading || !applicationId">
+      <button type="submit" class="btn btn-lg btn-primary w-100 btn-send-job-offer" [disabled]="isLoading || !applicationId">
+        @if (isLoading) {
+        <span class="send-offer-bubbles">
+          <span class="loading-bubble"></span>
+          <span class="loading-bubble"></span>
+          <span class="loading-bubble"></span>
+        </span>
+        <span>Sending...</span>
+        } @else {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -1689,6 +1697,7 @@
           </g>
         </svg>
         <span>Send Job Offer</span>
+        }
       </button>
       <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
         <span>Discard Job Offer</span>
