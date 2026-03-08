@@ -922,6 +922,7 @@
             } @else if (jobOffers.length > 0) {
             <div class="job-offers-list d-flex flex-column gap-3">
               @for (offer of jobOffers; track offer.id) {
+              @let offerStatusNorm = (offer.status || '').toLowerCase();
               <div class="job-offer-card d-flex align-items-start justify-content-between">
                 <div class="offer-left">
                   <div class="d-flex align-items-center gap-3 mb-2">
@@ -940,67 +941,61 @@
                     </a>
                   </div>
 
-                  @if (offer.status && (offer.status + '').toLowerCase() === 'accepted') {
-                  <div class="offer-status mb-2">
-                    <div class="badge-success">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                          d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                        <path fill="currentColor" fill-rule="evenodd"
-                          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                          clip-rule="evenodd" />
+                  <!-- Unified status block: same pattern for Sent, Accepted, Rejected (history + status text) -->
+                  <div class="offer-status-block mb-2"
+                    [class.offer-status-block--sent]="offerStatusNorm !== 'accepted' && offerStatusNorm !== 'rejected'"
+                    [class.offer-status-block--accepted]="offerStatusNorm === 'accepted'"
+                    [class.offer-status-block--rejected]="offerStatusNorm === 'rejected'">
+                    <div class="d-flex align-items-center gap-2 offer-status-header">
+                      @if (offerStatusNorm === 'accepted') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <path d="m9 12 2 2 4-4" />
                       </svg>
-                      <span>{{ offer.status }}</span>
-                    </div>
-                  </div>
-                  }
-
-                  @if (offer.status && (offer.status + '').toLowerCase() === 'rejected') {
-                  <div class="offer-rejected-block mb-2">
-                    <div class="d-flex align-items-center gap-2 rejected-header">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="currentColor" fill-rule="evenodd"
-                          d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                        <path fill="currentColor" fill-rule="evenodd"
-                          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                          clip-rule="evenodd" />
+                      <div class="offer-status-label">Offer Accepted</div>
+                      } @else if (offerStatusNorm === 'rejected') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m15 9-6 6" />
+                        <path d="m9 9 6 6" />
                       </svg>
-                      <div class="rejected-label">Offer Rejected</div>
+                      <div class="offer-status-label">Offer Rejected</div>
+                      } @else {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 2L11 13" />
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                      </svg>
+                      <div class="offer-status-label">Offer Sent</div>
+                      }
                     </div>
-                    <div class="rejected-date">{{ (offer.rejected_at || offer.created_at) | date:'dd/MM/yyyy' }}</div>
-                    @if (offer.rejection_notes) {
-                    <p class="rejection-notes">{{ offer.rejection_notes }}</p>
+                    <div class="offer-status-date">
+                      @if (offerStatusNorm === 'accepted') {
+                      {{ (offer.accepted_at || offer.join_date || offer.created_at) | date:'dd/MM/yyyy' }}
+                      } @else if (offerStatusNorm === 'rejected') {
+                      {{ (offer.rejected_at || offer.created_at) | date:'dd/MM/yyyy' }}
+                      } @else {
+                      {{ (offer.offer_sent_at || offer.sent_at || offer.created_at) | date:'dd/MM/yyyy' }}
+                      }
+                    </div>
+                    @if (offerStatusNorm === 'rejected' && offer.rejection_notes) {
+                    <p class="offer-status-notes">{{ offer.rejection_notes }}</p>
                     }
                   </div>
-                  }
-
-                  @if (!(offer.status && (offer.status + '').toLowerCase() === 'rejected')) {
-                  <div class="offer-subtext d-flex align-items-center gap-2">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <g clip-path="url(#clip0_1792_18091)">
-                        <g opacity="0.7">
-                          <path fill-rule="evenodd" clip-rule="evenodd"
-                            d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
-                            fill="#4A6D97" />
-                        </g>
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_1792_18091">
-                          <rect width="18" height="18" fill="white" />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                    <span class="text-muted">Offer sent to Applicant</span>
-                  </div>
-                  }
                 </div>
 
                 <div class="offer-right text-end">
                   <div class="offer-datetime">{{ (offer.created_at) | date:'dd/MM/yyyy h:mm a' }}</div>
                   <div class="mt-3 d-flex justify-content-end">
-                    @if (offer.status && (offer.status + '').toLowerCase() === 'rejected') {
+                    @if (offerStatusNorm === 'rejected') {
                     <button class="btn btn-outline-danger btn-lg d-flex align-items-center gap-2" disabled>
                       <span>Rejected</span>
+                    </button>
+                    } @else if (offerStatusNorm === 'accepted') {
+                    <button class="btn btn-outline-success btn-lg d-flex align-items-center gap-2" disabled>
+                      <span>Accepted</span>
                     </button>
                     } @else {
                     <button class="btn btn-outline-dark btn-lg d-flex align-items-center gap-2 resend-btn"

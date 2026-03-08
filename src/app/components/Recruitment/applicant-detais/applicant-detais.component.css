@@ -971,6 +971,64 @@
     margin-left: 8px;
 }
 
+/* Unified offer status block (Sent / Accepted / Rejected) – same pattern as rejected */
+.offer-status-block {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 12px;
+}
+
+.offer-status-block--sent {
+    border-left-color: rgba(55, 122, 253, 0.35);
+}
+
+.offer-status-block--sent .offer-status-header svg,
+.offer-status-block--sent .offer-status-label { color: #377AFD; }
+
+.offer-status-block--sent .offer-status-date { color: #1d2433; font-weight: 600; }
+
+.offer-status-block--accepted {
+    border-left-color: rgba(16, 185, 129, 0.35);
+}
+
+.offer-status-block--accepted .offer-status-header svg,
+.offer-status-block--accepted .offer-status-label { color: #059669; }
+
+.offer-status-block--accepted .offer-status-date { color: #047857; font-weight: 600; }
+
+.offer-status-block--rejected {
+    border-left-color: rgba(220, 38, 38, 0.2);
+}
+
+.offer-status-block--rejected .offer-status-header svg,
+.offer-status-block--rejected .offer-status-label { color: #b91c1c; }
+
+.offer-status-block--rejected .offer-status-date { color: #b91c1c; font-weight: 700; }
+
+.offer-status-block .offer-status-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.offer-status-block .offer-status-label {
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.offer-status-block .offer-status-date {
+    font-size: 20px;
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+
+.offer-status-block .offer-status-notes {
+    color: #7f1d1d;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Legacy (kept for any other usages) */
 .offer-rejected-block {
     border-left: 4px solid rgba(220, 38, 38, 0.08);
     padding-left: 12px;
