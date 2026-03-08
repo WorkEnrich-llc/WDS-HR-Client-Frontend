@@ -250,36 +250,43 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
       next: (res) => {
         const raw = res?.data?.list_items ?? res?.list_items ?? [];
         const list = Array.isArray(raw) ? raw.map((it: any) => this.normaliseInterviewListItem(it)) : [];
-        const withIds = list.filter((m) => m.id != null);
-        if (withIds.length === 0) {
-          this.interviews = list;
-          this.isInterviewsLoading = false;
-          return;
-        }
-        const requests = withIds.map((inv) =>
-          this.jobOpeningsService.getFeedbacksForInterview(inv.id).pipe(
-            catchError(() => of({ data: { list_items: [] }, list_items: [] }))
-          )
-        );
-        forkJoin(requests).pipe(takeUntil(this.tabSwitch$)).subscribe({
-          next: (fbResponses) => {
-            const byId = new Map<number, any[]>();
-            withIds.forEach((inv, i) => {
-              const arr = fbResponses[i]?.data?.list_items ?? fbResponses[i]?.list_items ?? [];
-              byId.set(inv.id, Array.isArray(arr) ? arr : []);
-            });
-            const merged = list.map((m) => {
-              const feedbacks = m.id != null ? (byId.get(m.id) ?? []) : [];
-              return feedbacks.length ? { ...m, feedbacks } : m;
-            });
-            this.interviews = merged;
-            this.isInterviewsLoading = false;
-          },
-          error: () => {
-            this.interviews = list;
-            this.isInterviewsLoading = false;
-          }
-        });
+        // Feedbacks come from the interviews API; no separate feedback API calls
+        // const withIds = list.filter((m) => m.id != null);
+        // if (withIds.length === 0) {
+        //   this.interviews = list;
+        //   this.isInterviewsLoading = false;
+        //   return;
+        // }
+        // const requests = withIds.map((inv) =>
+        //   this.jobOpeningsService.getFeedbacksForInterview(inv.id).pipe(
+        //     catchError(() => of({ data: { list_items: [] }, list_items: [] }))
+        //   )
+        // );
+        // forkJoin(requests).pipe(takeUntil(this.tabSwitch$)).subscribe({
+        //   next: (fbResponses) => {
+        //     const byId = new Map<number, any[]>();
+        //     withIds.forEach((inv, i) => {
+        //       const arr = fbResponses[i]?.data?.list_items ?? fbResponses[i]?.list_items ?? [];
+        //       const raw = Array.isArray(arr) ? arr : [];
+        //       const forThisInterview = raw.filter(
+        //         (f: any) => (f.interview_id ?? f.interview?.id) == inv.id
+        //       );
+        //       byId.set(inv.id, forThisInterview);
+        //     });
+        //     const merged = list.map((m) => {
+        //       const feedbacks = m.id != null ? (byId.get(m.id) ?? []) : [];
+        //       return feedbacks.length ? { ...m, feedbacks } : m;
+        //     });
+        //     this.interviews = merged;
+        //     this.isInterviewsLoading = false;
+        //   },
+        //   error: () => {
+        //     this.interviews = list;
+        //     this.isInterviewsLoading = false;
+        //   }
+        // });
+        this.interviews = list;
+        this.isInterviewsLoading = false;
       },
       error: () => {
         this.interviews = [];
