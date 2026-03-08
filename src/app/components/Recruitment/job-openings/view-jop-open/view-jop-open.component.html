@@ -797,7 +797,9 @@
             <path d="m9 12 2 2 4-4" />
           </svg>
           <div class="d-flex flex-column">
-            <span class="d-block fw-semibold text-success">Offer Accepted</span>
+            <span class="d-block fw-semibold text-success">Offer Accepted@if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'expired') {
+              ({{ application.jobOfferInfo.offer_status }})
+            }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
               {{ (application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy h:mm a" }}
             </span>
@@ -813,25 +815,60 @@
             <path d="m9 9 6 6" />
           </svg>
           <div class="d-flex flex-column">
-            <span class="d-block fw-semibold text-danger">Offer Rejected</span>
+            <span class="d-block fw-semibold text-danger">Offer Rejected@if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'expired') {
+              ({{ application.jobOfferInfo.offer_status }})
+            }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
               {{ (application.jobOfferInfo.rejected_at || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
-        } @else if (application.jobOfferInfo && (application.jobOfferInfo.offer_status || '').toLowerCase() === 'sent') {
-        <!-- Job Offer Sent Status Display -->
-        <div class="d-flex align-items-center gap-2">
+        } @else if (application.jobOfferInfo && (application.jobOfferInfo.offer_status || '').toLowerCase() === 'expired') {
+        <!-- Offer Expired Status Display -->
+        <div class="d-flex align-items-center gap-2 status-offer-expired">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="var(--color-primary-500)" stroke-width="1.5" style="flex-shrink: 0;">
-            <path d="M22 2L11 13" stroke="var(--color-primary-500)" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="var(--color-primary-500)" stroke-linecap="round"
-              stroke-linejoin="round" />
+            stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
           </svg>
           <div class="d-flex flex-column">
-            <span class="d-block text-primary fw-semibold">Offer sent at</span>
+            <span class="d-block fw-semibold status-offer-expired-label">Offer Expired@if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'expired') {
+              ({{ application.jobOfferInfo.offer_status }})
+            }</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ (application.jobOfferInfo.offer_sent_at || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
+        } @else if (application.jobOfferInfo && (application.jobOfferInfo.offer_status || '').toLowerCase() === 'sent') {
+        <!-- Job Offer Sent (from job_offer_info) – block + icon -->
+        <div class="d-flex align-items-center gap-2 status-offer-sent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#377AFD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M22 2L11 13" />
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block fw-semibold status-offer-sent-label">Job Offer Sent@if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'expired') {
+              ({{ application.jobOfferInfo.offer_status }})
+            }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
               {{ application.jobOfferInfo.offer_sent_at | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
+        } @else if ((application.status || '').toLowerCase().includes('job offer sent')) {
+        <!-- Job Offer Sent (pipeline status when job_offer_info is null) – same block + icon so it always shows -->
+        <div class="d-flex align-items-center gap-2 status-offer-sent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#377AFD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M22 2L11 13" />
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block fw-semibold status-offer-sent-label">Job Offer Sent</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -909,10 +946,12 @@
           </div>
         </div>
         } @else {
-        <!-- Default Status -->
+        <!-- Default Status (show offer_status in parentheses when job_offer_info has it) -->
         <span class="d-block text-gray-sm">{{ (application.applicantContactStatus &&
           application.applicantContactStatus
-          !== 'No Action') ? application.applicantContactStatus : application.status }}</span>
+          !== 'No Action') ? application.applicantContactStatus : application.status }}@if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'expired') {
+          ({{ application.jobOfferInfo.offer_status }})
+        }</span>
         <span class="d-block text-truncate" style="max-width: 200px">
           {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
         </span>
@@ -1351,16 +1390,16 @@
 
               <!-- Offer Accepted (when offer sent - same API as applicant-details) -->
               @if (application.jobOfferId && isOfferStatusSent(application.jobOfferInfo?.offer_status)) {
-              <button type="button" class="dropdown-item text-success d-flex align-items-center gap-2"
+              <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
                 (click)="openAcceptOfferConfirmation(application)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="#10b981" stroke-width="1.5">
+                  stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Offer Accepted</span>
               </button>
-              }
+            }
 
               <!-- Divider -->
               <div class="dropdown-divider"></div>
@@ -1456,8 +1495,7 @@
             <!-- Dropdown Menu -->
             @if (isDropdownOpen(application.applicationId)) {
             <div class="take-action-dropdown position-absolute top-100 start-0 mt-2">
-              @if (application.jobOfferInfo && isOfferStatusSent(application.jobOfferInfo.offer_status)) {
-              <!-- Actions when offer status is "Sent" – order: Job Offer, Accept, Offer, Offer Accepted, Offer Rejected, Reject -->
+              <!-- Same actions for all applicants in Job Offer tab: Job Offer, Accept, Offer Accepted, Offer Rejected, Reject -->
               <!-- 1. Job Offer -->
               <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
                 (click)="openJobOfferModal(application)">
@@ -1469,40 +1507,30 @@
                 <span>Job Offer</span>
               </button>
 
-              <!-- 2. Accept -->
-              <button type="button" class="dropdown-item text-success d-flex align-items-center gap-2"
+              <!-- 2. Accept + 3. Offer Accepted – hide when offer is already Accepted -->
+              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() !== 'accepted') {
+              <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
                 (click)="openAcceptOfferConfirmation(application)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="#10b981" stroke-width="1.5">
+                  stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Accept</span>
               </button>
-
-              <!-- 3. Offer -->
-              <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
-                (click)="openJobOfferModal(application)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd"
-                    d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
-                    fill="#377AFD" clip-rule="evenodd" />
-                </svg>
-                <span>Offer</span>
-              </button>
-
-              <!-- 4. Offer Accepted -->
-              <button type="button" class="dropdown-item text-success d-flex align-items-center gap-2"
+              <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
                 (click)="openAcceptOfferConfirmation(application)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="#10b981" stroke-width="1.5">
+                  stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Offer Accepted</span>
               </button>
+              }
 
-              <!-- 5. Offer Rejected -->
+              <!-- 4. Offer Rejected – hide when offer is already Rejected -->
+              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() !== 'rejected') {
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
                 (click)="openDeclineOfferConfirmation(application)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -1511,11 +1539,12 @@
                 </svg>
                 <span>Offer Rejected</span>
               </button>
+              }
 
               <!-- Divider -->
               <div class="dropdown-divider"></div>
 
-              <!-- 6. Reject -->
+              <!-- 5. Reject -->
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
                 (click)="openRejectModal(application)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1538,92 +1567,6 @@
                 </svg>
                 <span>Reject</span>
               </button>
-              } @else {
-              <!-- Default actions – order: Job Offer, Accept, Offer, Offer Accepted, Offer Rejected, Reject -->
-              <!-- 1. Job Offer -->
-              <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
-                (click)="openJobOfferModal(application)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd"
-                    d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
-                    fill="#377AFD" clip-rule="evenodd" />
-                </svg>
-                <span>Job Offer</span>
-              </button>
-
-              <!-- 2. Accept -->
-              @if (application.jobOfferId) {
-              <button type="button" class="dropdown-item text-success d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="#10b981" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Accept</span>
-              </button>
-              }
-
-              <!-- 3. Offer -->
-              <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
-                (click)="openJobOfferModal(application)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd"
-                    d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
-                    fill="#377AFD" clip-rule="evenodd" />
-                </svg>
-                <span>Offer</span>
-              </button>
-
-              <!-- 4. Offer Accepted -->
-              @if (application.jobOfferId) {
-              <button type="button" class="dropdown-item text-success d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="#10b981" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Offer Accepted</span>
-              </button>
-              <!-- 5. Offer Rejected -->
-              <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
-                (click)="openDeclineOfferConfirmation(application)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="#E04F5F" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Offer Rejected</span>
-              </button>
-              }
-
-              <!-- Divider -->
-              <div class="dropdown-divider"></div>
-
-              <!-- 6. Reject -->
-              <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
-                (click)="openRejectModal(application)">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clip-path="url(#clip0_1854_13473_joboffer_default)">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M9.0001 0.9375C7.03259 0.9375 5.4376 2.53249 5.4376 4.5C5.4376 6.46751 7.03259 8.0625 9.0001 8.0625C10.9676 8.0625 12.5626 6.46751 12.5626 4.5C12.5626 2.53249 10.9676 0.9375 9.0001 0.9375ZM6.5626 4.5C6.5626 3.15381 7.65391 2.0625 9.0001 2.0625C10.3463 2.0625 11.4376 3.15381 11.4376 4.5C11.4376 5.84619 10.3463 6.9375 9.0001 6.9375C7.65391 6.9375 6.5626 5.84619 6.5626 4.5Z"
-                      fill="#E04F5F" />
-                    <path
-                      d="M12.7501 11.4375C12.4394 11.4375 12.1876 11.6893 12.1876 12C12.1876 12.3107 12.4394 12.5625 12.7501 12.5625H14.2501C14.5608 12.5625 14.8126 12.3107 14.8126 12C14.8126 11.6893 14.5608 11.4375 14.2501 11.4375H12.7501Z"
-                      fill="#E04F5F" />
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M9.0001 9.1875C9.72644 9.1875 10.4265 9.25654 11.0811 9.38468C11.7164 8.79679 12.5663 8.4375 13.5001 8.4375C15.4676 8.4375 17.0626 10.0325 17.0626 12C17.0626 13.3201 16.3446 14.4724 15.2779 15.0879C14.998 15.695 14.474 16.1772 13.5898 16.5064C12.6075 16.8721 11.1512 17.0625 9.0001 17.0625C7.48077 17.0625 6.31455 16.9672 5.41976 16.7861C4.52746 16.6055 3.86701 16.3321 3.39491 15.9477C2.43564 15.1665 2.4367 14.0729 2.43755 13.2015L2.4376 13.125C2.4376 11.8995 3.31471 10.9047 4.48169 10.2483C5.66629 9.58191 7.26494 9.1875 9.0001 9.1875ZM3.5626 13.125C3.5626 12.4865 4.02863 11.7939 5.03323 11.2288C6.0202 10.6736 7.42156 10.3125 9.0001 10.3125C9.45464 10.3125 9.89557 10.3425 10.3169 10.3987C10.0742 10.8801 9.9376 11.4241 9.9376 12C9.9376 13.792 11.2607 15.2749 12.9832 15.5253C12.1802 15.7775 10.9336 15.9375 9.0001 15.9375C7.51943 15.9375 6.43565 15.8439 5.64294 15.6835C4.84774 15.5225 4.38319 15.3016 4.10529 15.0753C3.59284 14.658 3.5626 14.1059 3.5626 13.125ZM13.5001 9.5625C12.1539 9.5625 11.0626 10.6538 11.0626 12C11.0626 13.3462 12.1539 14.4375 13.5001 14.4375C14.8463 14.4375 15.9376 13.3462 15.9376 12C15.9376 10.6538 14.8463 9.5625 13.5001 9.5625Z"
-                      fill="#E04F5F" />
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_1854_13473_joboffer_default">
-                      <rect width="18" height="18" fill="white" />
-                    </clipPath>
-                  </defs>
-                </svg>
-                <span>Reject</span>
-              </button>
-              }
             </div>
             }
           </div>
