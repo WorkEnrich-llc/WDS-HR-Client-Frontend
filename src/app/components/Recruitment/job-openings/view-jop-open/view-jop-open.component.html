@@ -1556,9 +1556,9 @@
               <!-- Divider -->
               <div class="dropdown-divider"></div>
 
-              <!-- 5. Reject -->
+              <!-- 5. Reject (Job Offer tab: PATCH application status 7) -->
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
-                (click)="openRejectModal(application)">
+                (click)="openRejectModal(application, true)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clip-path="url(#clip0_1854_13473_joboffer)">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1921,8 +1921,11 @@
 </app-popup>
 
 <!-- Reject confirmation popup -->
-<app-popup [title]="'Reject Application'" [paragraph1]="'Are you sure you want to reject this application?'"
-  [paragraph2]="'This action cannot be undone.'" [isOpen]="showRejectModal" (close)="closeRejectModal()">
+<app-popup [title]="'Reject Application'"
+  [paragraph1]="rejectFromJobOfferTab ? 'Are you sure you want to mark this application as rejected?' : 'Are you sure you want to reject this application?'"
+  [paragraph2]="rejectFromJobOfferTab ? 'This will update the application status to Rejected.' : 'This action cannot be undone.'"
+  [isOpen]="showRejectModal" (close)="closeRejectModal()">
+  @if (!rejectFromJobOfferTab) {
   <div class="w-100 mb-3">
     <label for="rejectionNotes" class="form-label mb-2">Rejection Notes (Optional)</label>
     <textarea id="rejectionNotes" name="rejectionNotes" class="form-control" rows="3" [(ngModel)]="rejectionNotes"
@@ -1938,6 +1941,7 @@
     <small class="text-danger mt-1 d-block">{{ rejectionMailMessageError }}</small>
     }
   </div>
+  }
   <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmReject()"
     [disabled]="isRejectSubmitting">
     @if (!isRejectSubmitting) {

@@ -273,6 +273,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Reject modal states
   showRejectModal: boolean = false;
   selectedApplicationForReject: Applicant | null = null;
+  /** When true, Reject uses PATCH applications status 7 (Job Offer tab) instead of reject endpoint */
+  rejectFromJobOfferTab: boolean = false;
   rejectionNotes: string = '';
   rejectionMailMessage: string = '';
   rejectionMailMessageError: string | null = null;
@@ -1514,15 +1516,17 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Open Reject modal
+   * Open Reject modal.
+   * @param fromJobOfferTab When true (Job Offer tab), confirm will PATCH application status 7 instead of reject endpoint.
    */
-  openRejectModal(applicant: Applicant): void {
+  openRejectModal(applicant: Applicant, fromJobOfferTab?: boolean): void {
     if (!applicant?.applicationId) return;
 
     // Close dropdown
     this.openDropdownApplicationId = null;
 
     this.selectedApplicationForReject = applicant;
+    this.rejectFromJobOfferTab = fromJobOfferTab === true;
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
     this.rejectionMailMessageError = null;
@@ -1535,6 +1539,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeRejectModal(): void {
     this.showRejectModal = false;
     this.selectedApplicationForReject = null;
+    this.rejectFromJobOfferTab = false;
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
     this.rejectionMailMessageError = null;
@@ -1545,21 +1550,44 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm Reject — calls /recruiter/jobs-openings/applications/reject/{id}/
+   * Confirm Reject.
+   * From Job Offer tab: PATCH /recruiter/jobs-openings/applications/{id}/ with status 7.
+   * Otherwise: PUT /recruiter/jobs-openings/applications/reject/{id}/ with notes and email.
    */
   confirmReject(): void {
     if (!this.selectedApplicationForReject?.applicationId) return;
 
     this.rejectionMailMessageError = null;
-    if (!this.rejectionMailMessage?.trim()) {
+    if (!this.rejectFromJobOfferTab && !this.rejectionMailMessage?.trim()) {
       this.rejectionMailMessageError = 'Email message is required.';
       return;
     }
 
     this.isRejectSubmitting = true;
+    const applicationId = this.selectedApplicationForReject.applicationId;
+
+    if (this.rejectFromJobOfferTab) {
+      this.jobOpeningsService.updateApplicationStatus(applicationId, 7).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.isRejectSubmitting = false;
+          this.toastr.showSuccess('Application rejected successfully');
+          this.closeRejectModal();
+          this.loadApplicants();
+          this.getJobOpeningDetails(this.jobOpening.id);
+        },
+        error: (error) => {
+          console.error('Error rejecting application:', error);
+          this.isRejectSubmitting = false;
+          this.closeRejectModal();
+        }
+      });
+      return;
+    }
 
     this.jobOpeningsService.rejectApplication(
-      this.selectedApplicationForReject.applicationId,
+      applicationId,
       (this.rejectionNotes ?? '').trim(),
       (this.rejectionMailMessage ?? '').trim()
     ).subscribe({
@@ -2395,15 +2423,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm and accept job offer
+   * Confirm and accept job offer — PATCH /recruiter/jobs-openings/applications/{id}/ with status 6 (Accepted)
    */
   confirmAcceptOffer(): void {
-    // Use jobOfferId (API expects offer id); do not send application_id
-    const jobOfferId = this.selectedApplicant?.jobOfferId;
-    if (!jobOfferId) return;
+    const applicationId = this.selectedApplicant?.applicationId;
+    if (!applicationId) return;
 
     this.isAcceptOfferLoading = true;
-    this.jobOpeningsService.acceptJobOffer(jobOfferId).pipe(
+    this.jobOpeningsService.updateApplicationStatus(applicationId, 6).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
@@ -2425,15 +2452,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
 
   /**
-   * Confirm and decline job offer
+   * Confirm and decline job offer — PATCH /recruiter/jobs-openings/applications/{id}/ with status 7 (Rejected)
    */
   confirmDeclineOffer(): void {
-    // Use jobOfferId (API expects offer id); do not send application_id
-    const jobOfferId = this.selectedApplicant?.jobOfferId;
-    if (!jobOfferId) return;
+    const applicationId = this.selectedApplicant?.applicationId;
+    if (!applicationId) return;
 
     this.isDeclineOfferLoading = true;
-    this.jobOpeningsService.declineJobOffer(jobOfferId).pipe(
+    this.jobOpeningsService.updateApplicationStatus(applicationId, 7).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
