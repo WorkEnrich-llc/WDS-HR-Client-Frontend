@@ -1415,10 +1415,10 @@
                 <span>Job Offer</span>
               </button>
 
-              <!-- Offer Accepted (when offer sent - same API as applicant-details) -->
+              <!-- Offer Accepted – PATCH job-offers/{id}/ status 1 -->
               @if (application.jobOfferId && isOfferStatusSent(application.jobOfferInfo?.offer_status)) {
               <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
+                (click)="openAcceptOfferConfirmation(application, 'offerAccepted')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -1534,9 +1534,9 @@
                 <span>Job Offer</span>
               </button>
 
-              <!-- 2. Accept – always visible -->
+              <!-- 2. Accept – PATCH applications status 6 -->
               <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
+                (click)="openAcceptOfferConfirmation(application, 'accept')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -1544,10 +1544,10 @@
                 </svg>
                 <span>Accept</span>
               </button>
-              <!-- 3. Offer Accepted – only when status is not already accepted (darker green) -->
+              <!-- 3. Offer Accepted – PATCH job-offers/{id}/ status 1 -->
               @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() !== 'accepted') {
               <button type="button" class="dropdown-item offer-accepted-action d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
+                (click)="openAcceptOfferConfirmation(application, 'offerAccepted')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"

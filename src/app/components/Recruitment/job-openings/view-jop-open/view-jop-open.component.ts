@@ -165,6 +165,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   // Store selected applicant for confirmation
   selectedApplicant: Applicant | null = null;
+  /** Job Offer tab: 'accept' = PATCH applications status 6, 'offerAccepted' = PATCH job-offers status 1 */
+  acceptOfferAction: 'accept' | 'offerAccepted' = 'accept';
 
   // Store current applicant data for interview component
   currentInterviewApplicant: any = null;
@@ -2386,12 +2388,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Open accept offer confirmation modal
+   * Open accept offer confirmation modal.
+   * @param action 'accept' = PATCH applications status 6 | 'offerAccepted' = PATCH job-offers/{id}/ status 1
    */
-  openAcceptOfferConfirmation(applicant: Applicant): void {
+  openAcceptOfferConfirmation(applicant: Applicant, action: 'accept' | 'offerAccepted' = 'accept'): void {
     if (!applicant?.applicationId) return;
     this.openDropdownApplicationId = null;
     this.selectedApplicant = applicant;
+    this.acceptOfferAction = action;
     this.isAcceptOfferLoading = false;
     this.isAcceptOfferModalOpen = true;
   }
@@ -2402,6 +2406,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeAcceptOfferModal(): void {
     this.isAcceptOfferModalOpen = false;
     this.selectedApplicant = null;
+    this.acceptOfferAction = 'accept';
     this.isAcceptOfferLoading = false;
   }
 
@@ -2426,52 +2431,72 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm and accept job offer — PATCH /recruiter/jobs-openings/applications/{id}/ with status 6 (Accepted)
+   * Confirm: Accept → PATCH applications status 6. Offer Accepted → PATCH job-offers/{id}/ status 1.
    */
   confirmAcceptOffer(): void {
-    const applicationId = this.selectedApplicant?.applicationId;
-    if (!applicationId) return;
+    if (!this.selectedApplicant) return;
 
     this.isAcceptOfferLoading = true;
-    this.jobOpeningsService.updateApplicationStatus(applicationId, 6).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: () => {
-        this.isAcceptOfferLoading = false;
-        this.closeAcceptOfferModal();
-        this.loadApplicants();
-        if (this.jobOpening?.id) {
-          this.getJobOpeningDetails(this.jobOpening.id);
+    if (this.acceptOfferAction === 'accept') {
+      const applicationId = this.selectedApplicant.applicationId;
+      this.jobOpeningsService.updateApplicationStatus(applicationId, 6).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.isAcceptOfferLoading = false;
+          this.closeAcceptOfferModal();
+          this.loadApplicants();
+          if (this.jobOpening?.id) this.getJobOpeningDetails(this.jobOpening.id);
+          this.toastr.showSuccess('Application accepted successfully');
+        },
+        error: (error) => {
+          this.isAcceptOfferLoading = false;
+          console.error('Error accepting application:', error);
+          this.closeAcceptOfferModal();
         }
-        this.toastr.showSuccess('Job offer accepted successfully');
-      },
-      error: (error) => {
+      });
+    } else {
+      const jobOfferId = this.selectedApplicant.jobOfferId;
+      if (!jobOfferId) {
         this.isAcceptOfferLoading = false;
-        console.error('Error accepting job offer:', error);
         this.closeAcceptOfferModal();
+        return;
       }
-    });
+      this.jobOpeningsService.acceptJobOffer(jobOfferId).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.isAcceptOfferLoading = false;
+          this.closeAcceptOfferModal();
+          this.loadApplicants();
+          if (this.jobOpening?.id) this.getJobOpeningDetails(this.jobOpening.id);
+          this.toastr.showSuccess('Job offer accepted successfully');
+        },
+        error: (error) => {
+          this.isAcceptOfferLoading = false;
+          console.error('Error accepting job offer:', error);
+          this.closeAcceptOfferModal();
+        }
+      });
+    }
   }
 
-
   /**
-   * Confirm and decline job offer — PATCH /recruiter/jobs-openings/applications/{id}/ with status 7 (Rejected)
+   * Confirm Offer Rejected — PATCH /recruiter/job-offers/{id}/ with request_data.status: 2
    */
   confirmDeclineOffer(): void {
-    const applicationId = this.selectedApplicant?.applicationId;
-    if (!applicationId) return;
+    const jobOfferId = this.selectedApplicant?.jobOfferId;
+    if (!jobOfferId) return;
 
     this.isDeclineOfferLoading = true;
-    this.jobOpeningsService.updateApplicationStatus(applicationId, 7).pipe(
+    this.jobOpeningsService.declineJobOffer(jobOfferId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
         this.isDeclineOfferLoading = false;
         this.closeDeclineOfferModal();
         this.loadApplicants();
-        if (this.jobOpening?.id) {
-          this.getJobOpeningDetails(this.jobOpening.id);
-        }
+        if (this.jobOpening?.id) this.getJobOpeningDetails(this.jobOpening.id);
         this.toastr.showSuccess('Job offer declined successfully');
       },
       error: (error) => {
