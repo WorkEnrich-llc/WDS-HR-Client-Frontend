@@ -836,3 +836,34 @@ button[title="Copy description"]:hover {
 .take-action-dropdown .dropdown-item.accept-action:hover svg {
     color: #15803d !important;
 }
+
+/* Offer Accepted – darker green than Accept */
+.take-action-dropdown .dropdown-item.offer-accepted-action {
+    color: #0d4623 !important;
+}
+
+.take-action-dropdown .dropdown-item.offer-accepted-action:hover {
+    color: #0d4623 !important;
+    background-color: rgba(22, 101, 52, 0.12);
+}
+
+.take-action-dropdown .dropdown-item.offer-accepted-action svg {
+    color: #0d4623 !important;
+}
+
+.take-action-dropdown .dropdown-item.offer-accepted-action:hover svg {
+    color: #0d4623 !important;
+}
+
+/* Accept Job Offer modal – confirm button same green as Accept action */
+.btn-accept-offer-modal {
+    background-color: #16a34a !important;
+    border-color: #16a34a !important;
+    color: #fff !important;
+}
+
+.btn-accept-offer-modal:hover:not(:disabled) {
+    background-color: #15803d !important;
+    border-color: #15803d !important;
+    color: #fff !important;
+}
