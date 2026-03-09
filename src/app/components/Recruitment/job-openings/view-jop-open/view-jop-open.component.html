@@ -779,7 +779,7 @@
           }
         </div>
         } @else if (activeTab === 'qualified') {
-        <!-- Qualified Status Display -->
+        <!-- Qualified Status Display – date from status_updated_at -->
         <div class="d-flex align-items-center gap-2 status-qualified">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
             style="flex-shrink: 0;">
@@ -790,7 +790,7 @@
           <div class="d-flex flex-column">
             <span class="d-block text-primary fw-semibold">Qualified Since</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
