@@ -807,7 +807,7 @@
               ({{ application.jobOfferInfo.offer_status }})
             }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ (application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -825,7 +825,7 @@
               ({{ application.jobOfferInfo.offer_status }})
             }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ (application.jobOfferInfo.rejected_at || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.jobOfferInfo.rejected_at || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -878,6 +878,21 @@
             </span>
           </div>
         </div>
+        } @else if (activeTab === 'accepted' && (application.status || '').toLowerCase() === 'accepted') {
+        <!-- Accepted tab: status is Accepted but job_offer_info may be missing from list – use statusUpdatedAt -->
+        <div class="d-flex align-items-center gap-2 status-offer-accepted">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block fw-semibold text-success">Accepted</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
         } @else if (activeTab === 'rejected') {
         <!-- Rejected Status Display -->
         <div class="d-flex align-items-center gap-2 status-applicant-rejected">
@@ -896,7 +911,7 @@
           <div class="d-flex flex-column">
             <span class="d-block text-danger fw-semibold">Applicant - Rejected at</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -960,7 +975,7 @@
           ({{ application.jobOfferInfo.offer_status }})
         }</span>
         <span class="d-block text-truncate" style="max-width: 200px">
-          {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+          {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
         </span>
         </div>
         }
