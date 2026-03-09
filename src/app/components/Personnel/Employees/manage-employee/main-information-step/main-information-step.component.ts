@@ -38,7 +38,7 @@ export class MainInformationStepComponent implements OnInit {
   }
 
   constructor() {
-    // Add pattern validator for full name: at least four parts (words)
+    // Add pattern validator for full name: at least two parts (words)
 
   }
 
@@ -46,17 +46,18 @@ export class MainInformationStepComponent implements OnInit {
 
   ngOnInit(): void {
 
+    // At least two names (words) for full name
     const nameEnglish = this.sharedService.mainInformation.get('name_english');
     if (nameEnglish) {
       nameEnglish.addValidators([
-        Validators.pattern(/^(\S+\s+){3,}\S+$/)
+        Validators.pattern(/^(\S+\s+){1,}\S+$/)
       ]);
       nameEnglish.updateValueAndValidity();
     }
     const nameArabic = this.sharedService.mainInformation.get('name_arabic');
     if (nameArabic) {
       nameArabic.addValidators([
-        Validators.pattern(/^(\S+\s+){3,}\S+$/)
+        Validators.pattern(/^(\S+\s+){1,}\S+$/)
       ]);
       nameArabic.updateValueAndValidity();
     }

@@ -1355,7 +1355,7 @@ export class ManageEmployeeSharedService {
       if (field.errors['containsArabic']) return `${displayName} cannot contain Arabic characters`;
       if (field.errors['containsEnglish']) return `${displayName} cannot contain English characters`;
       if (field.errors['numbersPattern']) return `${displayName} cannot contain numbers`;
-      if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
+      if (field.errors['fourParts']) return `${displayName} must contain at least 2 words`;
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 2 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
 

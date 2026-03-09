@@ -106,7 +106,7 @@
         <label for="name_english">Full Name(English) <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" id="name_english" formControlName="name_english" class="form-control custom-date-input"
-            placeholder="Full name must contain at least four parts" />
+            placeholder="Full name must contain at least two parts" />
         </div>
         @if (sharedService.isFieldInvalid('name_english', sharedService.mainInformation)) {
         <p class="error-msg">
@@ -119,7 +119,7 @@
         <label for="name_arabic">Full Name(Arabic) <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" id="name_arabic" formControlName="name_arabic" class="form-control custom-date-input"
-            placeholder="الاسم  باللغة العربية و يتكون من اربعة مقاطع" />
+            placeholder="الاسم باللغة العربية ويتكون من مقطعين على الأقل" />
         </div>
         @if (sharedService.isFieldInvalid('name_arabic', sharedService.mainInformation)) {
         <p class="error-msg">
