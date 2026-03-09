@@ -788,19 +788,29 @@ button[title="Copy description"]:hover {
     height: 18px;
 }
 
-/* Job offer outcome status: Accepted / Rejected / Sent */
+/* Status cell – left border always visible, color matches status */
+.status-offer-accepted {
+    padding-left: 12px;
+    border-left: 4px solid rgba(5, 150, 105, 0.5);
+}
+
 .status-offer-accepted .d-block.fw-semibold {
     color: var(--color-success-600, #059669) !important;
+}
+
+.status-offer-rejected {
+    padding-left: 12px;
+    border-left: 4px solid rgba(224, 79, 95, 0.5);
 }
 
 .status-offer-rejected .d-block.fw-semibold {
     color: var(--color-danger-600, #dc2626) !important;
 }
 
-/* Job Offer Sent – left border + icon, no background */
+/* Job Offer Sent – left border + icon */
 .status-offer-sent {
     padding-left: 12px;
-    border-left: 4px solid rgba(55, 122, 253, 0.35);
+    border-left: 4px solid rgba(55, 122, 253, 0.5);
 }
 
 .status-offer-sent .d-block.fw-semibold,
@@ -808,10 +818,54 @@ button[title="Copy description"]:hover {
     color: #2563eb !important;
 }
 
-/* Offer Expired – left border + icon, no background */
+/* Offer Expired – left border + icon */
 .status-offer-expired {
     padding-left: 12px;
-    border-left: 4px solid rgba(107, 114, 128, 0.35);
+    border-left: 4px solid rgba(107, 114, 128, 0.5);
+}
+
+/* Qualified – left border primary */
+.status-qualified {
+    padding-left: 12px;
+    border-left: 4px solid rgba(55, 122, 253, 0.5);
+}
+
+/* Applicant Rejected tab – left border danger */
+.status-applicant-rejected {
+    padding-left: 12px;
+    border-left: 4px solid rgba(224, 79, 95, 0.5);
+}
+
+/* Called – left border success */
+.status-called {
+    padding-left: 12px;
+    border-left: 4px solid rgba(16, 185, 129, 0.5);
+}
+
+/* Call Again – left border warning */
+.status-call-again {
+    padding-left: 12px;
+    border-left: 4px solid rgba(245, 158, 11, 0.5);
+}
+
+/* Not Interested – left border danger */
+.status-not-interested {
+    padding-left: 12px;
+    border-left: 4px solid rgba(224, 79, 95, 0.5);
+}
+
+/* Default status – left border gray */
+.status-default {
+    padding-left: 12px;
+    border-left: 4px solid rgba(107, 114, 128, 0.5);
+}
+
+/* Interview status – left border (color set inline for previous) */
+.status-interview-upcoming,
+.status-interview-previous,
+.status-interview-fallback {
+    padding-left: 12px;
+    border-left: 4px solid rgba(55, 122, 253, 0.5);
 }
 
 .status-offer-expired-label,
