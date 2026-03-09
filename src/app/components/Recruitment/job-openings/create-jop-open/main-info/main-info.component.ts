@@ -910,11 +910,26 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Validate Time Limit
+   * Validate Time Limit on blur so the message appears when the user leaves the input
+   */
+  onTimeLimitBlur(): void {
+    this.validateTimeLimit();
+  }
+
+  /**
+   * Validate Time Limit (1–365 days)
    */
   validateTimeLimit(): void {
-    if (!this.timeLimit || this.timeLimit <= 0) {
+    const value = this.timeLimit;
+    const num = value !== undefined ? Number(value) : NaN;
+    if (value === undefined || isNaN(num)) {
+      this.validationErrors.timeLimit = 'Time Limit is required';
+      return;
+    }
+    if (num <= 0) {
       this.validationErrors.timeLimit = 'Time Limit must be greater than 0';
+    } else if (num > 365) {
+      this.validationErrors.timeLimit = 'Time Limit cannot exceed 365 days';
     } else {
       this.validationErrors.timeLimit = '';
     }

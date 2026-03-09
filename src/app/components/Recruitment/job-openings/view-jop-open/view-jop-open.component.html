@@ -130,8 +130,8 @@
               <span>{{ jobOpening.cv_limit || "N/A" }}</span>
             </div>
             <div class="info">
-              <h6>Time Limit</h6>
-              <span>{{ jobOpening.time_limit || "N/A" }} Days</span>
+              <h6>Time Limit (days)</h6>
+              <span>{{ jobOpening.time_limit != null ? jobOpening.time_limit + ' Days' : "N/A" }}</span>
             </div>
             <div class="info">
               <h6>Work Schedule</h6>
