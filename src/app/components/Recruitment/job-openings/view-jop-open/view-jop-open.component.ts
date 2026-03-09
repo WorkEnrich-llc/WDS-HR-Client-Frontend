@@ -1067,7 +1067,6 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error reverting applicant:', error);
-        this.toastr.showError('Failed to revert applicant');
         this.closeRevertModal();
       }
     });
