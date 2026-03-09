@@ -1541,8 +1541,8 @@
                 <span>Offer Accepted</span>
               </button>
               }
-              <!-- 4. Offer Rejected – only when status is offer accepted -->
-              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'accepted') {
+              <!-- 4. Offer Rejected – when status is job offer sent or offer accepted (show all actions for sent) -->
+              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'accepted' || (application.jobOfferInfo?.offer_status || '').toLowerCase() === 'sent') {
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
                 (click)="openDeclineOfferConfirmation(application)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
