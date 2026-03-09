@@ -1,7 +1,7 @@
 <!-- page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Operational Development', link: '/departments' },
-    { label: 'Department Checklist',link:'/dept-check' },
+    { label: 'Department Checklist', link:'/dept-check' },
     { label: 'Edit Department Checklist'},
   ]" title="Edit Department Checklist">
 
@@ -11,125 +11,151 @@
 <!-- page content -->
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
-    <h2>Checklist</h2>
-    @if(loadData) {
+    <h2>Department Checklist</h2>
+
+    @if (loadData) {
     <app-skelaton-loading [rows]="3" [hasLabel]="false" [labelHeight]="16" [valueHeight]="50">
     </app-skelaton-loading>
-    }@else {
-    @if (checks.length > 0) {
-    <div class="checks pt-1">
-
-      @for (check of checks; track $index; let i = $index) {
-      <div class="onecheck d-flex align-items-center justify-content-between" draggable="true"
-        (dragstart)="onDragStart(i)" (dragend)="onDragEnd()" (dragover)="allowDrop($event, i)"
-        (drop)="onDrop($event, i)" [class.dragging]="draggedIndex === i" [class.drag-over]="dragOverIndex === i">
-
-        <div class="d-flex align-items-center gap-3">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M17 3.25C17.2361 3.25 17.4584 3.36115 17.6 3.55L20.6 7.55C20.8485 7.88137 20.7814 8.35147 20.45 8.6C20.1186 8.84853 19.6485 8.78137 19.4 8.45L17.75 6.25V17.75L19.4 15.55C19.6485 15.2186 20.1186 15.1515 20.45 15.4C20.7814 15.6485 20.8485 16.1186 20.6 16.45L17.6 20.45C17.4584 20.6389 17.2361 20.75 17 20.75C16.7639 20.75 16.5416 20.6389 16.4 20.45L13.4 16.45C13.1515 16.1186 13.2186 15.6485 13.55 15.4C13.8814 15.1515 14.3515 15.2186 14.6 15.55L16.25 17.75V6.25L14.6 8.45C14.3515 8.78137 13.8814 8.84853 13.55 8.6C13.2186 8.35147 13.1515 7.88137 13.4 7.55L16.4 3.55C16.5416 3.36115 16.7639 3.25 17 3.25ZM3.25 7C3.25 6.58579 3.58579 6.25 4 6.25H11C11.4142 6.25 11.75 6.58579 11.75 7C11.75 7.41421 11.4142 7.75 11 7.75H4C3.58579 7.75 3.25 7.41421 3.25 7ZM3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H11C11.4142 11.25 11.75 11.5858 11.75 12C11.75 12.4142 11.4142 12.75 11 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12ZM3.25 17C3.25 16.5858 3.58579 16.25 4 16.25H11C11.4142 16.25 11.75 16.5858 11.75 17C11.75 17.4142 11.4142 17.75 11 17.75H4C3.58579 17.75 3.25 17.4142 3.25 17Z"
-              fill="#4A6D97" />
-          </svg>
-
-          <span class="number">{{ $index + 1 }}</span>
-
-          <p class="m-0">{{ check.name }}</p>
-
-        </div>
-        <div class="d-flex align-items-center gap-4">
-          <div>
-            <span class="text-muted me-3">|</span>
-            <strong><span>{{check.points}}</span> Points</strong>
-          </div>
-          <button type="button" class="remove-btn" (click)="removeCheck(i); $event.stopPropagation()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="currentColor"
-                d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
-              <path fill="currentColor"
-                d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
-            </svg>
-          </button>
-
-        </div>
-
-      </div>
-
-      }
-    </div>
-    }
-
-
-    <form [formGroup]="checkForm" (ngSubmit)="addCheck()" class="d-flex flex-column gap-3">
-
-      @if (!showInput) {
-      <button type="button" class="btn btn-lg btn-outline-primary w-auto" (click)="showAddInput()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-          </g>
-        </svg>
-        <span>Add Checklist Item</span>
-      </button>
-      }
-
-      @if (showInput) {
+    } @else {
+    <form [formGroup]="checkForm" (ngSubmit)="addCheck()" class="w-lg-50">
+      <label for="checkName">Add a new checklist item</label>
       <div class="d-flex align-items-start gap-3">
         <div class="input w-100">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="checkName" class="form-control custom-date-input" placeholder="Enter Checklist Item"
-              formControlName="checkName" />
+            <input type="text" id="checkName" class="form-control custom-date-input"
+              placeholder="Enter new check" formControlName="checkName" />
           </div>
-          @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['required']) {
-          <p class="error-msg">
-            Checklist Item is required.
-          </p>
-          }
-          @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['maxlength']) {
-          <p class="error-msg">
-            Checklist Item maxlength 100 only.
-          </p>
-          }
-          @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['whitespace']) {
-          <p class="error-msg">Checklist Item is required and cannot be only spaces.</p>
+          @if (checkForm.get('checkName')?.touched) {
+            @if (checkForm.get('checkName')?.errors?.['required']) {
+            <p class="error-msg">Checklist Item is required.</p>
+            }
+            @else if (checkForm.get('checkName')?.errors?.['whitespace']) {
+            <p class="error-msg">Checklist Item cannot be only spaces.</p>
+            }
+            @else if (checkForm.get('checkName')?.errors?.['maxlength']) {
+            <p class="error-msg">Checklist Item maxlength is 100 characters only.</p>
+            }
           }
         </div>
-        <div class="input w-25">
+        <div class="input" style="min-width: 120px;">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="checkName" class="form-control custom-date-input"
-              placeholder="Enter Checklist Points" formControlName="checkPoint" />
+            <input type="text" id="checkPoint" class="form-control custom-date-input"
+              placeholder="Points" formControlName="checkPoint" />
           </div>
-          @if (checkForm.get('checkPoint')?.touched && checkForm.get('checkPoint')?.errors?.['required']) {
-          <p class="error-msg">
-            Points is required.
-          </p>
+          @if (checkForm.get('checkPoint')?.touched) {
+            @if (checkForm.get('checkPoint')?.errors?.['required']) {
+            <p class="error-msg">Points is required.</p>
+            }
+            @else if (checkForm.get('checkPoint')?.errors?.['pattern']) {
+            <p class="error-msg">Numbers only.</p>
+            }
+            @else if (checkForm.get('checkPoint')?.errors?.['max']) {
+            <p class="error-msg">Points must be less than 10000.</p>
+            }
           }
-          @if (checkForm.get('checkPoint')?.touched && checkForm.get('checkPoint')?.errors?.['pattern']) {
-          <p class="error-msg">
-            Numbers only.
-          </p>
-          }
-          @if (checkForm.get('checkPoint')?.touched && checkForm.get('checkPoint')?.errors?.['max']) {
-          <p class="error-msg">Points must be less than 10000.</p>
-          }
+        </div>
+        <button type="submit" class="btn btn-lg btn-primary w-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+            <g fill="none" stroke="#ffffff" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+            </g>
+          </svg>
+          <span>Add new</span>
+        </button>
+      </div>
+    </form>
+
+    @if (checks.length > 0) {
+    <div class="checks pt-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <h2 class="fw-semibold">List</h2>
+        <div class="d-flex align-items-center gap-3">
+          <button class="edit-btn" [class.disabled]="!hasSelectedChecks" (click)="startEditSelected()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round"
+                  d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                <path
+                  d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+              </g>
+            </svg>
+            <span>Edit</span>
+          </button>
+          <button class="remove-btn" [class.disabled]="!hasSelectedChecks" (click)="deleteSelected()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
+            </svg>
+            <span>Delete</span>
+          </button>
         </div>
       </div>
 
-      <button type="submit" class="btn btn-lg btn-outline-primary w-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-          </g>
-        </svg>
-        <span>Save Checklist Item</span>
-      </button>
+      @if (selectionError) {
+      <p class="error-msg selection-error mb-0">{{ selectionError }}</p>
       }
 
-    </form>
-
+      @for (check of checks; track $index; let i = $index) {
+      <label class="onecheck d-flex align-items-center justify-content-between" draggable="true"
+        (dragstart)="onDragStart(i)" (dragend)="onDragEnd()" (dragover)="allowDrop($event, i)"
+        (drop)="onDrop($event, i)" [class.dragging]="draggedIndex === i"
+        [class.drag-over]="dragOverIndex === i"
+        [class.onecheck--editing]="check.editing">
+        <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g [attr.clip-path]="'url(#dept-clip-drag-' + i + ')'">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M17 3.25C17.2361 3.25 17.4584 3.36115 17.6 3.55L20.6 7.55C20.8485 7.88137 20.7814 8.35147 20.45 8.6C20.1186 8.84853 19.6485 8.78137 19.4 8.45L17.75 6.25V17.75L19.4 15.55C19.6485 15.2186 20.1186 15.1515 20.45 15.4C20.7814 15.6485 20.8485 16.1186 20.6 16.45L17.6 20.45C17.4584 20.6389 17.2361 20.75 17 20.75C16.7639 20.75 16.5416 20.6389 16.4 20.45L13.4 16.45C13.1515 16.1186 13.2186 15.6485 13.55 15.4C13.8814 15.1515 14.3515 15.2186 14.6 15.55L16.25 17.75V6.25L14.6 8.45C14.3515 8.78137 13.8814 8.84853 13.55 8.6C13.2186 8.35147 13.1515 7.88137 13.4 7.55L16.4 3.55C16.5416 3.36115 16.7639 3.25 17 3.25ZM3.25 7C3.25 6.58579 3.58579 6.25 4 6.25H11C11.4142 6.25 11.75 6.58579 11.75 7C11.75 7.41421 11.4142 7.75 11 7.75H4C3.58579 7.75 3.25 7.41421 3.25 7ZM3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H11C11.4142 11.25 11.75 11.5858 11.75 12C11.75 12.4142 11.4142 12.75 11 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12ZM3.25 17C3.25 16.5858 3.58579 16.25 4 16.25H11C11.4142 16.25 11.75 16.5858 11.75 17C11.75 17.4142 11.4142 17.75 11 17.75H4C3.58579 17.75 3.25 17.4142 3.25 17Z"
+                fill="#4A6D97" />
+            </g>
+            <defs>
+              <clipPath [id]="'dept-clip-drag-' + i">
+                <rect width="24" height="24" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+          <span class="number">{{ i + 1 }}</span>
+          @if (!check.editing) {
+          <p class="m-0">{{ check.name }}</p>
+          <span class="text-muted ms-2">|</span>
+          <strong class="ms-2"><span>{{ check.points }}</span> Points</strong>
+          } @else {
+          <div class="d-flex gap-3 w-100 flex-wrap align-items-center">
+            <input type="text" class="form-control onecheck-edit-name" [ngModel]="check.name"
+              (ngModelChange)="check.name = $event" (blur)="finishEdit(check)" placeholder="Item name"
+              maxlength="100" (click)="$event.stopPropagation()" />
+            <input type="number" class="form-control onecheck-edit-points" [ngModel]="check.points"
+              (ngModelChange)="check.points = $event" (blur)="finishEdit(check)" placeholder="Points"
+              min="0" max="9999" (click)="$event.stopPropagation()" />
+            @if (check.error) {
+            <span class="error-msg nowrap">{{ check.error }}</span>
+            }
+          </div>
+          }
+        </div>
+        <input class="form-check-input m-0" type="checkbox" [checked]="check.completed"
+          (change)="toggleCheck(i)" />
+      </label>
+      }
+    </div>
     }
-
-
+    }
   </div>
 </div>
+
+<!-- Delete Confirmation Modal (same as onboarding) -->
+<app-popup [title]="'Delete Selected Items'"
+  [paragraph1]="'Are you sure you want to delete ' + selectedChecksCount + (selectedChecksCount === 1 ? ' selected item?' : ' selected items?')"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isDeleteModalOpen" (close)="closeDeleteModal()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
+    </svg>
+    <span>Delete</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteModal()">
+    Cancel
+  </button>
+</app-popup>
