@@ -1082,7 +1082,8 @@
                 <span>Assignment</span>
               </button>
 
-              <!-- Mark as Called -->
+              <!-- Mark as Called – hide when status is already Called -->
+              @if (application.applicantContactStatus !== 'Called') {
               <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
                 (click)="openMarkAsCalledModal(application, 1)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1098,8 +1099,10 @@
                 </svg>
                 <span>Mark as Called</span>
               </button>
+              }
 
-              <!-- Call Again -->
+              <!-- Call Again – hide when status is already Call Again -->
+              @if (application.applicantContactStatus !== 'Call Again') {
               <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
                 (click)="openMarkAsCalledModal(application, 2)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1115,6 +1118,7 @@
                 </svg>
                 <span>Call Again</span>
               </button>
+              }
 
               <!-- Divider -->
               <div class="dropdown-divider"></div>
