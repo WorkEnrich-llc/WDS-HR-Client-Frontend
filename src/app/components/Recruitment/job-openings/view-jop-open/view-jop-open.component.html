@@ -962,7 +962,7 @@
           <div class="d-flex flex-column">
             <span class="d-block text-danger fw-semibold">Not Interested</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.updatedAt || application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>

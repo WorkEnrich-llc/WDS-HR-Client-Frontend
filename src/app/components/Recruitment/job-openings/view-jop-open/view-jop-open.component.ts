@@ -43,6 +43,8 @@ type Applicant = {
   statusAt: string;
   /** When status is Accepted, use this for the displayed date (from API status_updated_at) */
   statusUpdatedAt?: string | null;
+  /** Last update time (from API updated_at) */
+  updatedAt?: string | null;
   intervieweeInfo?: {
     key: string; // "upcoming" | "previous"
     interview_at: string;
@@ -404,6 +406,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             status: item.status || 'N/A',
             statusAt: item.created_at || item.updated_at || 'N/A',
             statusUpdatedAt: item.status_updated_at || null,
+            updatedAt: item.updated_at || null,
             applicantContactStatus: item.applicant_contact_status || null, // Contact status: "Called", "Call Again", "Not Interested", etc.
             intervieweeInfo: item.interviewee_info ? {
               key: item.interviewee_info.key || null,
