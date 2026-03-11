@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
@@ -43,7 +43,8 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
     private toasterService: ToasterMessageService,
     private router: Router,
     private breadcrumbService: BreadcrumbService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
   ) { }
   // load data and spinner show
   dataLoaded: boolean = false;
@@ -58,6 +59,19 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
   newFolderName: string = '';
 
   errMsg: string = '';
+
+  private setValidationError(err: any): void {
+    if (err?.error?.data?.error_handling?.length > 0) {
+      this.errMsg = err.error.data.error_handling[0].error;
+    } else if (err?.error?.message) {
+      this.errMsg = err.error.message;
+    } else if (err?.error?.data?.message) {
+      this.errMsg = err.error.data.message;
+    } else {
+      this.errMsg = 'An unexpected error occurred.';
+    }
+    this.cdr.detectChanges();
+  }
 
   openedFolderId: string | null = null;
   files: any[] = [];
@@ -424,11 +438,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
           // console.log('✅ New folder added:', newFolder);
         },
         error: (err) => {
-          if (err?.error?.data?.error_handling?.length > 0) {
-            this.errMsg = err.error.data.error_handling[0].error;
-          } else {
-            this.errMsg = 'An unexpected error occurred.';
-          }
+          this.setValidationError(err);
           this.isLoading = false;
         }
       });
@@ -692,11 +702,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
 
         },
         error: (err) => {
-          if (err?.error?.data?.error_handling?.length > 0) {
-            this.errMsg = err.error.data.error_handling[0].error;
-          } else {
-            this.errMsg = 'An unexpected error occurred.';
-          }
+          this.setValidationError(err);
           this.isLoading = false;
         }
       });
@@ -780,11 +786,7 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
           this.renameAction = false;
         },
         error: (err) => {
-          if (err?.error?.data?.error_handling?.length > 0) {
-            this.errMsg = err.error.data.error_handling[0].error;
-          } else {
-            this.errMsg = 'An unexpected error occurred.';
-          }
+          this.setValidationError(err);
           this.isLoading = false;
           this.renameAction = false;
         }

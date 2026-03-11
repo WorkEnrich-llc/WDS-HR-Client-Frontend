@@ -132,27 +132,27 @@
         </h1>
 
         <div class="job-meta-info" [attr.id]="'job-meta-' + job.id" role="list" aria-label="Job information">
-          <div class="job-meta-item" role="listitem">
+          <div class="job-meta-item job-location-item" role="listitem">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true" focusable="false">
               <path opacity="0.3"
                 d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
-                fill="#4A6D97" />
+                fill="currentColor" />
               <path fill-rule="evenodd" clip-rule="evenodd"
                 d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
-                fill="#4A6D97" />
+                fill="currentColor" />
             </svg>
             <span>
               <span class="sr-only">Location: </span>{{ getJobBranch(job) }}
             </span>
           </div>
-          <div class="job-meta-item" role="listitem">
+          <div class="job-meta-item job-experience-item" role="listitem">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true" focusable="false">
               <path
                 d="M9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5ZM9 15C5.68629 15 3 12.3137 3 9C3 5.68629 5.68629 3 9 3C12.3137 3 15 5.68629 15 9C15 12.3137 12.3137 15 9 15Z"
-                fill="#4A6D97" />
-              <path d="M9 5.25V9L11.25 10.5" stroke="#4A6D97" stroke-width="1.5" stroke-linecap="round"
+                fill="currentColor" />
+              <path d="M9 5.25V9L11.25 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                 stroke-linejoin="round" />
             </svg>
             <span>
@@ -278,10 +278,10 @@
                 aria-hidden="true" focusable="false">
                 <path opacity="0.3"
                   d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
-                  fill="#4A6D97" />
+                  fill="currentColor" />
                 <path fill-rule="evenodd" clip-rule="evenodd"
                   d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
-                  fill="#4A6D97" />
+                  fill="currentColor" />
               </svg>
               <span>
                 <span class="sr-only">Location: </span>{{ getJobBranch(relatedJob) }}
