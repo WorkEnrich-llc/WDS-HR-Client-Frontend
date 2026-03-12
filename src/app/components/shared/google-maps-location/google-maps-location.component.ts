@@ -47,6 +47,7 @@ export class GoogleMapsLocationComponent implements OnInit {
 
   // Map options
   mapOptions: google.maps.MapOptions = {
+    mapId: '1a97751485127473cdb48fb5',
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     zoomControl: true,
     scrollwheel: true,
