@@ -9,8 +9,9 @@
   <link rel="icon" type="image/png" href="./assets/t-logo.png">
   <link id="lang-style" rel="stylesheet" href="">
   <!-- Google Maps API -->
-  <script defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMRfbXZmtkxt0kggC66rU1MwacOsow-iw&libraries=places,marker"></script>
+  <script>window.initMap = function () { };</script>
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMRfbXZmtkxt0kggC66rU1MwacOsow-iw&libraries=places,marker&callback=initMap"></script>
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
