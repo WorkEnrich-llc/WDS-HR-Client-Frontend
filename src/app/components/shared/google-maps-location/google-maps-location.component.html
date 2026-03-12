@@ -27,7 +27,7 @@
 
         <!-- Branch Marker -->
         @if (branchMarker) {
-        <map-advanced-marker [position]="branchMarker" [gmpDraggable]="true" (mapDragend)="onMarkerDragEnd($event)">
+        <map-marker [position]="branchMarker" [options]="markerOptions" (mapDragend)="onMarkerDragEnd($event)">
           <map-info-window>
             <div class="text-center p-2">
               <strong>{{ infoWindowContent }}</strong>
@@ -51,7 +51,7 @@
               <small>Radius: {{ radiusRange }}m</small>
             </div>
           </map-info-window>
-        </map-advanced-marker>
+        </map-marker>
         }
 
         <!-- Radius Circle -->
