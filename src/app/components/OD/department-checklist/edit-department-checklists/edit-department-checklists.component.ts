@@ -1,24 +1,33 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { Subject } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
-interface CheckItem {
+export interface CheckItem {
   id?: number;
   name: string;
   points?: number;
   editing?: boolean;
+  completed?: boolean;
   record_type: 'create' | 'update' | 'delete';
   ranking: number;
+  /** Inline edit validation error (same as onboarding) */
+  error?: string | null;
+  /** Snapshot when entering edit mode (to skip save if unchanged) */
+  _originalName?: string;
+  _originalPoints?: number;
 }
 
 @Component({
   selector: 'app-edit-department-checklists',
-  imports: [PageHeaderComponent, ReactiveFormsModule, SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, ReactiveFormsModule, FormsModule, SkelatonLoadingComponent, PopupComponent],
   templateUrl: './edit-department-checklists.component.html',
   styleUrl: './edit-department-checklists.component.css',
   encapsulation: ViewEncapsulation.None
@@ -27,15 +36,29 @@ export class EditDepartmentChecklistsComponent {
 
   checks: CheckItem[] = [];
   deletedChecks: CheckItem[] = [];
-  showInput = false;
   checkForm: FormGroup;
+
+  /** Selection validation message (same UX as onboarding) */
+  selectionError: string | null = null;
+
+  /** Delete confirmation modal */
+  isDeleteModalOpen = false;
 
   // queue operations
   private operationQueue$ = new Subject<void>();
 
+  get hasSelectedChecks(): boolean {
+    return this.checks.some(c => c.completed);
+  }
+
+  get selectedChecksCount(): number {
+    return this.checks.filter(c => c.completed).length;
+  }
+
   constructor(
     private fb: FormBuilder,
-    private departmentChecklistService: DepartmentChecklistService
+    private departmentChecklistService: DepartmentChecklistService,
+    private toaster: ToasterMessageService
   ) {
     this.checkForm = this.fb.group({
       checkName: ['', [Validators.required, Validators.maxLength(100), this.noWhitespaceValidator]],
@@ -47,12 +70,13 @@ export class EditDepartmentChecklistsComponent {
       .pipe(concatMap(() => this.saveChecklist()))
       .subscribe({
         next: (response: any) => {
-
-          const updatedList = response.data?.list_items || response;
+          const updatedList = response.data?.list_items ?? response?.list_items ?? response ?? [];
 
           this.checks = this.checks
             .map(localItem => {
-              const serverItem = updatedList.find((srv: any) => srv.id === localItem.id);
+              const serverItem = Array.isArray(updatedList)
+                ? updatedList.find((srv: any) => srv.id === localItem.id || (localItem.record_type === 'create' && String(srv.name) === String(localItem.name)))
+                : null;
               return serverItem
                 ? {
                   ...localItem,
@@ -60,23 +84,25 @@ export class EditDepartmentChecklistsComponent {
                   name: serverItem.name,
                   points: serverItem.points,
                   ranking: serverItem.ranking,
-                  record_type: 'update' as 'update',
-                  editing: false
+                  record_type: 'update' as const,
+                  editing: false,
+                  completed: false
                 }
                 : localItem;
             })
             .filter(item => !this.deletedChecks.some(d => d.id === item.id));
 
-          const confirmedDeleted = updatedList
-            .filter((item: any) => item.record_type === 'delete')
-            .map((item: any) => item.id);
+          const confirmedDeleted = Array.isArray(updatedList)
+            ? updatedList.filter((item: any) => item.record_type === 'delete').map((item: any) => item.id)
+            : [];
+          this.deletedChecks = this.deletedChecks.filter(d => !confirmedDeleted.includes(d.id));
 
-          this.deletedChecks = this.deletedChecks.filter(
-            d => !confirmedDeleted.includes(d.id)
-          );
+          this.toaster.showSuccess('Checklist saved successfully');
         },
-
-        error: (err) => console.error('Error saving checklist', err)
+        error: (err) => {
+          console.error('Error saving checklist', err);
+          this.toaster.showError(err?.error?.message ?? 'Failed to save checklist');
+        }
       });
 
 
@@ -153,13 +179,8 @@ export class EditDepartmentChecklistsComponent {
     this.checks.push(newCheck);
 
     this.checkForm.reset();
-    this.showInput = false;
 
     this.queueSave();
-  }
-
-  showAddInput() {
-    this.showInput = true;
   }
 
   // Drag & drop
@@ -192,7 +213,108 @@ export class EditDepartmentChecklistsComponent {
 
   onDragEnd() { this.draggedIndex = null; this.dragOverIndex = null; }
 
-  // Remove checklist item
+  // Toggle checkbox (same as onboarding)
+  toggleCheck(index: number): void {
+    this.checks[index].completed = !this.checks[index].completed;
+    if (this.hasSelectedChecks) {
+      this.selectionError = null;
+    }
+  }
+
+  showSelectionErrorMsg(message: string): void {
+    this.selectionError = message;
+    setTimeout(() => {
+      this.selectionError = null;
+    }, 3500);
+  }
+
+  // Edit selected items (same as onboarding)
+  startEditSelected(): void {
+    if (!this.hasSelectedChecks) {
+      this.showSelectionErrorMsg('Please select at least one item to edit.');
+      return;
+    }
+    this.checks.forEach(c => {
+      if (c.completed) {
+        c.editing = true;
+        c._originalName = c.name;
+        c._originalPoints = c.points ?? 0;
+      }
+    });
+  }
+
+  // Delete selected: open modal (same as onboarding)
+  deleteSelected(): void {
+    if (!this.hasSelectedChecks) {
+      this.showSelectionErrorMsg('Please select at least one item to delete.');
+      return;
+    }
+    this.openDeleteModal();
+  }
+
+  openDeleteModal(): void {
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+  }
+
+  confirmDelete(): void {
+    const selected = this.checks.filter(c => c.completed);
+    this.checks = this.checks.filter(c => !c.completed);
+    selected.forEach(item => {
+      if (item.id != null) {
+        item.record_type = 'delete';
+        this.deletedChecks.push(item);
+      }
+    });
+    this.queueSave();
+    this.closeDeleteModal();
+  }
+
+  // Save on blur (same behaviour as onboarding finishEdit)
+  finishEdit(check: CheckItem): void {
+    const name = (check.name ?? '').trim();
+    const points = check.points;
+
+    if (!name) {
+      check.error = 'Checklist Item is required and cannot be only spaces.';
+      check.editing = true;
+      return;
+    }
+    if (name.length > 100) {
+      check.error = 'Checklist Item maxlength is 100 characters only.';
+      check.editing = true;
+      return;
+    }
+    const numPoints = points != null ? Number(points) : NaN;
+    if (Number.isNaN(numPoints) || numPoints < 0 || numPoints > 9999) {
+      check.error = 'Points must be a number between 0 and 9999.';
+      check.editing = true;
+      return;
+    }
+
+    check.error = null;
+    const origName = (check._originalName ?? '').trim();
+    const origPoints = check._originalPoints ?? 0;
+    const nameChanged = name !== origName;
+    const pointsChanged = numPoints !== origPoints;
+
+    check.name = name;
+    check.points = numPoints;
+    check.editing = false;
+    check.completed = false;
+
+    if (!nameChanged && !pointsChanged) {
+      return;
+    }
+
+    if (check.record_type !== 'create') check.record_type = 'update';
+    this.queueSave();
+  }
+
+  // Remove checklist item (single; kept for any direct use, bulk delete uses confirmDelete)
   removeCheck(index: number) {
     const removed = this.checks[index];
 
@@ -219,21 +341,21 @@ export class EditDepartmentChecklistsComponent {
   }
 
 
-  // Save checklist to backend
+  // Save checklist to backend (payload matches API: id for all, record_type create/update/delete)
   private saveChecklist() {
     const allItems = [...this.checks, ...this.deletedChecks];
 
     const raw = {
       request_data: {
         list_items: allItems.map((item, index) => {
-          item.ranking = index + 1;
+          const ranking = index + 1;
           const payload: any = {
+            id: item.record_type === 'create' ? 0 : (item.id ?? 0),
             record_type: item.record_type,
             name: item.name,
-            ranking: item.ranking,
-            points: item.points
+            ranking,
+            points: item.points ?? 0
           };
-          if (item.record_type !== 'create') payload.id = item.id;
           return payload;
         })
       }

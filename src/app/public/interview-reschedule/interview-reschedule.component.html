@@ -61,7 +61,7 @@
             <!-- Reschedule Form -->
             <form [formGroup]="rescheduleForm" (ngSubmit)="onSubmit()" class="reschedule-form">
                 <!-- Date Picker Field -->
-                <div class="form-group">
+                <div class="form-group form-group-tight">
                     <app-date-picker 
                         label="New Interview Date"
                         placeholder="Select a date"
@@ -73,6 +73,74 @@
                             (rescheduleDate?.errors?.['required'] ? 'Date is required' : 'Please select a valid date') : null">
                     </app-date-picker>
                 </div>
+
+                <!-- Time Picker - native-like scrollable columns (hour & minute only) -->
+                <div class="form-group form-group-tight">
+                    <div class="time-picker-wrapper">
+                        <span class="time-picker-label">
+                            New Interview Time
+                            <span class="required">*</span>
+                        </span>
+                        <div class="time-picker-trigger-wrapper" #timePickerTrigger>
+                            <button type="button" class="time-picker-trigger" [class.error]="(rescheduleHour?.invalid && rescheduleHour?.touched) || (rescheduleMinute?.invalid && rescheduleMinute?.touched)"
+                                [class.placeholder]="!hasAnyTimeSelected" (click)="openTimePicker($event)"
+                                [attr.aria-expanded]="isTimePickerOpen" aria-haspopup="listbox" aria-label="Select time">
+                                <span class="time-picker-trigger-value">{{ displayTime || 'Select time' }}</span>
+                                <svg class="time-picker-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+
+                            @if (isTimePickerOpen) {
+                            <div class="time-picker-popup" #timePickerPopup role="listbox" aria-label="Time picker"
+                                (click)="onTimePickerClick($event)">
+                                <div class="time-picker-columns">
+                                    <div class="time-picker-column" data-time-column="hour">
+                                        <div class="time-picker-column-label">Hour</div>
+                                        <div class="time-picker-list">
+                                            @for (h of hourOptions; track h) {
+                                            <button type="button" class="time-picker-option" [class.selected]="rescheduleForm.get('rescheduleHour')?.value === h"
+                                                (click)="selectHour(h)" [attr.aria-selected]="rescheduleForm.get('rescheduleHour')?.value === h">
+                                                {{ h }}
+                                            </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="time-picker-column" data-time-column="minute">
+                                        <div class="time-picker-column-label">Minute</div>
+                                        <div class="time-picker-list">
+                                            @for (m of minuteOptions; track m) {
+                                            <button type="button" class="time-picker-option" [class.selected]="rescheduleForm.get('rescheduleMinute')?.value === m"
+                                                (click)="selectMinute(m)" [attr.aria-selected]="rescheduleForm.get('rescheduleMinute')?.value === m">
+                                                {{ m }}
+                                            </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        @if ((rescheduleHour?.invalid && rescheduleHour?.touched) || (rescheduleMinute?.invalid && rescheduleMinute?.touched)) {
+                        <div class="time-picker-error" role="alert">
+                            <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Hour and minute are required</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                @if (rescheduleForm.hasError('rescheduleInFuture') && rescheduleForm.touched) {
+                <div class="time-picker-error form-error-message" role="alert">
+                    <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span>The reschedule date must be in the future.</span>
+                </div>
+                }
 
                 <button type="submit" class="btn btn-submit" [disabled]="isSubmitting"
                     aria-label="Submit reschedule request">

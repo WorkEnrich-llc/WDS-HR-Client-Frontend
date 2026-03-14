@@ -41,6 +41,10 @@ type Applicant = {
   email: string;
   status: string;
   statusAt: string;
+  /** When status is Accepted, use this for the displayed date (from API status_updated_at) */
+  statusUpdatedAt?: string | null;
+  /** Last update time (from API updated_at) */
+  updatedAt?: string | null;
   intervieweeInfo?: {
     key: string; // "upcoming" | "previous"
     interview_at: string;
@@ -163,6 +167,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   // Store selected applicant for confirmation
   selectedApplicant: Applicant | null = null;
+  /** Job Offer tab: 'accept' = PATCH applications status 6, 'offerAccepted' = PATCH job-offers status 1 */
+  acceptOfferAction: 'accept' | 'offerAccepted' = 'accept';
 
   // Store current applicant data for interview component
   currentInterviewApplicant: any = null;
@@ -273,6 +279,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Reject modal states
   showRejectModal: boolean = false;
   selectedApplicationForReject: Applicant | null = null;
+  /** When true, Reject uses PATCH applications status 7 (Job Offer tab) instead of reject endpoint */
+  rejectFromJobOfferTab: boolean = false;
   rejectionNotes: string = '';
   rejectionMailMessage: string = '';
   rejectionMailMessageError: string | null = null;
@@ -397,6 +405,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             email: item.email || 'N/A',
             status: item.status || 'N/A',
             statusAt: item.created_at || item.updated_at || 'N/A',
+            statusUpdatedAt: item.status_updated_at || null,
+            updatedAt: item.updated_at || null,
             applicantContactStatus: item.applicant_contact_status || null, // Contact status: "Called", "Call Again", "Not Interested", etc.
             intervieweeInfo: item.interviewee_info ? {
               key: item.interviewee_info.key || null,
@@ -1060,7 +1070,6 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error reverting applicant:', error);
-        this.toastr.showError('Failed to revert applicant');
         this.closeRevertModal();
       }
     });
@@ -1514,15 +1523,17 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Open Reject modal
+   * Open Reject modal.
+   * @param fromJobOfferTab When true (Job Offer tab), confirm will PATCH application status 7 instead of reject endpoint.
    */
-  openRejectModal(applicant: Applicant): void {
+  openRejectModal(applicant: Applicant, fromJobOfferTab?: boolean): void {
     if (!applicant?.applicationId) return;
 
     // Close dropdown
     this.openDropdownApplicationId = null;
 
     this.selectedApplicationForReject = applicant;
+    this.rejectFromJobOfferTab = fromJobOfferTab === true;
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
     this.rejectionMailMessageError = null;
@@ -1535,6 +1546,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeRejectModal(): void {
     this.showRejectModal = false;
     this.selectedApplicationForReject = null;
+    this.rejectFromJobOfferTab = false;
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
     this.rejectionMailMessageError = null;
@@ -1545,21 +1557,44 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm Reject — calls /recruiter/jobs-openings/applications/reject/{id}/
+   * Confirm Reject.
+   * From Job Offer tab: PATCH /recruiter/jobs-openings/applications/{id}/ with status 7.
+   * Otherwise: PUT /recruiter/jobs-openings/applications/reject/{id}/ with notes and email.
    */
   confirmReject(): void {
     if (!this.selectedApplicationForReject?.applicationId) return;
 
     this.rejectionMailMessageError = null;
-    if (!this.rejectionMailMessage?.trim()) {
+    if (!this.rejectFromJobOfferTab && !this.rejectionMailMessage?.trim()) {
       this.rejectionMailMessageError = 'Email message is required.';
       return;
     }
 
     this.isRejectSubmitting = true;
+    const applicationId = this.selectedApplicationForReject.applicationId;
+
+    if (this.rejectFromJobOfferTab) {
+      this.jobOpeningsService.updateApplicationStatus(applicationId, 7).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.isRejectSubmitting = false;
+          this.toastr.showSuccess('Application rejected successfully');
+          this.closeRejectModal();
+          this.loadApplicants();
+          this.getJobOpeningDetails(this.jobOpening.id);
+        },
+        error: (error) => {
+          console.error('Error rejecting application:', error);
+          this.isRejectSubmitting = false;
+          this.closeRejectModal();
+        }
+      });
+      return;
+    }
 
     this.jobOpeningsService.rejectApplication(
-      this.selectedApplicationForReject.applicationId,
+      applicationId,
       (this.rejectionNotes ?? '').trim(),
       (this.rejectionMailMessage ?? '').trim()
     ).subscribe({
@@ -2355,12 +2390,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Open accept offer confirmation modal
+   * Open accept offer confirmation modal.
+   * @param action 'accept' = PATCH applications status 6 | 'offerAccepted' = PATCH job-offers/{id}/ status 1
    */
-  openAcceptOfferConfirmation(applicant: Applicant): void {
+  openAcceptOfferConfirmation(applicant: Applicant, action: 'accept' | 'offerAccepted' = 'accept'): void {
     if (!applicant?.applicationId) return;
     this.openDropdownApplicationId = null;
     this.selectedApplicant = applicant;
+    this.acceptOfferAction = action;
     this.isAcceptOfferLoading = false;
     this.isAcceptOfferModalOpen = true;
   }
@@ -2371,6 +2408,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeAcceptOfferModal(): void {
     this.isAcceptOfferModalOpen = false;
     this.selectedApplicant = null;
+    this.acceptOfferAction = 'accept';
     this.isAcceptOfferLoading = false;
   }
 
@@ -2395,40 +2433,60 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm and accept job offer
+   * Confirm: Accept → PATCH applications status 6. Offer Accepted → PATCH job-offers/{id}/ status 1.
    */
   confirmAcceptOffer(): void {
-    // Use jobOfferId (API expects offer id); do not send application_id
-    const jobOfferId = this.selectedApplicant?.jobOfferId;
-    if (!jobOfferId) return;
+    if (!this.selectedApplicant) return;
 
     this.isAcceptOfferLoading = true;
-    this.jobOpeningsService.acceptJobOffer(jobOfferId).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: () => {
-        this.isAcceptOfferLoading = false;
-        this.closeAcceptOfferModal();
-        this.loadApplicants();
-        if (this.jobOpening?.id) {
-          this.getJobOpeningDetails(this.jobOpening.id);
+    if (this.acceptOfferAction === 'accept') {
+      const applicationId = this.selectedApplicant.applicationId;
+      this.jobOpeningsService.updateApplicationStatus(applicationId, 6).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.isAcceptOfferLoading = false;
+          this.closeAcceptOfferModal();
+          this.loadApplicants();
+          if (this.jobOpening?.id) this.getJobOpeningDetails(this.jobOpening.id);
+          this.toastr.showSuccess('Application accepted successfully');
+        },
+        error: (error) => {
+          this.isAcceptOfferLoading = false;
+          console.error('Error accepting application:', error);
+          this.closeAcceptOfferModal();
         }
-        this.toastr.showSuccess('Job offer accepted successfully');
-      },
-      error: (error) => {
+      });
+    } else {
+      const jobOfferId = this.selectedApplicant.jobOfferId;
+      if (!jobOfferId) {
         this.isAcceptOfferLoading = false;
-        console.error('Error accepting job offer:', error);
         this.closeAcceptOfferModal();
+        return;
       }
-    });
+      this.jobOpeningsService.acceptJobOffer(jobOfferId).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.isAcceptOfferLoading = false;
+          this.closeAcceptOfferModal();
+          this.loadApplicants();
+          if (this.jobOpening?.id) this.getJobOpeningDetails(this.jobOpening.id);
+          this.toastr.showSuccess('Job offer accepted successfully');
+        },
+        error: (error) => {
+          this.isAcceptOfferLoading = false;
+          console.error('Error accepting job offer:', error);
+          this.closeAcceptOfferModal();
+        }
+      });
+    }
   }
 
-
   /**
-   * Confirm and decline job offer
+   * Confirm Offer Rejected — PATCH /recruiter/job-offers/{id}/ with request_data.status: 2
    */
   confirmDeclineOffer(): void {
-    // Use jobOfferId (API expects offer id); do not send application_id
     const jobOfferId = this.selectedApplicant?.jobOfferId;
     if (!jobOfferId) return;
 
@@ -2440,9 +2498,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.isDeclineOfferLoading = false;
         this.closeDeclineOfferModal();
         this.loadApplicants();
-        if (this.jobOpening?.id) {
-          this.getJobOpeningDetails(this.jobOpening.id);
-        }
+        if (this.jobOpening?.id) this.getJobOpeningDetails(this.jobOpening.id);
         this.toastr.showSuccess('Job offer declined successfully');
       },
       error: (error) => {

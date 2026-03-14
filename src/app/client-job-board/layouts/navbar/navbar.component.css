@@ -1,32 +1,18 @@
-/* Design Tokens */
+/* Design Tokens - light theme, design system (uses global variables.css) */
 :host {
   --color-primary: var(--client-job-board-primary, #377afd);
   --color-primary-light: var(--client-job-board-primary-light, #2c63cc);
   --color-primary-dark: var(--client-job-board-primary-dark, #2c63cc);
-  --color-white: #ffffff;
-
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 20px;
-
-  --font-size-b3: 14px;
-  --font-size-b2: 16px;
-  --font-size-b1: 20px;
-
-  --line-height-xxs: 18px;
-  --line-height-sm: 20px;
-
-  --font-weight-hv: 600;
 }
 
 .navbar-container {
-  background: #393E46;
-  border-radius: 20px;
-  padding: 24px 32px;
-  margin: 0 auto 16px;
+  background: var(--color-white);
+  border-radius: var(--border-radius-25);
+  padding: var(--spacing-24) var(--spacing-32);
+  margin: 0 auto var(--spacing-16);
   max-width: 1344px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  border: 1px solid #948979;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-neutral-200);
   width: 90%;
   box-sizing: border-box;
   display: block;
@@ -36,19 +22,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-16);
 }
 
 /* Left Section: Logo and Company Info */
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-12);
   flex: 1;
 }
 
 .logo-placeholder-bg {
-  fill: #DFD0B8;
+  fill: var(--color-neutral-500);
 }
 
 .logo-icon {
@@ -80,8 +66,8 @@
 
 .company-name {
   font-size: var(--font-size-b1);
-  font-weight: var(--font-weight-hv);
-  color: #DFD0B8;
+  font-weight: 600;
+  color: var(--color-neutral-800);
   line-height: var(--line-height-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -89,9 +75,8 @@
 
 .tagline {
   font-size: var(--font-size-b3);
-  color: #DFD0B8;
-  opacity: 0.8;
-  line-height: var(--line-height-xxs);
+  color: var(--color-neutral-600);
+  line-height: var(--line-height-xss);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -100,34 +85,34 @@
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-16);
 }
 
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-12);
 }
 
 .social-media-icons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-12);
 }
 
 .social-icon {
   width: 40px;
   height: 48px;
-  border-radius: 12px;
-  border: 1px solid #948979;
+  border-radius: var(--border-radius-16);
+  border: 1px solid var(--color-neutral-200);
   display: flex;
+  color: var(--client-job-board-primary, var(--color-primary, #377afd));
   align-items: center;
   justify-content: center;
-  color: #DFD0B8;
   text-decoration: none;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  background: #222831;
+  background: var(--color-neutral-100);
   box-sizing: border-box;
   position: relative;
   cursor: pointer;
@@ -152,6 +137,15 @@
   height: 18px;
 }
 
+.social-icon svg path {
+  fill: currentColor;
+}
+
+.social-icon:hover,
+.social-icon:focus {
+  color: var(--client-job-board-primary-dark, var(--color-primary-dark, #2c63cc));
+}
+
 /* Tooltip */
 .social-icon[data-tooltip]::before {
   content: attr(data-tooltip);
@@ -159,19 +153,19 @@
   bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%) translateY(4px);
-  padding: 6px 12px;
-  background-color: #393E46;
-  color: #DFD0B8;
-  font-size: 12px;
+  padding: var(--spacing-8) var(--spacing-12);
+  background-color: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+  font-size: var(--font-size-b4);
   font-weight: 500;
   white-space: nowrap;
-  border-radius: 6px;
+  border-radius: var(--spacing-12);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid #948979;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-neutral-600);
 }
 
 .social-icon[data-tooltip]::after {
@@ -181,7 +175,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   border: 5px solid transparent;
-  border-top-color: #393E46;
+  border-top-color: var(--color-neutral-800);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -204,15 +198,15 @@
 .visit-website-btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-12);
   white-space: nowrap;
-  padding: 12px 24px !important;
+  padding: var(--spacing-12) var(--spacing-24) !important;
   border-width: 2px !important;
-  border-radius: 20px !important;
+  border-radius: var(--border-radius-25) !important;
   font-weight: 600 !important;
-  background-color: #222831 !important;
-  border-color: #DFD0B8 !important;
-  color: #DFD0B8 !important;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
   cursor: pointer;
   text-decoration: none;
 }
@@ -220,9 +214,9 @@
 .visit-website-btn:hover,
 .visit-website-btn:focus {
   transform: translateY(-2px);
-  background-color: #DFD0B8 !important;
-  border-color: #DFD0B8 !important;
-  color: #222831 !important;
+  background-color: var(--color-primary-dark) !important;
+  border-color: var(--color-primary-dark) !important;
+  color: var(--color-white) !important;
 }
 
 .visit-website-btn:focus:not(:focus-visible) {
@@ -242,7 +236,7 @@
 .visit-website-btn.btn-outline-primary svg {
   stroke: none !important;
   fill: none !important;
-  color: #DFD0B8 !important;
+  color: var(--color-white) !important;
 }
 
 .visit-website-btn svg path,
@@ -258,7 +252,7 @@
 .visit-website-btn.btn-outline-primary:focus svg {
   stroke: none !important;
   fill: none !important;
-  color: #222831 !important;
+  color: var(--color-white) !important;
 }
 
 .visit-website-btn:hover svg path,
@@ -278,13 +272,13 @@
 /* Large Tablets (1024px and below) */
 @media (max-width: 1024px) {
   .navbar-container {
-    padding: 20px 28px;
-    margin: 40px auto 0;
+    padding: var(--spacing-20) var(--spacing-28);
+    margin: var(--spacing-40) auto 0;
     width: 92%;
   }
 
   .navbar-content {
-    gap: 20px;
+    gap: var(--spacing-20);
   }
 
   .social-icon {

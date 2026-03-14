@@ -1,0 +1,4 @@
+/* Loading spinner on primary submit button: white bubble so it's visible */
+.btn-primary .spinner-grow-sm {
+  color: rgba(255, 255, 255, 0.9);
+}

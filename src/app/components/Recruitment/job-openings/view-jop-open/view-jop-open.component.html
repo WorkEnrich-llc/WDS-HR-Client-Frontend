@@ -130,8 +130,8 @@
               <span>{{ jobOpening.cv_limit || "N/A" }}</span>
             </div>
             <div class="info">
-              <h6>Time Limit</h6>
-              <span>{{ jobOpening.time_limit || "N/A" }} Days</span>
+              <h6>Time Limit (days)</h6>
+              <span>{{ jobOpening.time_limit != null ? jobOpening.time_limit + ' Days' : "N/A" }}</span>
             </div>
             <div class="info">
               <h6>Work Schedule</h6>
@@ -694,11 +694,29 @@
         </div>
       </td>
       <td>
-        @if (activeTab === 'interviewee' && application.intervieweeInfo) {
+        @if (activeTab === 'candidate' && application.applicantContactStatus === 'Not Interested') {
+        <!-- Candidate tab: Not Interested (from actions) -->
+        <div class="d-flex align-items-center gap-2 status-not-interested">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
+            <path fill="#E04F5F" fill-rule="evenodd"
+              d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+            <path fill="#E04F5F" fill-rule="evenodd"
+              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+              clip-rule="evenodd" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block text-danger fw-semibold">Not Interested</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ (application.updatedAt || application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
+        } @else if (activeTab === 'interviewee' && application.intervieweeInfo) {
         <!-- Interview Status Display -->
         <div class="d-flex align-items-center gap-2">
           @if (application.intervieweeInfo.key === 'upcoming') {
           <!-- Upcoming Interview - Primary Color -->
+          <div class="d-flex align-items-center gap-2 status-interview-upcoming">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="var(--color-primary-500)" stroke-width="1.5" style="flex-shrink: 0;">
             <path
@@ -713,10 +731,12 @@
               {{ application.intervieweeInfo.interview_at | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
+          </div>
           } @else if (application.intervieweeInfo.key === 'previous') {
           <!-- Previous Interview - Show Status -->
           @if (application.intervieweeInfo?.status) {
           @let interviewStatusConfig = getInterviewStatusConfig(application.intervieweeInfo.status);
+          <div class="d-flex align-items-center gap-2 status-interview-previous" [style.border-left-color]="interviewStatusConfig.color">
           <div class="status-icon-circle" [style.background-color]="interviewStatusConfig.bgColor"
             [style.color]="interviewStatusConfig.color" style="flex-shrink: 0;">
             @if (interviewStatusConfig.icon === 'check-circle') {
@@ -757,8 +777,10 @@
               {{ application.intervieweeInfo.interview_at | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
+          </div>
           } @else {
           <!-- Fallback if no status -->
+          <div class="d-flex align-items-center gap-2 status-interview-fallback">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="#10b981" stroke-width="1.5" style="flex-shrink: 0;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -769,12 +791,13 @@
               {{ application.intervieweeInfo.interview_at | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
+          </div>
           }
           }
         </div>
         } @else if (activeTab === 'qualified') {
-        <!-- Qualified Status Display -->
-        <div class="d-flex align-items-center gap-2">
+        <!-- Qualified Status Display – date from status_updated_at -->
+        <div class="d-flex align-items-center gap-2 status-qualified">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
             style="flex-shrink: 0;">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -784,7 +807,7 @@
           <div class="d-flex flex-column">
             <span class="d-block text-primary fw-semibold">Qualified Since</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -801,7 +824,7 @@
               ({{ application.jobOfferInfo.offer_status }})
             }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ (application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -819,7 +842,7 @@
               ({{ application.jobOfferInfo.offer_status }})
             }</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ (application.jobOfferInfo.rejected_at || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.jobOfferInfo.rejected_at || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -872,9 +895,24 @@
             </span>
           </div>
         </div>
+        } @else if (activeTab === 'accepted' && (application.status || '').toLowerCase() === 'accepted') {
+        <!-- Accepted tab: status is Accepted but job_offer_info may be missing from list – use statusUpdatedAt -->
+        <div class="d-flex align-items-center gap-2 status-offer-accepted">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block fw-semibold text-success">Accepted</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
         } @else if (activeTab === 'rejected') {
         <!-- Rejected Status Display -->
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 status-applicant-rejected">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
             style="flex-shrink: 0;">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -890,7 +928,7 @@
           <div class="d-flex flex-column">
             <span class="d-block text-danger fw-semibold">Applicant - Rejected at</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
@@ -898,7 +936,7 @@
         <!-- Default Status Display -->
         @if (application.applicantContactStatus === 'Called') {
         <!-- Called Status -->
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 status-called">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
             <path fill="#10B981"
               d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
@@ -915,7 +953,7 @@
         </div>
         } @else if (application.applicantContactStatus === 'Call Again') {
         <!-- Call Again Status -->
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 status-call-again">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
             <path d="M1 4v6h6"></path>
@@ -930,7 +968,7 @@
         </div>
         } @else if (application.applicantContactStatus === 'Not Interested') {
         <!-- Not Interested Status -->
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 status-not-interested">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
             <path fill="#E04F5F" fill-rule="evenodd"
               d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -941,20 +979,22 @@
           <div class="d-flex flex-column">
             <span class="d-block text-danger fw-semibold">Not Interested</span>
             <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              {{ (application.updatedAt || application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
             </span>
           </div>
         </div>
         } @else {
         <!-- Default Status (show offer_status in parentheses when job_offer_info has it) -->
+        <div class="status-default">
         <span class="d-block text-gray-sm">{{ (application.applicantContactStatus &&
           application.applicantContactStatus
           !== 'No Action') ? application.applicantContactStatus : application.status }}@if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'expired') {
           ({{ application.jobOfferInfo.offer_status }})
         }</span>
         <span class="d-block text-truncate" style="max-width: 200px">
-          {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+          {{ (application.statusUpdatedAt || application.statusAt) | date : "dd/MM/yyyy h:mm a" }}
         </span>
+        </div>
         }
         }
       </td>
@@ -1074,7 +1114,8 @@
                 <span>Assignment</span>
               </button>
 
-              <!-- Mark as Called -->
+              <!-- Mark as Called – hide when status is already Called -->
+              @if (application.applicantContactStatus !== 'Called') {
               <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
                 (click)="openMarkAsCalledModal(application, 1)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1090,8 +1131,10 @@
                 </svg>
                 <span>Mark as Called</span>
               </button>
+              }
 
-              <!-- Call Again -->
+              <!-- Call Again – hide when status is already Call Again -->
+              @if (application.applicantContactStatus !== 'Call Again') {
               <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
                 (click)="openMarkAsCalledModal(application, 2)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1107,7 +1150,9 @@
                 </svg>
                 <span>Call Again</span>
               </button>
+              }
 
+              @if (application.applicantContactStatus !== 'Not Interested') {
               <!-- Divider -->
               <div class="dropdown-divider"></div>
 
@@ -1125,6 +1170,7 @@
 
                 <span>Not Interested</span>
               </button>
+              }
 
               <!-- Reject -->
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
@@ -1388,10 +1434,10 @@
                 <span>Job Offer</span>
               </button>
 
-              <!-- Offer Accepted (when offer sent - same API as applicant-details) -->
+              <!-- Offer Accepted – PATCH job-offers/{id}/ status 1 -->
               @if (application.jobOfferId && isOfferStatusSent(application.jobOfferInfo?.offer_status)) {
               <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
+                (click)="openAcceptOfferConfirmation(application, 'offerAccepted')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -1507,10 +1553,9 @@
                 <span>Job Offer</span>
               </button>
 
-              <!-- 2. Accept + 3. Offer Accepted – hide when offer is already Accepted -->
-              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() !== 'accepted') {
+              <!-- 2. Accept – PATCH applications status 6 -->
               <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
+                (click)="openAcceptOfferConfirmation(application, 'accept')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -1518,8 +1563,10 @@
                 </svg>
                 <span>Accept</span>
               </button>
-              <button type="button" class="dropdown-item accept-action d-flex align-items-center gap-2"
-                (click)="openAcceptOfferConfirmation(application)">
+              <!-- 3. Offer Accepted – PATCH job-offers/{id}/ status 1 -->
+              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() !== 'accepted') {
+              <button type="button" class="dropdown-item offer-accepted-action d-flex align-items-center gap-2"
+                (click)="openAcceptOfferConfirmation(application, 'offerAccepted')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -1528,9 +1575,8 @@
                 <span>Offer Accepted</span>
               </button>
               }
-
-              <!-- 4. Offer Rejected – hide when offer is already Rejected -->
-              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() !== 'rejected') {
+              <!-- 4. Offer Rejected – when status is job offer sent or offer accepted (show all actions for sent) -->
+              @if ((application.jobOfferInfo?.offer_status || '').toLowerCase() === 'accepted' || (application.jobOfferInfo?.offer_status || '').toLowerCase() === 'sent') {
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
                 (click)="openDeclineOfferConfirmation(application)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -1544,9 +1590,9 @@
               <!-- Divider -->
               <div class="dropdown-divider"></div>
 
-              <!-- 5. Reject -->
+              <!-- 5. Reject (Job Offer tab: PATCH application status 7) -->
               <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
-                (click)="openRejectModal(application)">
+                (click)="openRejectModal(application, true)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clip-path="url(#clip0_1854_13473_joboffer)">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1818,7 +1864,7 @@
 <app-popup [title]="'Accept Job Offer'" [paragraph1]="'Are you sure you want to mark this job offer as accepted?'"
   [paragraph2]="'This action will finalize the hiring process for this applicant.'" [isOpen]="isAcceptOfferModalOpen"
   (close)="closeAcceptOfferModal()">
-  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmAcceptOffer()"
+  <button modal-btn-left class="btn btn-lg btn-accept-offer-modal text-white w-100" (click)="confirmAcceptOffer()"
     [disabled]="isAcceptOfferLoading">
     @if (!isAcceptOfferLoading) {
     Confirm
@@ -1909,8 +1955,11 @@
 </app-popup>
 
 <!-- Reject confirmation popup -->
-<app-popup [title]="'Reject Application'" [paragraph1]="'Are you sure you want to reject this application?'"
-  [paragraph2]="'This action cannot be undone.'" [isOpen]="showRejectModal" (close)="closeRejectModal()">
+<app-popup [title]="'Reject Application'"
+  [paragraph1]="rejectFromJobOfferTab ? 'Are you sure you want to mark this application as rejected?' : 'Are you sure you want to reject this application?'"
+  [paragraph2]="rejectFromJobOfferTab ? 'This will update the application status to Rejected.' : 'This action cannot be undone.'"
+  [isOpen]="showRejectModal" (close)="closeRejectModal()">
+  @if (!rejectFromJobOfferTab) {
   <div class="w-100 mb-3">
     <label for="rejectionNotes" class="form-label mb-2">Rejection Notes (Optional)</label>
     <textarea id="rejectionNotes" name="rejectionNotes" class="form-control" rows="3" [(ngModel)]="rejectionNotes"
@@ -1926,6 +1975,7 @@
     <small class="text-danger mt-1 d-block">{{ rejectionMailMessageError }}</small>
     }
   </div>
+  }
   <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmReject()"
     [disabled]="isRejectSubmitting">
     @if (!isRejectSubmitting) {

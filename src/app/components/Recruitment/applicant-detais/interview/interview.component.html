@@ -296,6 +296,10 @@
           <div class="placeholder-glow w-100">
             <div class="form-select placeholder w-100" style="height: 38px;"></div>
           </div>
+          } @else if (sections.length === 0) {
+          <select id="Section" class="form-select" [class.is-invalid]="validationErrors.section" disabled>
+            <option value="" selected>The selected department ({{ selectedDepartmentName || 'Unknown' }}) has no sections</option>
+          </select>
           } @else {
           <select id="Section" class="form-select" [(ngModel)]="section" name="section"
             [class.is-invalid]="validationErrors.section"
@@ -329,7 +333,7 @@
           </div>
           } @else if (employees.length === 0) {
           <select id="Interviewer" class="form-select" disabled>
-            <option value="" selected>No employees in this section</option>
+            <option value="" selected>The selected section ({{ selectedSectionName || 'Unknown' }}) has no employees</option>
           </select>
           } @else {
           <select id="Interviewer" class="form-select" [(ngModel)]="interviewer" name="interviewer"
@@ -469,8 +473,12 @@
 
     <div class="d-flex flex-column gap-2 mt-2">
       <div class="d-flex align-items-center gap-3">
-        <button type="submit" class="btn btn-lg btn-primary w-100"
+        <button type="submit" class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
           [disabled]="submitting || !applicationId || isRescheduleLoading">
+          @if (submitting) {
+          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+          <span>{{ overlayTitle === 'Reschedule Interview' ? 'Rescheduling...' : 'Scheduling...' }}</span>
+          } @else {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -478,6 +486,7 @@
             </g>
           </svg>
           <span>{{ overlayTitle }}</span>
+          }
         </button>
         <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="discardInterviewAndClose()">
           <span>Discard Invitation</span>

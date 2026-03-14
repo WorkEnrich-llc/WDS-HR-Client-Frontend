@@ -193,7 +193,6 @@ export class AllJobOpeningsComponent implements OnDestroy {
       },
       error: (error) => {
         console.error('Error updating job status:', error);
-        this.toastr.error('Failed to update job status', '', { timeOut: 3000 });
       }
     });
   }

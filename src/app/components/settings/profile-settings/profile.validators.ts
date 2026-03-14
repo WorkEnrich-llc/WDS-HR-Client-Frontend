@@ -27,7 +27,7 @@ export function fourPartsValidator(): ValidatorFn {
       if (parts.some((w: string) => w.length < 2)) {
          return { wordTooShort: true };
       }
-      if (parts.length < 4) {
+      if (parts.length < 2) {
          return { fourParts: true };
       }
       return null;
@@ -62,7 +62,7 @@ export function arabicNameValidator(): ValidatorFn {
       if (parts.some((part: string) => part.length < 2)) {
          return { wordTooShort: true };
       }
-      if (parts.length < 4) {
+      if (parts.length < 2) {
          return { fourParts: true };
       }
       return null;

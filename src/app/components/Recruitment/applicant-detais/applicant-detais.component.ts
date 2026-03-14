@@ -526,12 +526,12 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Calculate overall rating from feedbacks
+   * Get the rating of the last feedback (most recent) for display in the interview tab
    */
   getOverallRating(feedbacks: any[]): number {
     if (!feedbacks || feedbacks.length === 0) return 0;
-    const sum = feedbacks.reduce((acc, fb) => acc + (fb.rating || 0), 0);
-    return sum / feedbacks.length;
+    const last = feedbacks[feedbacks.length - 1];
+    return last?.rating != null ? Number(last.rating) : 0;
   }
 
   /**

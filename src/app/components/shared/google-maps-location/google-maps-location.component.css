@@ -9,11 +9,18 @@
 
 /* Map specific styles */
 .google-maps-location-container google-map {
+  display: block;
+  height: 100%;
   border-radius: 8px;
   overflow: hidden;
 }
 
-/* Button overlay styles */
+/* Force the inner div rendered by <google-map> to fill its container */
+.google-maps-location-container google-map>div {
+  height: 100% !important;
+}
+
+/*  Button overlay styles */
 .google-maps-location-container .position-absolute button {
   z-index: 10;
 }

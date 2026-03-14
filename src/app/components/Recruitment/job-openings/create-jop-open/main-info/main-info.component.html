@@ -305,20 +305,23 @@
       </div>
 
       <div class="input">
-        <label for="timeLmit">Time Limit</label>
+        <label for="timeLmit">Time Limit (days)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input
             type="number"
             id="timeLmit"
             class="form-control custom-date-input"
-            [class.is-invalid]="isFormTouched && validationErrors.timeLimit"
-            placeholder="Number of Days"
+            [class.is-invalid]="validationErrors.timeLimit"
+            placeholder="Number of days (max 365)"
+            min="1"
+            max="365"
             [(ngModel)]="timeLimit"
             name="timeLimit"
             (input)="onTimeLimitChange()"
+            (blur)="onTimeLimitBlur()"
           />
         </div>
-        @if (isFormTouched && validationErrors.timeLimit) {
+        @if (validationErrors.timeLimit) {
         <div class="text-danger small mt-1">
           {{ validationErrors.timeLimit }}
         </div>

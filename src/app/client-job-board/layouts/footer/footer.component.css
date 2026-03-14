@@ -1,35 +1,21 @@
-/* Design Tokens */
+/* Design Tokens - light theme, design system */
 :host {
   --color-primary: var(--client-job-board-primary, #377afd);
   --color-primary-light: var(--client-job-board-primary-light, #2c63cc);
   --color-primary-dark: var(--client-job-board-primary-dark, #2c63cc);
-  --color-white: #ffffff;
-
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 20px;
-
-  --font-size-b3: 14px;
-  --font-size-b2: 16px;
-  --font-size-b1: 20px;
-
-  --line-height-xxs: 18px;
-  --line-height-sm: 20px;
-
-  --font-weight-hv: 600;
 }
 
 .footer-container {
   position: fixed;
-  bottom: 48px;
+  bottom: var(--spacing-48);
   left: 50%;
   transform: translateX(-50%);
-  background: #393E46;
-  border-radius: 20px;
-  padding: 24px 32px;
+  background: var(--color-white);
+  border-radius: var(--border-radius-25);
+  padding: var(--spacing-24) var(--spacing-32);
   max-width: 1344px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  border: 1px solid #948979;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-neutral-200);
   width: 90%;
   box-sizing: border-box;
   display: block;
@@ -40,7 +26,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 32px;
+  gap: var(--spacing-32);
   width: 100%;
 }
 
@@ -48,7 +34,7 @@
 .footer-left {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-12);
   flex-shrink: 0;
 }
 
@@ -81,8 +67,8 @@
 
 .company-name {
   font-size: var(--font-size-b1);
-  font-weight: var(--font-weight-hv);
-  color: #DFD0B8;
+  font-weight: 600;
+  color: var(--color-neutral-800);
   line-height: var(--line-height-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -90,9 +76,8 @@
 
 .tagline {
   font-size: var(--font-size-b3);
-  color: #DFD0B8;
-  opacity: 0.8;
-  line-height: var(--line-height-xxs);
+  color: var(--color-neutral-600);
+  line-height: var(--line-height-xss);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -105,13 +90,13 @@
 }
 
 .copyright-text {
-  color: #DFD0B8;
+  color: var(--color-neutral-700);
   text-align: right;
-  font-family: var(--font-family-en-font, Poppins);
-  font-size: var(--size-b2, 16px);
+  font-family: var(--font-family);
+  font-size: var(--font-size-b2);
   font-style: normal;
   font-weight: 600;
-  line-height: var(--line-height-xss, 18px);
+  line-height: var(--line-height-xss);
   white-space: nowrap;
 }
 
@@ -120,14 +105,14 @@
 /* Large Tablets (1024px and below) */
 @media (max-width: 1024px) {
   .footer-container {
-    padding: 20px 28px;
-    bottom: 40px;
+    padding: var(--spacing-20) var(--spacing-28);
+    bottom: var(--spacing-40);
     width: 92%;
-    border-radius: 18px;
+    border-radius: var(--border-radius-25);
   }
 
   .footer-content {
-    gap: 28px;
+    gap: var(--spacing-28);
   }
 
   .copyright-text {
@@ -138,17 +123,17 @@
 /* Tablets (768px and below) */
 @media (max-width: 768px) {
   .footer-container {
-    padding: 20px 24px;
-    bottom: 32px;
-    width: calc(100% - 32px);
-    border-radius: 16px;
+    padding: var(--spacing-20) var(--spacing-24);
+    bottom: var(--spacing-32);
+    width: calc(100% - var(--spacing-32));
+    border-radius: var(--border-radius-16);
   }
 
   .footer-content {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: var(--spacing-16);
   }
 
   .footer-left {
@@ -186,16 +171,16 @@
 /* Mobile Landscape and Small Tablets (600px and below) */
 @media (max-width: 600px) {
   .footer-container {
-    padding: 16px 20px;
-    bottom: 24px;
-    width: calc(100% - 24px);
-    border-radius: 12px;
+    padding: var(--spacing-16) var(--spacing-20);
+    bottom: var(--spacing-24);
+    width: calc(100% - var(--spacing-24));
+    border-radius: var(--border-radius-16);
   }
 
   .footer-content {
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: var(--spacing-12);
   }
 
   .footer-left {
@@ -225,18 +210,18 @@
 /* Mobile (480px and below) */
 @media (max-width: 480px) {
   .footer-container {
-    padding: 14px 16px;
-    bottom: 20px;
-    width: calc(100% - 20px);
-    border-radius: 12px;
+    padding: var(--spacing-16) var(--spacing-16);
+    bottom: var(--spacing-20);
+    width: calc(100% - var(--spacing-20));
+    border-radius: var(--border-radius-16);
   }
 
   .footer-content {
-    gap: 14px;
+    gap: var(--spacing-16);
   }
 
   .footer-left {
-    gap: 10px;
+    gap: var(--spacing-12);
   }
 
   .logo-icon,
@@ -273,18 +258,18 @@
 /* Small Mobile (360px and below) */
 @media (max-width: 360px) {
   .footer-container {
-    padding: 12px 14px;
-    bottom: 16px;
-    width: calc(100% - 16px);
-    border-radius: 10px;
+    padding: var(--spacing-12) var(--spacing-16);
+    bottom: var(--spacing-16);
+    width: calc(100% - var(--spacing-16));
+    border-radius: var(--border-radius-16);
   }
 
   .footer-content {
-    gap: 12px;
+    gap: var(--spacing-12);
   }
 
   .footer-left {
-    gap: 8px;
+    gap: var(--spacing-8);
   }
 
   .logo-icon,
@@ -312,13 +297,13 @@
 /* Extra Small Mobile (320px and below) */
 @media (max-width: 320px) {
   .footer-container {
-    padding: 10px 12px;
-    bottom: 12px;
-    width: calc(100% - 12px);
+    padding: var(--spacing-12) var(--spacing-12);
+    bottom: var(--spacing-12);
+    width: calc(100% - var(--spacing-12));
   }
 
   .footer-content {
-    gap: 10px;
+    gap: var(--spacing-12);
   }
 
   .company-name {
@@ -338,21 +323,20 @@
 /* Touch Device Optimizations */
 @media (hover: none) and (pointer: coarse) {
   .footer-container {
-    /* Ensure footer is accessible on touch devices */
-    padding: 16px 20px;
+    padding: var(--spacing-16) var(--spacing-20);
   }
 }
 
 /* Landscape Orientation on Mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .footer-container {
-    bottom: 16px;
-    padding: 12px 20px;
+    bottom: var(--spacing-16);
+    padding: var(--spacing-12) var(--spacing-20);
   }
 
   .footer-content {
     flex-direction: row;
-    gap: 20px;
+    gap: var(--spacing-20);
   }
 
   .copyright-text {

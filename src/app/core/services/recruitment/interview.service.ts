@@ -116,9 +116,9 @@ export class InterviewService {
   }
 
   /**
-   * Reschedule an interview
+   * Reschedule an interview (POST).
    * @param token The interview token (s parameter from URL)
-   * @param rescheduleAvailableAt The new date and time for the interview (ISO format)
+   * @param rescheduleAvailableAt The new date and time for the interview (ISO format, e.g. YYYY-MM-DDTHH:mm)
    * @returns Observable response
    */
   rescheduleInterview(token: string, rescheduleAvailableAt: string): Observable<any> {

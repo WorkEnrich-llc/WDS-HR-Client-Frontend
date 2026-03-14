@@ -468,6 +468,20 @@ export class InterviewComponent implements OnChanges {
     });
   }
 
+  /** Name of the currently selected department (for empty-state messages). */
+  get selectedDepartmentName(): string {
+    if (this.department == null) return '';
+    const id = Number(this.department);
+    return this.departments.find((d) => d.id === id)?.name ?? '';
+  }
+
+  /** Name of the currently selected section (for empty-state messages). */
+  get selectedSectionName(): string {
+    if (this.section == null) return '';
+    const id = Number(this.section);
+    return this.sections.find((s) => s.id === id)?.name ?? '';
+  }
+
   onDepartmentChange(): void {
     // Clear section and employees when department changes
     this.section = null;
@@ -675,6 +689,7 @@ export class InterviewComponent implements OnChanges {
           this.closeAllOverlays();
           this.resetInterviewForm();
           this.applicationRefreshed.emit();
+          this.toasterService.showSuccess('Interview scheduled successfully');
         },
         error: () => {
           this.submitting = false;
