@@ -614,7 +614,7 @@
                         </div>
                         @if (item.reschedule_available_at) {
                         <div class="reschedule-available">
-                          Available from: {{ item.reschedule_available_at | date : "dd/MM/yyyy" }}
+                          Available from: {{ item.reschedule_available_at | date : "dd/MM/yyyy 'at' HH:mm" }}
                         </div>
                         }
                       </div>
