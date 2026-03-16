@@ -598,10 +598,14 @@
                       }
 
                       <!-- Accepted Status -->
-                      @if ((item.status === 'Accepted' || item.status === 'accepted') && item.accepted_at) {
+                      @if (item.status === 'Accepted' || item.status === 'accepted') {
                       <div class="accepted-status-details">
                         <div class="accepted-date">
-                          <span>Accepted on {{ item.accepted_at | date : "dd/MM/yyyy" }}</span>
+                          @if (item.accepted_at) {
+                          <span>Accepted on {{ item.accepted_at | date : "dd/MM/yyyy 'at' HH:mm" }}</span>
+                          } @else {
+                          <span>Scheduled: {{ formatInterviewDateTime(item.date, item.time_from, item.time_to) }}</span>
+                          }
                         </div>
                       </div>
                       }
@@ -610,7 +614,7 @@
                       @if (item.status === 'Reschedule' || item.status === 'reschedule') {
                       <div class="reschedule-status-details">
                         <div class="reschedule-date">
-                          Reschedule requested on {{ item.reschedule_request_at | date : "dd/MM/yyyy" }}
+                          Reschedule requested on {{ item.reschedule_request_at | date : "dd/MM/yyyy 'at' HH:mm" }}
                         </div>
                         @if (item.reschedule_available_at) {
                         <div class="reschedule-available">
@@ -624,7 +628,7 @@
                       @if (item.status === 'Expired') {
                       <div class="expired-status-details">
                         <div class="expired-date">
-                          Expired on {{ item.expiration_date | date : "dd/MM/yyyy" }}
+                          Expired on {{ item.expiration_date | date : "dd/MM/yyyy 'at' HH:mm" }}
                         </div>
                       </div>
                       }
