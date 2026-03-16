@@ -390,14 +390,14 @@ export class JobOpeningsService {
         return this._HttpClient.get(url);
     }
 
-    // reschedule interview (update existing interview by interview ID)
+    // reschedule interview (PUT with interview_id in body, not in URL)
     rescheduleInterview(
         interviewId: number,
         payload: {
             title: string;
             interviewer: number;
-            department: number | null;
-            section: number | null;
+            department?: number | null;
+            section?: number | null;
             date: string; // YYYY-MM-DD
             time_from: string; // HH:mm
             time_to: string;   // HH:mm
@@ -405,8 +405,19 @@ export class JobOpeningsService {
             location: number | null;
         }
     ): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/interviews/${interviewId}/`;
-        const body = { request_data: payload };
+        const url = `${this.apiBaseUrl}recruiter/interviews/reschedule/`;
+        const body = {
+            request_data: {
+                interview_id: interviewId,
+                title: payload.title,
+                interviewer: payload.interviewer,
+                date: payload.date,
+                time_from: payload.time_from,
+                time_to: payload.time_to,
+                interview_type: payload.interview_type,
+                location: payload.location
+            }
+        };
         return this._HttpClient.put(url, body);
     }
 
