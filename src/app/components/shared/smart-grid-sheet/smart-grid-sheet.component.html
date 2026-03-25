@@ -12,7 +12,7 @@
       <tr>
         <th></th>
         @for (col of columns; track col) {
-        <th>{{ col.label }} @if(col.required){<span class="text-danger"> *</span>}</th>
+        <th>{{ col.headerLabel ?? col.label }} @if(col.required){<span class="text-danger"> *</span>}</th>
         }
       </tr>
       }
@@ -56,10 +56,21 @@
             <input [type]="col.type === 'date' ? 'date' : (col.type === 'time' ? 'time' : 'text')"
               [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
               (change)="emitUpdatedRows()"
-              class="form-control no-radius no-padding-input ps-4" [ngClass]="{ 'is-invalid': isCellInvalid(form, col, rowIndex)
- }" (paste)="paste($event, rowIndex, col.name)" (focus)="handleFocus(rowIndex, col.name)"
+              class="form-control no-radius no-padding-input ps-4"
+              [ngClass]="{
+                'is-invalid': isCellInvalid(form, col, rowIndex),
+                'input-has-cell-unit': !!col.valueUnitSuffix,
+                'input-has-cell-unit--clear': !!col.valueUnitSuffix && hasClearableValue(form, col)
+              }" (paste)="paste($event, rowIndex, col.name)" (focus)="handleFocus(rowIndex, col.name)"
               (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
               (keydown)="handleKeyDown($event, rowIndex, colIndex)" />
+            @if (col.valueUnitSuffix) {
+            <span
+              class="cell-unit-suffix"
+              [attr.title]="col.valueUnitSuffix === '%' ? 'Percentage' : col.valueUnitSuffix"
+              [style.inset-inline-end.px]="hasClearableValue(form, col) ? 34 : 8"
+            >{{ col.valueUnitSuffix }}</span>
+            }
             }
             @if (hasClearableValue(form, col)) {
             <button

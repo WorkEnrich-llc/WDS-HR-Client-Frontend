@@ -168,3 +168,25 @@ table.smart-grid-table tbody tr td > div {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-danger-200);
 }
+
+.cell-unit-suffix {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--color-secondary-600);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+
+.smart-grid-table input.input-has-cell-unit {
+    padding-inline-end: 2.85rem !important;
+}
+
+.smart-grid-table input.input-has-cell-unit--clear {
+    padding-inline-end: 4.75rem !important;
+}

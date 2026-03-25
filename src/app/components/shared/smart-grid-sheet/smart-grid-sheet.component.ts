@@ -9,6 +9,13 @@ export interface TableColumn {
   key: string;
   name: string;
   label: string;
+  /** When set, used for the column header text instead of `label` (e.g. stripped payroll markers). */
+  headerLabel?: string;
+  /**
+   * Short unit shown beside numeric/text cell values (e.g. EGP, Days, %).
+   * Set from API header patterns like `◉ (V)`, `(D)`, `(P)` at end of label.
+   */
+  valueUnitSuffix?: string;
   type: 'input' | 'select' | 'date' | 'time';
   validators?: ValidatorFn[];
   options?: { value: any; label: string }[];
@@ -122,7 +129,8 @@ export class SmartGridSheetComponent implements OnChanges {
     const rows = this.rowsInput || [];
 
     const widths = this.columns.map(col => {
-      const headerText = `${col.label || ''}${col.required ? ' *' : ''}`;
+      const displayHeader = col.headerLabel ?? col.label;
+      const headerText = `${displayHeader || ''}${col.required ? ' *' : ''}`;
       ctx.font = `500 14px ${fontStack}`;
       let maxW = headerText ? ctx.measureText(headerText).width : 0;
 
@@ -143,7 +151,10 @@ export class SmartGridSheetComponent implements OnChanges {
         }
       }
 
-      const controlPad = col.type === 'select' ? 72 : 56;
+      const suffixW = col.valueUnitSuffix
+        ? ctx.measureText(col.valueUnitSuffix).width + 10
+        : 0;
+      const controlPad = col.type === 'select' ? 72 : 56 + suffixW;
       return Math.ceil(Math.max(maxW + controlPad, 72));
     });
 

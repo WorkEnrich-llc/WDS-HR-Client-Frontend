@@ -18,6 +18,8 @@ export interface HeaderItem {
   key: string;
   type: string;
   data: any[];
+  /** Payroll sheet: set for dynamic components; base salary columns are usually null. */
+  component_id?: number | null;
   reliability?: string | null;
   required?: boolean;
   editable?: boolean;
@@ -276,10 +278,20 @@ export class SystemFileComponent implements OnInit {
           break;
       }
 
+      let valueUnitSuffix = this.inferValueUnitSuffixFromPayrollHeaderLabel(header.label);
+      if (valueUnitSuffix === undefined && this.isPayrollSheetDefaultMoneyColumn(header)) {
+        valueUnitSuffix = 'EGP';
+      }
+      const strippedHeader = this.stripTrailingPayrollColumnMarker(header.label);
+      const headerLabel =
+        valueUnitSuffix !== undefined && strippedHeader.length > 0 ? strippedHeader : undefined;
+
       return {
         key: header.key,
         name: header.key,
         label: header.label,
+        ...(headerLabel !== undefined ? { headerLabel } : {}),
+        ...(valueUnitSuffix !== undefined ? { valueUnitSuffix } : {}),
         type,
         validators,
         errorMessage,
@@ -290,6 +302,47 @@ export class SystemFileComponent implements OnInit {
         rawData: header.data,
       };
     });
+  }
+
+  /**
+   * Payroll component headers from the API often end with a unit marker, e.g.
+   * `قسط شاليه ◉ (V) -`, `MONTHLY BOUNS ◉ (D) !`, `target ◉ (P) +`
+   * where (V) = value/money (EGP), (D) = days, (P) = percentage.
+   */
+  private readonly payrollColumnUnitMarker = /\s*(?:[◉•]\s*)?\(([VDP])\)\s*[!+\-]*\s*$/i;
+
+  private inferValueUnitSuffixFromPayrollHeaderLabel(label: string): string | undefined {
+    const m = label.match(this.payrollColumnUnitMarker);
+    if (!m) {
+      return undefined;
+    }
+    const code = m[1].toUpperCase();
+    if (code === 'V') {
+      return 'EGP';
+    }
+    if (code === 'D') {
+      return 'Days';
+    }
+    if (code === 'P') {
+      return '%';
+    }
+    return undefined;
+  }
+
+  private stripTrailingPayrollColumnMarker(label: string): string {
+    return label.replace(this.payrollColumnUnitMarker, '').trim();
+  }
+
+  /**
+   * Base payroll amounts (Basic, insurance, etc.) use numeric types but no `◉ (V)` in the label.
+   * Those rows omit `component_id`; component columns carry `component_id` and usually include (V)/(D)/(P).
+   */
+  private isPayrollSheetDefaultMoneyColumn(header: HeaderItem): boolean {
+    const t = (header.type || '').toLowerCase();
+    if (!['double', 'float', 'number'].includes(t)) {
+      return false;
+    }
+    return header.component_id == null;
   }
 
 
