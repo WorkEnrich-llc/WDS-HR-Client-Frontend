@@ -108,7 +108,24 @@
 }
 
 .table tbody tr:hover {
-    background-color: transparent !important; /* remove row hover highlight */
+    background-color: transparent !important; /* no row hover highlight */
+}
+
+/* Zebra striping */
+.table tbody tr:nth-child(odd) {
+    background-color: transparent !important;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: transparent !important;
+}
+
+.table tbody tr:nth-child(odd) td {
+    background-color: #ffffff !important;
+}
+
+.table tbody tr:nth-child(even) td {
+    background-color: #f5f6f7 !important; /* light grey */
 }
 
 /* Sticky columns for horizontal scroll */
@@ -127,7 +144,7 @@
     position: sticky;
     left: 0;
     z-index: 10;
-    background-color: white;
+    background-color: inherit;
     min-width: 200px;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
@@ -147,25 +164,11 @@
     position: sticky;
     left: 0;
     z-index: 10;
-    background-color: white;
+    background-color: inherit;
     min-width: 200px;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.table tbody tr:hover td:first-child {
-    background-color: white !important; /* keep sticky cell background */
-}
-
-/* Make sure sticky columns use the same hover background.
-   Otherwise, their fixed white background makes it look like the hovered
-   scrolling cells are "behind" the sticky columns. */
-.table tbody tr:hover td.employee-sticky-cell {
-    background-color: white !important; /* keep sticky cell background */
-}
-
-.table tbody tr:hover td:last-child {
-    background-color: white !important; /* keep sticky cell background */
-}
 
 /* Actions column - fixed on right */
 .table thead th:last-child {
@@ -182,14 +185,11 @@
     position: sticky;
     right: 0;
     z-index: 10;
-    background-color: white;
+    background-color: inherit;
     min-width: 120px;
     box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.table tbody tr:hover td:last-child {
-    background-color: white !important; /* keep sticky cell background */
-}
 
 @keyframes skeletonMove {
     0% {
