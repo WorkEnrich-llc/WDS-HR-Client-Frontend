@@ -222,7 +222,10 @@ export class ManageTaxesComponent implements OnInit {
         null as unknown as number | null,
         [Validators.required, Validators.min(0), this.maxNotBelowSiblingMinValidator()]
       ],
-      exemption: [0, [Validators.required, Validators.min(0)]],
+      exemption: [
+        null as unknown as number | null,
+        [Validators.required, Validators.min(0)]
+      ],
       brackets: this.fb.array([])
     });
   }
