@@ -511,6 +511,7 @@ export class SystemFileComponent implements OnInit {
   confirmReupdate() {
     if (!this.SystemFileId) return;
 
+    const fileId = this.SystemFileId;
     const shouldTrackUpload = this.reupdateType !== 'structure';
     this.errMsg = '';
     this.reupdatePOP = false;
@@ -518,7 +519,7 @@ export class SystemFileComponent implements OnInit {
     this.gridsEditable = false;
     this.cdr.detectChanges();
 
-    this._systemCloudService.reUpdatePayroll(this.SystemFileId, this.reupdateType).subscribe({
+    this._systemCloudService.reUpdatePayroll(fileId, this.reupdateType).subscribe({
       next: (response) => {
         this.errMsg = '';
         const successMsg = this.normalizeMessage(
@@ -526,11 +527,12 @@ export class SystemFileComponent implements OnInit {
           'Update request sent successfully.'
         );
         this.toasterMessageService.showSuccess(successMsg);
+        this.getSystemFileData(fileId);
 
         // For structure update, do not trigger sync/upload tracking.
         // Keep tracking only for other reupdate types.
-        if (shouldTrackUpload && this.SystemFileId) {
-          this.startUploadTracking(this.SystemFileId);
+        if (shouldTrackUpload) {
+          this.startUploadTracking(fileId);
         } else {
           this.upLoading = false;
           this.gridsEditable = true;
@@ -547,8 +549,9 @@ export class SystemFileComponent implements OnInit {
         if (is2xxStatus || this.isSuccessfulReupdatePayload(payload) || this.isSuccessfulReupdatePayload(err)) {
           this.errMsg = '';
           this.toasterMessageService.showSuccess('Update request sent successfully.');
-          if (shouldTrackUpload && this.SystemFileId) {
-            this.startUploadTracking(this.SystemFileId);
+          this.getSystemFileData(fileId);
+          if (shouldTrackUpload) {
+            this.startUploadTracking(fileId);
           } else {
             this.upLoading = false;
             this.gridsEditable = true;
