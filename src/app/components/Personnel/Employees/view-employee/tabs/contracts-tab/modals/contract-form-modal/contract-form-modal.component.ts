@@ -5,12 +5,13 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../../../core/interfaces/employee';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { DatePickerComponent } from '../../../../../../../shared/date-picker/date-picker.component';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-contract-form-modal',
-  imports: [FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, DecimalPipe],
+  imports: [FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, DatePickerComponent, DecimalPipe],
   templateUrl: './contract-form-modal.component.html',
   styleUrl: './contract-form-modal.component.css'
 })
@@ -35,7 +36,8 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
       endDate: [null], // conditional field
-      noticePeriod: [null, [Validators.required, Validators.min(1)]] // notice period in days
+      // Notice period is optional; only validate min when a value is provided.
+      noticePeriod: [null, [Validators.min(1)]] // notice period in days
     }, { validators: this.dateRangeValidator.bind(this) });
   }
 
