@@ -169,7 +169,6 @@ export class CreateNewJobTitleComponent {
       departmentControl?.enable();
       sectionControl?.enable();
       departmentControl?.setValidators([Validators.required]);
-      sectionControl?.setValidators([Validators.required]);
       this.isDepartmentSelected = true;
       this.isSectionSelected = true;
     }
