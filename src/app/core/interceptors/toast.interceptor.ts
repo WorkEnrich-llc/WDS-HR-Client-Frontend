@@ -15,6 +15,19 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthenticationService } from '../services/authentication/authentication.service';
 import { AuthHelperService } from '../services/authentication/auth-helper.service';
 
+function normalizeToastMessage(value: any): string {
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+  if (Array.isArray(value)) {
+    return value.map(v => String(v ?? '').trim()).filter(Boolean).join(', ');
+  }
+  if (value == null) {
+    return '';
+  }
+  return String(value).trim();
+}
+
 // Helper function to extract error messages from the complex API error structure
 function extractErrorMessages(error: HttpErrorResponse): string[] {
   const messages: string[] = [];
@@ -33,11 +46,14 @@ function extractErrorMessages(error: HttpErrorResponse): string[] {
 
     // Check for direct error messages
     if (errorBody?.message && messages.length === 0) {
-      messages.push(errorBody.message);
+      const msg = normalizeToastMessage(errorBody.message);
+      if (msg) messages.push(msg);
     } else if (errorBody?.details && messages.length === 0) {
-      messages.push(errorBody.details);
+      const msg = normalizeToastMessage(errorBody.details);
+      if (msg) messages.push(msg);
     } else if (errorBody?.error && typeof errorBody.error === 'string' && messages.length === 0) {
-      messages.push(errorBody.error);
+      const msg = normalizeToastMessage(errorBody.error);
+      if (msg) messages.push(msg);
     }
 
     // Check for validation errors if it's an object
@@ -141,22 +157,22 @@ export const toastInterceptor: HttpInterceptorFn = (
 
             // Prioritize root-level details/message as per user's API response
             if (responseBody?.details) {
-              message = responseBody.details;
+              message = normalizeToastMessage(responseBody.details);
             }
             else if (responseBody?.message) {
-              message = responseBody.message;
+              message = normalizeToastMessage(responseBody.message);
             }
             else if (responseBody?.data?.details) {
-              message = responseBody.data.details;
+              message = normalizeToastMessage(responseBody.data.details);
             }
             else if (responseBody?.data?.message) {
-              message = responseBody.data.message;
+              message = normalizeToastMessage(responseBody.data.message);
             }
             else if (typeof responseBody?.data === 'string') {
-              message = responseBody.data;
+              message = normalizeToastMessage(responseBody.data);
             }
 
-            if (!message || message.trim() === '') {
+            if (!message) {
               return;
             }
 
