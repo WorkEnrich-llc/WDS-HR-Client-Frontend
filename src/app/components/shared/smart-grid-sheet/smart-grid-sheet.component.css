@@ -1,12 +1,20 @@
-table {
+table.smart-grid-table {
     border-collapse: collapse !important;
     padding: 0 !important;
+    table-layout: auto;
+    width: max-content;
+    min-width: 100%;
+    box-sizing: border-box;
+}
 
+table col.col-index {
+    width: 3rem;
+    min-width: 3rem;
 }
 
 .overflow-auto {
     max-height: 88vh;
-    overflow-y: auto;
+    overflow: auto;
 }
 
 thead {
@@ -20,10 +28,10 @@ thead tr th .text-danger {
     font-size: 20px !important;
 }
 
-table thead tr th {
+table.smart-grid-table thead tr th {
     background-color: var(--color-neutral-800) !important;
     color: var(--color-white);
-    text-wrap: nowrap;
+    white-space: nowrap;
     border: 1px solid var(--color-secondary-300);
     padding: var(--spacing-12) !important;
     position: sticky;
@@ -31,32 +39,33 @@ table thead tr th {
     z-index: 100;
 }
 
-table tbody tr td:first-of-type {
+table.smart-grid-table tbody tr td:first-of-type {
     background-color: var(--color-neutral-800) !important;
     color: var(--color-white);
-    text-wrap: nowrap;
+    white-space: nowrap;
     border: 1px solid var(--color-secondary-300);
     padding: 0 var(--spacing-12) !important;
 }
 
-table tbody {
+table.smart-grid-table tbody {
     background-color: var(--color-secondary-300) !important;
 }
 
-/* Prevent one cell with long content from stretching the row and causing blue blocks in adjacent cells */
-table tbody tr td {
+table.smart-grid-table tbody tr td {
     vertical-align: middle !important;
-    overflow: hidden;
     max-height: 3rem;
+    overflow: visible;
+    box-sizing: border-box;
 }
 
-table tbody tr td > div {
-    overflow: hidden;
+table.smart-grid-table tbody tr td > div {
     min-height: 0;
+    min-width: 0;
     max-height: 3rem;
     display: flex;
     align-items: center;
     position: relative;
+    overflow: hidden;
 }
 
 .no-radius {
@@ -70,27 +79,28 @@ table tbody tr td > div {
     padding-bottom: 0.25rem !important;
 }
 
-input:focus {
+.smart-grid-table input:focus {
     box-shadow: none !important;
     border: none !important;
-    box-shadow: inset 0 -2px 0 var(--color-primary-700) !important;
+    border-bottom: 2px solid var(--color-primary-700) !important;
     color: var(--color-primary-500) !important;
     background-color: var(--color-primary-50) !important;
 }
 
-.is-invalid,
-.invalid {
+.smart-grid-table .is-invalid,
+.smart-grid-table .invalid {
     border: none !important;
-    box-shadow: inset 0 -2px 0 var(--color-danger-700) !important;
+    border-bottom: 2px solid var(--color-danger-700) !important;
     color: var(--color-danger-500) !important;
     background-color: var(--color-danger-100) !important;
 }
 
-input,
-select {
-    min-width: 250px !important;
-    width: max-content !important;
-    max-width: 100%;
+.smart-grid-table input,
+.smart-grid-table select {
+    box-sizing: border-box;
+    min-width: 0 !important;
+    width: 100% !important;
+    flex: 1 1 auto;
     height: 2.25rem !important;
     min-height: 2.25rem !important;
     max-height: 2.25rem !important;
@@ -104,9 +114,9 @@ select {
     background-image: none !important;
 }
 
-select:focus {
+.smart-grid-table select:focus {
     box-shadow: none !important;
-    box-shadow: inset 0 -2px 0 var(--color-primary-700) !important;
+    border-bottom: 2px solid var(--color-primary-700) !important;
     color: var(--color-primary-500) !important;
     background-color: var(--color-primary-50) !important;
 }

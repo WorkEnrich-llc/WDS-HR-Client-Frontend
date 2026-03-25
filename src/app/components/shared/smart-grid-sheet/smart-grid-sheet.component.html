@@ -1,6 +1,12 @@
 <div class="overflow-auto">
 
-  <table #dynamicTable class="min-w-100">
+  <table #dynamicTable class="smart-grid-table">
+    <colgroup>
+      <col class="col-index" />
+      @for (col of columns; track col.name; let ci = $index) {
+      <col [style.min-width.px]="minWidthForColumn(ci)" />
+      }
+    </colgroup>
     <thead>
       @if (columns) {
       <tr>

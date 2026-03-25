@@ -1,5 +1,5 @@
 
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, signal, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { NgClass, NgStyle } from '@angular/common';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { PopupComponent } from '../popup/popup.component';
@@ -26,9 +26,13 @@ export interface TableColumn {
   templateUrl: './smart-grid-sheet.component.html',
   styleUrl: './smart-grid-sheet.component.css'
 })
-export class SmartGridSheetComponent {
+export class SmartGridSheetComponent implements OnChanges {
 
   isCopyPasteActive = false;
+
+  /** Min-width per data column (px), from header vs cell/select option text. */
+  columnMinWidthsPx = signal<number[]>([]);
+  private measureCtx?: CanvasRenderingContext2D;
 
   @Input() columns: TableColumn[] = [];
   @Input() initialRows: any[] = [];
@@ -80,6 +84,70 @@ export class SmartGridSheetComponent {
         this.addRow();
       }
     }
+
+    if (changes['columns'] || changes['rowsInput']) {
+      this.updateColumnMinWidths();
+    }
+  }
+
+  minWidthForColumn(index: number): number {
+    const arr = this.columnMinWidthsPx();
+    return arr[index] ?? 80;
+  }
+
+  private getMeasureContext(): CanvasRenderingContext2D {
+    if (!this.measureCtx) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Canvas 2D context unavailable');
+      }
+      this.measureCtx = ctx;
+    }
+    return this.measureCtx;
+  }
+
+  /**
+   * Width heuristic: max of header label, row values, and select option labels.
+   * Uses canvas measureText (approximates table typography; includes Arabic-capable fallbacks in font stack).
+   */
+  private updateColumnMinWidths(): void {
+    if (!this.columns?.length) {
+      this.columnMinWidthsPx.set([]);
+      return;
+    }
+    const ctx = this.getMeasureContext();
+    const fontStack =
+      'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Arabic", sans-serif';
+    const rows = this.rowsInput || [];
+
+    const widths = this.columns.map(col => {
+      const headerText = `${col.label || ''}${col.required ? ' *' : ''}`;
+      ctx.font = `500 14px ${fontStack}`;
+      let maxW = headerText ? ctx.measureText(headerText).width : 0;
+
+      ctx.font = `400 14px ${fontStack}`;
+      for (const row of rows) {
+        const raw = row[col.name];
+        if (raw === null || raw === undefined) continue;
+        const s = String(raw);
+        if (!s) continue;
+        maxW = Math.max(maxW, ctx.measureText(s).width);
+      }
+
+      if (col.type === 'select') {
+        for (const opt of col.options || []) {
+          if (opt?.label != null && opt.label !== '') {
+            maxW = Math.max(maxW, ctx.measureText(String(opt.label)).width);
+          }
+        }
+      }
+
+      const controlPad = col.type === 'select' ? 72 : 56;
+      return Math.ceil(Math.max(maxW + controlPad, 72));
+    });
+
+    this.columnMinWidthsPx.set(widths);
   }
 
   addRow(rowData: any = {}): void {
