@@ -165,9 +165,11 @@
             autocomplete="off"
           />
         </div>
-        @if (taxForm.get('code')?.touched && taxForm.get('code')?.errors?.['maxlength']) {
-        <p class="error-msg">Tax code must not exceed 64 characters.</p>
-        }
+        <div class="field-errors" aria-live="polite">
+          @if (taxForm.get('code')?.touched && taxForm.get('code')?.errors?.['maxlength']) {
+          <p class="error-msg">Tax code must not exceed 64 characters.</p>
+          }
+        </div>
       </div>
 
       <!-- Tax Name -->
@@ -182,13 +184,15 @@
             formControlName="name"
           />
         </div>
-        @if (taxForm.get('name')?.touched &&
-        taxForm.get('name')?.errors?.['required']) {
-        <p class="error-msg">Tax Name is required.</p>
-        } @if (taxForm.get('name')?.touched &&
-        taxForm.get('name')?.errors?.['maxlength']) {
-        <p class="error-msg">Tax Name must not exceed 255 characters.</p>
-        }
+        <div class="field-errors" aria-live="polite">
+          @if (taxForm.get('name')?.touched &&
+          taxForm.get('name')?.errors?.['required']) {
+          <p class="error-msg">Tax Name is required.</p>
+          } @if (taxForm.get('name')?.touched &&
+          taxForm.get('name')?.errors?.['maxlength']) {
+          <p class="error-msg">Tax Name must not exceed 255 characters.</p>
+          }
+        </div>
       </div>
 
       <!-- Minimum Annual Salary -->
@@ -199,20 +203,29 @@
             type="number"
             id="minimum"
             class="form-control custom-date-input"
-            placeholder="0"
+            placeholder="Enter minimum annual salary"
             formControlName="minimum"
             min="0"
+            (input)="onMainSalaryRangeChange()"
+            (change)="onMainSalaryRangeChange()"
           />
         </div>
-        @if (taxForm.get('minimum')?.touched &&
-        taxForm.get('minimum')?.errors?.['required']) {
-        <p class="error-msg">Minimum Annual Salary is required.</p>
-        } @if (taxForm.get('minimum')?.touched &&
-        taxForm.get('minimum')?.errors?.['min']) {
-        <p class="error-msg">
-          Minimum Annual Salary must be greater than or equal to 0.
-        </p>
-        }
+        <div class="field-errors" aria-live="polite">
+          @if (taxForm.get('minimum')?.touched &&
+          taxForm.get('minimum')?.errors?.['required']) {
+          <p class="error-msg">Minimum Annual Salary is required.</p>
+          } @if (taxForm.get('minimum')?.touched &&
+          taxForm.get('minimum')?.errors?.['min']) {
+          <p class="error-msg">
+            Minimum Annual Salary must be greater than or equal to 0.
+          </p>
+          } @if (taxForm.get('minimum')?.touched &&
+          taxForm.get('minimum')?.errors?.['minGreaterThanMax']) {
+          <p class="error-msg">
+            Minimum annual salary cannot be greater than the maximum.
+          </p>
+          }
+        </div>
       </div>
 
       <!-- Maximum Annual Salary -->
@@ -223,20 +236,29 @@
             type="number"
             id="maximum"
             class="form-control custom-date-input"
-            placeholder="0"
+            placeholder="Enter maximum annual salary"
             formControlName="maximum"
             min="0"
+            (input)="onMainSalaryRangeChange()"
+            (change)="onMainSalaryRangeChange()"
           />
         </div>
-        @if (taxForm.get('maximum')?.touched &&
-        taxForm.get('maximum')?.errors?.['required']) {
-        <p class="error-msg">Maximum Annual Salary is required.</p>
-        } @if (taxForm.get('maximum')?.touched &&
-        taxForm.get('maximum')?.errors?.['min']) {
-        <p class="error-msg">
-          Maximum Annual Salary must be greater than or equal to 0.
-        </p>
-        }
+        <div class="field-errors" aria-live="polite">
+          @if (taxForm.get('maximum')?.touched &&
+          taxForm.get('maximum')?.errors?.['required']) {
+          <p class="error-msg">Maximum Annual Salary is required.</p>
+          } @if (taxForm.get('maximum')?.touched &&
+          taxForm.get('maximum')?.errors?.['min']) {
+          <p class="error-msg">
+            Maximum Annual Salary must be greater than or equal to 0.
+          </p>
+          } @if (taxForm.get('maximum')?.touched &&
+          taxForm.get('maximum')?.errors?.['maxLessThanMinimum']) {
+          <p class="error-msg">
+            Maximum annual salary cannot be less than the minimum.
+          </p>
+          }
+        </div>
       </div>
 
       <!-- Exempted Amount -->
@@ -252,15 +274,17 @@
             min="0"
           />
         </div>
-        @if (taxForm.get('exemption')?.touched &&
-        taxForm.get('exemption')?.errors?.['required']) {
-        <p class="error-msg">Exempted Amount is required.</p>
-        } @if (taxForm.get('exemption')?.touched &&
-        taxForm.get('exemption')?.errors?.['min']) {
-        <p class="error-msg">
-          Exempted Amount must be greater than or equal to 0.
-        </p>
-        }
+        <div class="field-errors" aria-live="polite">
+          @if (taxForm.get('exemption')?.touched &&
+          taxForm.get('exemption')?.errors?.['required']) {
+          <p class="error-msg">Exempted Amount is required.</p>
+          } @if (taxForm.get('exemption')?.touched &&
+          taxForm.get('exemption')?.errors?.['min']) {
+          <p class="error-msg">
+            Exempted Amount must be greater than or equal to 0.
+          </p>
+          }
+        </div>
       </div>
     </form>
     } @if (!isLoading) {
@@ -318,7 +342,7 @@
         @for (bracket of bracketsArray.controls; track $index; let i = $index) {
         <div
           [formGroupName]="i"
-          class="bracket-row d-flex align-items-end gap-3"
+          class="bracket-row d-flex align-items-start gap-3"
         >
           <!-- Minimum -->
           <div class="input flex-fill">
@@ -330,15 +354,26 @@
                 type="number"
                 [id]="'minimum-' + i"
                 class="form-control custom-date-input"
-                placeholder="0"
+                placeholder="Enter bracket minimum"
                 formControlName="minimum"
                 min="0"
+                (focus)="onBracketMinMaxFocus(i, 'minimum')"
+                (blur)="onBracketMinMaxBlur(i)"
+                (input)="onBracketRangeChange(i)"
+                (change)="onBracketRangeChange(i)"
               />
             </div>
-            @if (bracket.get('minimum')?.touched &&
-            bracket.get('minimum')?.errors?.['required']) {
-            <p class="error-msg">Minimum is required.</p>
-            }
+            <div class="field-errors" aria-live="polite">
+              @if (bracket.get('minimum')?.touched &&
+              bracket.get('minimum')?.errors?.['required']) {
+              <p class="error-msg">Minimum is required.</p>
+              } @if (bracket.get('minimum')?.touched &&
+              bracket.get('minimum')?.errors?.['min']) {
+              <p class="error-msg">Minimum must be greater than or equal to 0.</p>
+              } @if (shouldShowBracketMinRangeCrossError(i)) {
+              <p class="error-msg">Minimum cannot be greater than maximum.</p>
+              }
+            </div>
           </div>
 
           <!-- Maximum -->
@@ -351,15 +386,26 @@
                 type="number"
                 [id]="'maximum-' + i"
                 class="form-control custom-date-input"
-                placeholder="Annual Salary"
+                placeholder="Enter bracket maximum"
                 formControlName="maximum"
                 min="0"
+                (focus)="onBracketMinMaxFocus(i, 'maximum')"
+                (blur)="onBracketMinMaxBlur(i)"
+                (input)="onBracketRangeChange(i)"
+                (change)="onBracketRangeChange(i)"
               />
             </div>
-            @if (bracket.get('maximum')?.touched &&
-            bracket.get('maximum')?.errors?.['required']) {
-            <p class="error-msg">Maximum is required.</p>
-            }
+            <div class="field-errors" aria-live="polite">
+              @if (bracket.get('maximum')?.touched &&
+              bracket.get('maximum')?.errors?.['required']) {
+              <p class="error-msg">Maximum is required.</p>
+              } @if (bracket.get('maximum')?.touched &&
+              bracket.get('maximum')?.errors?.['min']) {
+              <p class="error-msg">Maximum must be greater than or equal to 0.</p>
+              } @if (shouldShowBracketMaxRangeCrossError(i)) {
+              <p class="error-msg">Maximum cannot be less than minimum.</p>
+              }
+            </div>
           </div>
 
           <!-- Tax Percentage -->
@@ -379,16 +425,21 @@
                 step="0.01"
               />
             </div>
-            @if (bracket.get('percentage')?.touched &&
-            bracket.get('percentage')?.errors?.['required']) {
-            <p class="error-msg">Tax Percentage is required.</p>
-            } @if (bracket.get('percentage')?.touched &&
-            bracket.get('percentage')?.errors?.['max']) {
-            <p class="error-msg">Tax Percentage must be between 0 and 100.</p>
-            }
+            <div class="field-errors" aria-live="polite">
+              @if (bracket.get('percentage')?.touched &&
+              bracket.get('percentage')?.errors?.['required']) {
+              <p class="error-msg">Tax Percentage is required.</p>
+              } @if (bracket.get('percentage')?.touched &&
+              bracket.get('percentage')?.errors?.['min']) {
+              <p class="error-msg">Tax Percentage must be at least 0.</p>
+              } @if (bracket.get('percentage')?.touched &&
+              bracket.get('percentage')?.errors?.['max']) {
+              <p class="error-msg">Tax Percentage must be between 0 and 100.</p>
+              }
+            </div>
           </div>
 
-          <!-- Taxable -->
+          <!-- Taxable (derived from Maximum − Minimum, read-only) -->
           <div class="input flex-fill">
             <label [for]="'taxable-' + i">Taxable</label>
             <div
@@ -397,19 +448,15 @@
               <input
                 type="number"
                 [id]="'taxable-' + i"
-                class="form-control custom-date-input"
-                placeholder="0"
+                class="form-control custom-date-input bracket-taxable-readonly"
+                placeholder="Auto-calculated"
                 formControlName="taxable"
-                min="0"
               />
             </div>
-            @if (bracket.get('taxable')?.touched &&
-            bracket.get('taxable')?.errors?.['required']) {
-            <p class="error-msg">Taxable is required.</p>
-            }
           </div>
 
           <!-- Remove Button -->
+          <div class="bracket-row-remove">
           <button
             type="button"
             class="btn btn-outline-danger remove-bracket-btn"
@@ -428,6 +475,7 @@
             </svg>
             <span>Remove</span>
           </button>
+          </div>
         </div>
         }
 

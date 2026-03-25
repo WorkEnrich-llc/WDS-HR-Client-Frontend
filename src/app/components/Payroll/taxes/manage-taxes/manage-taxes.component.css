@@ -33,7 +33,15 @@
 .error-msg {
   color: #dc3545;
   font-size: 0.875rem;
-  margin: 0.25rem 0 0;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.field-errors {
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .btn-fixed {
@@ -98,11 +106,19 @@
 /* Tax Brackets Styles */
 .bracket-row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 1rem;
   padding: 0;
   background: transparent;
   border: none;
+}
+
+/* Align Remove with input row (label + gap ≈ one line) */
+.bracket-row-remove {
+  flex: 0 0 auto;
+  padding-top: 1.625rem;
+  display: flex;
+  align-items: flex-start;
 }
 
 .bracket-row .input {
@@ -117,10 +133,9 @@
 }
 
 .remove-bracket-btn {
-  flex: 1 1 0;
+  flex: 0 0 auto;
+  width: auto;
   min-width: 0;
-  width: 0;
-  /* Ensures equal distribution */
   height: 48px;
   white-space: nowrap;
   display: flex;
@@ -144,6 +159,12 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
+}
+
+.bracket-taxable-readonly:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 @media (max-width: 768px) {
@@ -174,6 +195,12 @@
   .bracket-row {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .bracket-row-remove {
+    padding-top: 0;
+    width: 100%;
+    justify-content: center;
   }
 
   .remove-bracket-btn {
