@@ -236,16 +236,26 @@
             id="days"
             class="form-control custom-date-input"
             placeholder="Amount of Days"
-            min="1"
+            min="0"
             step="any"
+            (blur)="onDaysBlur()"
           />
         </div>
         @if (bonusDeductionForm.get('days')?.touched &&
         bonusDeductionForm.get('days')?.errors?.['required']) {
         <p class="error-msg">Days is required.</p>
-        } @if (bonusDeductionForm.get('days')?.touched &&
-        bonusDeductionForm.get('days')?.errors?.['pattern']) {
+        }
+        @if (
+          bonusDeductionForm.get('days')?.touched &&
+          bonusDeductionForm.get('days')?.errors?.['invalidDays']
+        ) {
         <p class="error-msg">Days must be a valid number.</p>
+        }
+        @if (
+          bonusDeductionForm.get('days')?.touched &&
+          bonusDeductionForm.get('days')?.errors?.['daysMin']
+        ) {
+        <p class="error-msg">Days must be greater than 0.</p>
         }
       </div>
       <div class="input">

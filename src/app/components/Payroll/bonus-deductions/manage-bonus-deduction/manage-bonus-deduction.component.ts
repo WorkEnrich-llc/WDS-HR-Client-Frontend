@@ -2,7 +2,7 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -330,7 +330,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                                 title: data.title || '',
                                 classification: data.classification?.id === 4 ? 'bonus' : 'deduction',
                                 date: data.date || '',
-                                days: data.days || 1,
+                                days: this.normalizeDaysForForm(data.days),
                                 salaryPortion: salaryPortionName || ''  // Always include, will be updated if empty
                             };
 
@@ -389,10 +389,57 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                 title: ['', [Validators.required, this.minLengthWithoutSpaces(3)]],
                 classification: ['', [Validators.required]],
                 date: ['', [Validators.required]],
-                days: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
+                days: ['', [this.daysAmountValidator()]],
                 salaryPortion: ['', [Validators.required]],
             });
         }
+    }
+
+    /**
+     * Days field: works with type="number" (number | null) and patched strings from API.
+     * Must be a finite number greater than 0. Messages show after the field is touched (e.g. blur).
+     */
+    private daysAmountValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const raw = control.value;
+            if (raw === null || raw === undefined || raw === '') {
+                return { required: true };
+            }
+            const n =
+                typeof raw === 'number'
+                    ? raw
+                    : parseFloat(String(raw).trim().replace(',', '.'));
+            if (!Number.isFinite(n)) {
+                return { invalidDays: true };
+            }
+            if (n <= 0) {
+                return { daysMin: true };
+            }
+            return null;
+        };
+    }
+
+    /** Coerce API / patch payload to a finite number for the days control (fallback 1). */
+    private normalizeDaysForForm(value: unknown): number {
+        if (value === null || value === undefined || value === '') {
+            return 1;
+        }
+        const n =
+            typeof value === 'number'
+                ? value
+                : parseFloat(String(value).trim().replace(',', '.'));
+        return Number.isFinite(n) ? n : 1;
+    }
+
+    /** After leaving the days field, mark touched so validation messages show under the input. */
+    onDaysBlur(): void {
+        const c = this.bonusDeductionForm?.get('days');
+        if (!c) {
+            return;
+        }
+        c.markAsTouched();
+        c.updateValueAndValidity({ emitEvent: false });
+        this.cdr.markForCheck();
     }
 
     /**
