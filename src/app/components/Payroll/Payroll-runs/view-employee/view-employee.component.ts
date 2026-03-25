@@ -149,4 +149,46 @@ export class ViewEmployeeComponent implements OnInit {
 
     return 'text-secondary';
   }
+
+  isPayrollNumericValue(value: any): boolean {
+    return this.parsePayrollNumber(value) !== null;
+  }
+
+  isPayrollPositive(value: any): boolean {
+    const parsed = this.parsePayrollNumber(value);
+    return parsed !== null && parsed > 0;
+  }
+
+  getPayrollDisplayValue(value: any): string {
+    if (value === null || value === undefined || value === '') return '0';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return Number.isFinite(value) ? value.toString() : '0';
+    return String(value);
+  }
+
+  getPayrollAbsoluteDisplayValue(value: any): string {
+    const parsed = this.parsePayrollNumber(value);
+    if (parsed === null) return this.getPayrollDisplayValue(value);
+
+    const display = this.getPayrollDisplayValue(value);
+    if (typeof display === 'string') {
+      // If API already returns formatted text (e.g., "123.00 EGP"), keep its unit.
+      return display.replace(/^-/, '').trim();
+    }
+    return Math.abs(parsed).toString();
+  }
+
+  private parsePayrollNumber(value: any): number | null {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    if (typeof value !== 'string') return null;
+
+    const normalized = value.replace(/,/g, '').trim();
+    if (!normalized) return null;
+
+    const match = normalized.match(/-?\d+(\.\d+)?/);
+    if (!match) return null;
+
+    const parsed = Number(match[0]);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
 }

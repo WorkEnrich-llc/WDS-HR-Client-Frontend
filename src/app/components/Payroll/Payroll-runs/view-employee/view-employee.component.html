@@ -229,7 +229,7 @@
             @for (header of payrollHeaders; let last = $last; track header) {
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
-                    @if (payrollRow[header.key] > 0) {
+                    @if (isPayrollNumericValue(payrollRow?.[header.key])) { @if (isPayrollPositive(payrollRow?.[header.key])) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path fill="#4CA883"
                             d="m12.37 8.165l6.43 6.63c.401.414.158 1.205-.37 1.205H5.57c-.528 0-.771-.79-.37-1.205l6.43-6.63a.5.5 0 0 1 .74 0" />
@@ -239,15 +239,15 @@
                         <path fill="#E04F5F"
                             d="m12.37 15.835l6.43-6.63C19.201 8.79 18.958 8 18.43 8H5.57c-.528 0-.771.79-.37 1.205l6.43 6.63c.213.22.527.22.74 0" />
                     </svg>
-                    }
+                    } }
                     <span>{{ header.display }}</span>
                 </div>
-                @if (payrollRow[header.key] > 0) {
-                <span class="growth">{{ payrollRow[header.key] | number: '1.2-2' }} @if (header.key ===
-                    'basic') { EGP } </span>
+                @if (isPayrollNumericValue(payrollRow?.[header.key])) { @if (isPayrollPositive(payrollRow?.[header.key])) {
+                <span class="growth">{{ getPayrollDisplayValue(payrollRow?.[header.key]) }}</span>
                 } @else {
-                <span class="lose">-{{ Math.abs(payrollRow[header.key]) | number: '1.2-2' }} @if (header.key ===
-                    'basic') { EGP } </span>
+                <span class="lose">{{ getPayrollAbsoluteDisplayValue(payrollRow?.[header.key]) }}</span>
+                } } @else {
+                <span>{{ getPayrollDisplayValue(payrollRow?.[header.key]) }}</span>
                 }
             </div>
             }

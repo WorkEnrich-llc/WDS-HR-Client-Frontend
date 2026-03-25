@@ -1,13 +1,15 @@
-.growth{
+.growth {
     font-weight: 600;
     color: var(--color-success-700);
 }
-.lose{
+
+.lose {
     font-weight: 600;
     color: var(--color-danger-700);
 
 }
-.total{
+
+.total {
     font-size: var(--font-size-b1);
     padding-top: var(--spacing-16);
     color: var(--color-primary-500);
