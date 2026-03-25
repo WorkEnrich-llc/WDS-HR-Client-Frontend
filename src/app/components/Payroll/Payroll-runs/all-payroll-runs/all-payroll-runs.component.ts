@@ -20,7 +20,8 @@ import { DatePipe } from '@angular/common';
   encapsulation: ViewEncapsulation.None
 })
 export class AllPayrollRunsComponent implements OnDestroy {
-  days: number[] = Array.from({ length: 28 }, (_, i) => i + 1);
+  // Start day dropdown range (1..30)
+  days: number[] = Array.from({ length: 30 }, (_, i) => i + 1);
   private subscriptions: Subscription[] = [];
   private apiSub?: Subscription;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
