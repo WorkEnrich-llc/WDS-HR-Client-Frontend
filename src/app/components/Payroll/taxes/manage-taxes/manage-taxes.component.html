@@ -153,18 +153,21 @@
     } @else {
     <!-- Actual Form -->
     <form [formGroup]="taxForm" class="w-lg-50 d-flex flex-column gap-2">
-      <!-- Tax ID (Editable) -->
       <div class="input">
-        <label for="taxId">Tax ID</label>
+        <label for="taxCode">Tax Code</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input
-            type="number"
-            id="taxId"
+            type="text"
+            id="taxCode"
             class="form-control custom-date-input"
-            formControlName="id"
-            placeholder="Tax ID"
+            formControlName="code"
+            placeholder="e.g. TAX009"
+            autocomplete="off"
           />
         </div>
+        @if (taxForm.get('code')?.touched && taxForm.get('code')?.errors?.['maxlength']) {
+        <p class="error-msg">Tax code must not exceed 64 characters.</p>
+        }
       </div>
 
       <!-- Tax Name -->

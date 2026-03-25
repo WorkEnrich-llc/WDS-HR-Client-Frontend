@@ -96,9 +96,37 @@ export class ManageTaxesComponent implements OnInit {
     this.createTax();
   }
 
+  /**
+   * Bracket shape required by API (property order matches backend examples).
+   */
+  private buildTaxBracketRequestPayload(
+    minimum: number,
+    maximum: number,
+    taxable: number,
+    percentage: number,
+    bracketId: number,
+    type: 'create' | 'update' | 'delete'
+  ): {
+    minimum: number;
+    maximum: number;
+    taxable: number;
+    percentage: number;
+    id: number;
+    type: 'create' | 'update' | 'delete';
+  } {
+    return {
+      minimum,
+      maximum,
+      taxable,
+      percentage,
+      id: bracketId,
+      type
+    };
+  }
+
   private initFormModel(): void {
     this.taxForm = this.fb.group({
-      id: [null], // Tax ID - editable
+      code: ['', [Validators.maxLength(64)]],
       name: ['', [Validators.required, Validators.maxLength(255)]],
       minimum: [0, [Validators.required, Validators.min(0)]],
       maximum: [0, [Validators.required, Validators.min(0)]],
@@ -143,8 +171,11 @@ export class ManageTaxesComponent implements OnInit {
           const maximum = data.main_salary?.maximum || 0;
           const exemption = data.main_salary?.exemption || 0;
 
+          const codeStr =
+            data.code !== undefined && data.code !== null ? String(data.code).trim() : '';
+
           this.taxForm.patchValue({
-            id: data.id || null,
+            code: codeStr,
             name: data.name || '',
             minimum: minimum,
             maximum: maximum,
@@ -212,66 +243,68 @@ export class ManageTaxesComponent implements OnInit {
       const currentIds = currentBrackets.map((b: any) => b.id);
       deletedBrackets = this.originalBrackets
         .filter((orig: any) => orig.id && !currentIds.includes(orig.id))
-        .map((bracket: any) => ({
-          id: bracket.id,
-          minimum: bracket.minimum,
-          maximum: bracket.maximum,
-          percentage: bracket.percentage,
-          taxable: bracket.taxable,
-          type: 'delete'
-        }));
+        .map((bracket: any) =>
+          this.buildTaxBracketRequestPayload(
+            +bracket.minimum || 0,
+            +bracket.maximum || 0,
+            +bracket.taxable || 0,
+            +bracket.percentage || 0,
+            +bracket.id,
+            'delete'
+          )
+        );
 
       // Process current brackets: determine if new or updated
       formattedBrackets = currentBrackets.map((bracket: any) => {
         const originalBracket = this.originalBrackets.find((orig: any) => orig.id === bracket.id);
         if (!bracket.id || bracket.id === 0) {
-          // New bracket
-          return {
-            id: 0,
-            minimum: bracket.minimum,
-            maximum: bracket.maximum,
-            percentage: bracket.percentage,
-            taxable: bracket.taxable,
-            type: 'create'
-          };
-        } else if (originalBracket) {
-          // Updated bracket (always send as update even if unchanged)
-          return {
-            id: bracket.id,
-            minimum: bracket.minimum,
-            maximum: bracket.maximum,
-            percentage: bracket.percentage,
-            taxable: bracket.taxable,
-            type: 'update'
-          };
+          return this.buildTaxBracketRequestPayload(
+            bracket.minimum,
+            bracket.maximum,
+            bracket.taxable,
+            bracket.percentage,
+            0,
+            'create'
+          );
         }
-        // Fallback: treat as new
-        return {
-          id: 0,
-          minimum: bracket.minimum,
-          maximum: bracket.maximum,
-          percentage: bracket.percentage,
-          taxable: bracket.taxable,
-          type: 'create'
-        };
+        if (originalBracket) {
+          return this.buildTaxBracketRequestPayload(
+            bracket.minimum,
+            bracket.maximum,
+            bracket.taxable,
+            bracket.percentage,
+            bracket.id,
+            'update'
+          );
+        }
+        return this.buildTaxBracketRequestPayload(
+          bracket.minimum,
+          bracket.maximum,
+          bracket.taxable,
+          bracket.percentage,
+          0,
+          'create'
+        );
       });
 
       // Add deleted brackets
       formattedBrackets = [...formattedBrackets, ...deletedBrackets];
     } else {
       // For create: all brackets are new with id: 0 and type: "create" (required by API)
-      formattedBrackets = (this.taxForm.value.brackets || []).map((bracket: any) => ({
-        id: 0,
-        minimum: +bracket.minimum || 0,
-        maximum: +bracket.maximum || 0,
-        percentage: +bracket.percentage || 0,
-        taxable: +bracket.taxable || 0,
-        type: 'create'
-      }));
+      formattedBrackets = (this.taxForm.value.brackets || []).map((bracket: any) =>
+        this.buildTaxBracketRequestPayload(
+          +bracket.minimum || 0,
+          +bracket.maximum || 0,
+          +bracket.taxable || 0,
+          +bracket.percentage || 0,
+          0,
+          'create'
+        )
+      );
     }
 
     const formData: any = {
-      code: '', // Empty code as per API structure
+      code: (this.taxForm.value.code ?? '').trim(),
       name: this.taxForm.value.name,
       main_salary: {
         minimum: +this.taxForm.value.minimum || 0,
@@ -283,15 +316,9 @@ export class ManageTaxesComponent implements OnInit {
 
     try {
       if (this.isEditMode && this.id) {
-        // Include id in formData, service will add it to request_data
-        formData.id = this.taxForm.value.id || this.id;
         await firstValueFrom(this.taxesService.update(this.id, formData));
         this.toasterService.showSuccess('Tax updated successfully', "Updated Successfully");
       } else {
-        // For create, include id if provided in form
-        if (this.taxForm.value.id) {
-          formData.id = this.taxForm.value.id;
-        }
         await firstValueFrom(this.taxesService.create(formData));
         this.toasterService.showSuccess('Tax created successfully', "Created Successfully");
       }
