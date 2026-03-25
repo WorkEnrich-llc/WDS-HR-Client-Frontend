@@ -253,4 +253,17 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
     this.router.navigate(['/leave-types/view-leave-types', componentId]);
   }
 
+  getEmploymentTypeLabel(leave: any): string {
+    // New API shape: employment_types is an array
+    if (Array.isArray(leave?.employment_types)) {
+      const names = leave.employment_types
+        .map((type: any) => type?.name)
+        .filter((name: any) => typeof name === 'string' && name.trim() !== '');
+      return names.length ? names.join(', ') : '-';
+    }
+
+    // Backward compatibility: older shape had employment_type object
+    return leave?.employment_type?.name || '-';
+  }
+
 }

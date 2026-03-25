@@ -511,6 +511,7 @@ export class SystemFileComponent implements OnInit {
   confirmReupdate() {
     if (!this.SystemFileId) return;
 
+    const shouldTrackUpload = this.reupdateType !== 'structure';
     this.errMsg = '';
     this.reupdatePOP = false;
     this.upLoading = true;
@@ -526,9 +527,14 @@ export class SystemFileComponent implements OnInit {
         );
         this.toasterMessageService.showSuccess(successMsg);
 
-        // start tracking upload/status for the file
-        if (this.SystemFileId) {
+        // For structure update, do not trigger sync/upload tracking.
+        // Keep tracking only for other reupdate types.
+        if (shouldTrackUpload && this.SystemFileId) {
           this.startUploadTracking(this.SystemFileId);
+        } else {
+          this.upLoading = false;
+          this.gridsEditable = true;
+          this.cdr.detectChanges();
         }
       },
       error: (err) => {
@@ -541,8 +547,12 @@ export class SystemFileComponent implements OnInit {
         if (is2xxStatus || this.isSuccessfulReupdatePayload(payload) || this.isSuccessfulReupdatePayload(err)) {
           this.errMsg = '';
           this.toasterMessageService.showSuccess('Update request sent successfully.');
-          if (this.SystemFileId) {
+          if (shouldTrackUpload && this.SystemFileId) {
             this.startUploadTracking(this.SystemFileId);
+          } else {
+            this.upLoading = false;
+            this.gridsEditable = true;
+            this.cdr.detectChanges();
           }
           return;
         }
