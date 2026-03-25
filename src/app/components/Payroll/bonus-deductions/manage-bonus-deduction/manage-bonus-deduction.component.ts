@@ -389,7 +389,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                 title: ['', [Validators.required, this.minLengthWithoutSpaces(3)]],
                 classification: ['', [Validators.required]],
                 date: ['', [Validators.required]],
-                days: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+                days: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
                 salaryPortion: ['', [Validators.required]],
             });
         }
