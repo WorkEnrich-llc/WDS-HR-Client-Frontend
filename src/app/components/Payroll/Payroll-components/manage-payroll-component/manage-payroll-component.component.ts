@@ -158,6 +158,7 @@ export class ManagePayrollComponentComponent implements OnInit {
           this.createPayrollForm.patchValue({
             code: data.code,
             name: data.name,
+            component_status: data.component_status?.id,
             component_type: data.component_type.id,
             classification: data.classification.id,
             calculation: calculationId,
