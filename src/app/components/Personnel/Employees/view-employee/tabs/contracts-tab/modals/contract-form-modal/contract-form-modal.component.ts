@@ -37,7 +37,8 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       withEndDate: [false], // checkbox for new contracts
       endDate: [null], // conditional field
       // Notice period is optional; only validate min when a value is provided.
-      noticePeriod: [null, [Validators.min(1)]] // notice period in days
+      // Allow 0 and null (optional).
+      noticePeriod: [null, [Validators.min(0)]] // notice period in days
     }, { validators: this.dateRangeValidator.bind(this) });
   }
 
@@ -348,7 +349,10 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
           }
         }
       } else if (field.errors['min']) {
-        return `${fieldName} must be greater than 0`;
+        if (fieldName === 'noticePeriod') {
+          return 'noticePeriod must be at least 0 days';
+        }
+        return `${fieldName} must be greater than or equal to 0`;
       }
     }
     return '';
