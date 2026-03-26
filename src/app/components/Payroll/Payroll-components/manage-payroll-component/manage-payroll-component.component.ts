@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CLASSIFICATIONS, COMPONENT_TYPES } from '@app/constants';
 import { PAYROLL_COMPONENT_STATUS } from 'app/core/constants/payroll-component-status.constants';
-import { PayrollComponent } from 'app/core/models/payroll';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { firstValueFrom } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -158,6 +157,7 @@ export class ManagePayrollComponentComponent implements OnInit {
           this.createPayrollForm.patchValue({
             code: data.code,
             name: data.name,
+            component_status: data.component_status?.id,
             component_type: data.component_type.id,
             classification: data.classification.id,
             calculation: calculationId,

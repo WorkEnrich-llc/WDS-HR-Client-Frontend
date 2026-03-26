@@ -1017,7 +1017,9 @@ export class ManageEmployeeSharedService {
       contract_type: data.job_info.contract_type?.id,
       contract_end_date: this.formatDateForInput(data.job_info.end_contract || ''),
       notice_period: data.job_info.notice_period,
-      salary: data.job_info.salary,
+      // Insurance "Current Salary" is derived from contract_details.salary,
+      // so we must use the API's current_contract.salary as the source of truth.
+      salary: (data.current_contract?.salary ?? data.job_info.salary) as any,
       insurance_salary: data.job_info.insurance_salary,
     }, options);
 

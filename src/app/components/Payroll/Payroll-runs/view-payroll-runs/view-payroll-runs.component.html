@@ -366,11 +366,11 @@
     <div class="d-flex align-items-center justify-content-between">
       <h2>Employee Payrolls</h2>
     </div>
-    <div style="overflow-x: auto">
+    <div class="employee-payrolls-table-scroll">
       <table class="table table-sm">
         <thead class="table-dark">
           <tr>
-            <th>Employee</th>
+            <th class="employee-sticky-header">Employee</th>
             @for (header of getDisplayTableHeaders(); track header.key) { @if
             (header.key !== 'id' && header.key !== 'name' && header.key !==
             'employee_id') {
@@ -412,7 +412,7 @@
           } @else { @for (row of getDisplayTableRows(); track row.id ||
           row.employee_id) {
           <tr>
-            <td class="py-2">
+            <td class="py-2 employee-sticky-cell">
               <div class="d-flex flex-column">
                 @if (row.id) {
                 <span class="text-gray-sm text-sm">{{ row.id }}</span>

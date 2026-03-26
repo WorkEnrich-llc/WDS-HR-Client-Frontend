@@ -81,27 +81,10 @@
     <!-- Start Date Field -->
     <div class="input mb-3">
       <label for="startDate">Start Date</label>
-      <div class="form-outline w-100 position-relative custom-date-wrapper">
-        <input id="startDate" type="date" class="form-control custom-date-input"
-          [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
-          placeholder="Select Start Date" formControlName="startDate" />
-          <svg
-            [class.svg-error-adjust]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                <circle cx="18" cy="18" r="3" />
-                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-              </g>
-            </svg>
-            @if (contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched) {
-              <div class="invalid-feedback">
-                Start date is required
-              </div>
-            }
-          </div>
-        </div>
+      <app-date-picker formControlName="startDate" placeholder="Select Start Date" [disableBeforeDate]="false"
+        [errorMessage]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched ? 'Start date is required' : null">
+      </app-date-picker>
+    </div>
 
         <!-- End Date Field - for edit mode (contract adjustments) -->
         <!-- @if (isEditMode) {
@@ -133,32 +116,16 @@
           @if (contractForm.get('withEndDate')?.value === true) {
             <div class="input mb-3">
               <label for="endDate">End Date Date</label>
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input id="endDate" type="date" class="form-control custom-date-input"
-                  [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
-                  placeholder="Select Start Date" formControlName="endDate" />
-                  <svg [class.svg-error-adjust]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke-width="1.5">
-                      <path stroke-linecap="round"
-                        d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                        <circle cx="18" cy="18" r="3" />
-                        <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                      </g>
-                    </svg>
-                    @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
-                      <div class="invalid-feedback">
-                        End date is required when with end date is selected
-                      </div>
-                    }
+              <app-date-picker formControlName="endDate" placeholder="Select End Date" [disableBeforeDate]="false"
+                [errorMessage]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched ? 'End date is required when with end date is selected' : null">
+              </app-date-picker>
 
-                    @if (contractForm.hasError('dateRange') && contractForm.get('endDate')?.touched &&
-                      !contractForm.get('endDate')?.hasError('required')) {
-                      <div class="invalid-feedback d-block"> End Date cannot be before Start Date
-                      </div>
-                    }
-                  </div>
+              @if (contractForm.hasError('dateRange') && contractForm.get('endDate')?.touched &&
+              !contractForm.get('endDate')?.hasError('required')) {
+                <div class="invalid-feedback d-block"> End Date cannot be before Start Date
                 </div>
+              }
+            </div>
               }
               <!-- } -->
 

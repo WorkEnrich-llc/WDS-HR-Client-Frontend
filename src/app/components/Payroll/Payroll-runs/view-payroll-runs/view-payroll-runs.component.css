@@ -75,16 +75,24 @@
     border-radius: 3px;
 }
 
+/* Keep table scrolling inside a fixed viewport so users can always
+   access horizontal scroll without going to page bottom. */
+.employee-payrolls-table-scroll {
+    height: 840px;
+    overflow: auto;
+}
+
 /* Payroll display table - content width without color/spacing changes */
 .table {
     table-layout: auto;
     margin-top: 1.2rem;
-    border-radius: 1rem;
-    overflow: hidden;
     width: 100%;
 }
 
 .table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 11;
     padding: 16px 14px;
     white-space: nowrap;
     font-weight: 600;
@@ -100,13 +108,31 @@
 }
 
 .table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: transparent !important; /* no row hover highlight */
+}
+
+/* Zebra striping */
+.table tbody tr:nth-child(odd) {
+    background-color: transparent !important;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: transparent !important;
+}
+
+.table tbody tr:nth-child(odd) td {
+    background-color: #ffffff !important;
+}
+
+.table tbody tr:nth-child(even) td {
+    background-color: #f5f6f7 !important; /* light grey */
 }
 
 /* Sticky columns for horizontal scroll */
 /* Employee column - fixed on left */
 .table thead th:first-child {
     position: sticky;
+    top: 0;
     left: 0;
     z-index: 12;
     background-color: #343a40;
@@ -118,18 +144,36 @@
     position: sticky;
     left: 0;
     z-index: 10;
-    background-color: white;
+    background-color: inherit;
     min-width: 200px;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.table tbody tr:hover td:first-child {
-    background-color: rgba(0, 0, 0, 0.02);
+/* Ensure sticky behavior with explicit classes as well */
+.employee-sticky-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 12;
+    background-color: #343a40;
+    min-width: 200px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
+
+.employee-sticky-cell {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: inherit;
+    min-width: 200px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
 
 /* Actions column - fixed on right */
 .table thead th:last-child {
     position: sticky;
+    top: 0;
     right: 0;
     z-index: 12;
     background-color: #343a40;
@@ -141,14 +185,11 @@
     position: sticky;
     right: 0;
     z-index: 10;
-    background-color: white;
+    background-color: inherit;
     min-width: 120px;
     box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.table tbody tr:hover td:last-child {
-    background-color: rgba(0, 0, 0, 0.02);
-}
 
 @keyframes skeletonMove {
     0% {

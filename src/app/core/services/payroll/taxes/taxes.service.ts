@@ -63,10 +63,10 @@ export class TaxesService {
    * Update an existing tax
    */
   update(id: number, data: any): Observable<any> {
-    // Include id in request_data and use PUT without id in URL
+    // request_data: { id, code, name, main_salary, brackets } — pass `id` only via first arg, not in `data`
     const requestData = {
       request_data: {
-        id: id,
+        id,
         ...data
       }
     };

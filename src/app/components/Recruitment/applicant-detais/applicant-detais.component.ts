@@ -1,5 +1,5 @@
 import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
-import { Subject, forkJoin, of } from 'rxjs';
+import { Subject, Subscription, forkJoin, of } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -131,6 +131,7 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   currentInterviewForView: any = null;
   interviewViewDetails: any = null;
   interviewViewLoading: boolean = false;
+  private interviewViewSubscription: Subscription | null = null;
   // Track expanded feedback items (by feedback id or composite key)
   expandedFeedbackInterviews: Set<number | string> = new Set();
   // Track expanded feedback section per interview (toggle for rating + list; default collapsed)
@@ -408,12 +409,13 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   // Open interview view overlay with disabled inputs
   viewInterview(interview: any): void {
     if (!interview?.id) return;
+    this.interviewViewSubscription?.unsubscribe();
     this.currentInterviewForView = interview;
     this.interviewViewDetails = null;
     this.interviewViewLoading = true;
     this.interviewViewOverlay?.openOverlay();
 
-    this.jobOpeningsService.getInterviewById(interview.id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.interviewViewSubscription = this.jobOpeningsService.getInterviewById(interview.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.interviewViewDetails = res?.data?.object_info ?? res?.object_info ?? res;
         this.interviewViewLoading = false;
@@ -438,6 +440,8 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   }
 
   closeInterviewViewOverlay(): void {
+    this.interviewViewSubscription?.unsubscribe();
+    this.interviewViewSubscription = null;
     this.interviewViewOverlay?.closeOverlay();
     this.currentInterviewForView = null;
     this.interviewViewDetails = null;
@@ -1192,6 +1196,8 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   }
 
   closeAllOverlays(): void {
+    this.interviewViewSubscription?.unsubscribe();
+    this.interviewViewSubscription = null;
     this.filterBox?.closeOverlay();
     this.jobBox?.closeOverlay();
     this.interviewViewOverlay?.closeOverlay();
@@ -1254,6 +1260,8 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.interviewViewSubscription?.unsubscribe();
+    this.interviewViewSubscription = null;
     this.tabSwitch$.next();
     this.tabSwitch$.complete();
     this.destroy$.next();

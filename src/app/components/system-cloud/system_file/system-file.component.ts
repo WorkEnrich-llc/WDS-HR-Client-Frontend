@@ -6,6 +6,7 @@ import { SmartGridSheetComponent, TableColumn } from '../../shared/smart-grid-sh
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { Subscription, switchMap, takeWhile, timer } from 'rxjs';
@@ -17,6 +18,8 @@ export interface HeaderItem {
   key: string;
   type: string;
   data: any[];
+  /** Payroll sheet: set for dynamic components; base salary columns are usually null. */
+  component_id?: number | null;
   reliability?: string | null;
   required?: boolean;
   editable?: boolean;
@@ -35,7 +38,8 @@ export class SystemFileComponent implements OnInit {
     private route: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toasterMessageService: ToasterMessageService
   ) { }
   @ViewChild('smartGrid') smartGrid!: SmartGridSheetComponent;
   @ViewChild('mainGrid') mainGrid!: SmartGridSheetComponent;
@@ -274,10 +278,20 @@ export class SystemFileComponent implements OnInit {
           break;
       }
 
+      let valueUnitSuffix = this.inferValueUnitSuffixFromPayrollHeaderLabel(header.label);
+      if (valueUnitSuffix === undefined && this.isPayrollSheetDefaultMoneyColumn(header)) {
+        valueUnitSuffix = 'EGP';
+      }
+      const strippedHeader = this.stripTrailingPayrollColumnMarker(header.label);
+      const headerLabel =
+        valueUnitSuffix !== undefined && strippedHeader.length > 0 ? strippedHeader : undefined;
+
       return {
         key: header.key,
         name: header.key,
         label: header.label,
+        ...(headerLabel !== undefined ? { headerLabel } : {}),
+        ...(valueUnitSuffix !== undefined ? { valueUnitSuffix } : {}),
         type,
         validators,
         errorMessage,
@@ -290,36 +304,69 @@ export class SystemFileComponent implements OnInit {
     });
   }
 
+  /**
+   * Payroll component headers from the API often end with a unit marker, e.g.
+   * `قسط شاليه ◉ (V) -`, `MONTHLY BOUNS ◉ (D) !`, `target ◉ (P) +`
+   * where (V) = value/money (EGP), (D) = days, (P) = percentage.
+   */
+  private readonly payrollColumnUnitMarker = /\s*(?:[◉•]\s*)?\(([VDP])\)\s*[!+\-]*\s*$/i;
+
+  private inferValueUnitSuffixFromPayrollHeaderLabel(label: string): string | undefined {
+    const m = label.match(this.payrollColumnUnitMarker);
+    if (!m) {
+      return undefined;
+    }
+    const code = m[1].toUpperCase();
+    if (code === 'V') {
+      return 'EGP';
+    }
+    if (code === 'D') {
+      return 'Days';
+    }
+    if (code === 'P') {
+      return '%';
+    }
+    return undefined;
+  }
+
+  private stripTrailingPayrollColumnMarker(label: string): string {
+    return label.replace(this.payrollColumnUnitMarker, '').trim();
+  }
+
+  /**
+   * Base payroll amounts (Basic, insurance, etc.) use numeric types but no `◉ (V)` in the label.
+   * Those rows omit `component_id`; component columns carry `component_id` and usually include (V)/(D)/(P).
+   */
+  private isPayrollSheetDefaultMoneyColumn(header: HeaderItem): boolean {
+    const t = (header.type || '').toLowerCase();
+    if (!['double', 'float', 'number'].includes(t)) {
+      return false;
+    }
+    return header.component_id == null;
+  }
+
 
   private showErrorToast(message: string) {
-    const toast = document.createElement('div');
-    toast.innerText = message;
-    toast.style.position = 'fixed';
-    toast.style.top = '20px';
-    toast.style.right = '20px';
-    toast.style.background = '#b83d4a';
-    toast.style.color = 'white';
-    toast.style.padding = '10px 16px';
-    toast.style.borderRadius = '8px';
-    toast.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-    toast.style.zIndex = '9999';
-    toast.style.fontSize = '16px';
-    toast.style.fontWeight = '600';
-    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    toast.style.transform = 'translateY(-20px)';
-    toast.style.opacity = '0';
-    document.body.appendChild(toast);
+    this.toasterMessageService.showError(this.normalizeMessage(message, 'Something went wrong.'));
+  }
 
-    setTimeout(() => {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateY(0)';
-    }, 10);
+  private normalizeMessage(message: any, fallback: string): string {
+    if (typeof message === 'string') {
+      const trimmed = message.trim();
+      return trimmed || fallback;
+    }
+    if (Array.isArray(message)) {
+      const joined = message.map(item => String(item ?? '').trim()).filter(Boolean).join(', ');
+      return joined || fallback;
+    }
+    if (message == null) {
+      return fallback;
+    }
+    return String(message).trim() || fallback;
+  }
 
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-20px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
+  private getErrorMessage(err: any, fallback: string): string {
+    return this.normalizeMessage(err?.error?.details ?? err?.message, fallback);
   }
 
   // private validateBeforeAction(rowsArray: any[]): boolean {
@@ -487,7 +534,7 @@ export class SystemFileComponent implements OnInit {
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+        this.errMsg = this.getErrorMessage(err, 'An error occurred while adding to system.');
         this.gridsEditable = true;
         this.upLoading = false;
         this.cdr.detectChanges();
@@ -497,6 +544,7 @@ export class SystemFileComponent implements OnInit {
 
   openReupdateModal(type: 'structure' | 'basic' | 'components_value' | 'all') {
     // if any validation is needed before allowing operation, it can be added here
+    this.errMsg = '';
     this.reupdateType = type;
     this.reupdatePOP = true;
   }
@@ -505,25 +553,69 @@ export class SystemFileComponent implements OnInit {
     this.reupdatePOP = false;
   }
 
+  private isSuccessfulReupdatePayload(payload: any): boolean {
+    return !!(
+      payload?.data?.object_info ||
+      payload?.body?.data?.object_info ||
+      (Array.isArray(payload?.details) && payload?.data)
+    );
+  }
+
   confirmReupdate() {
     if (!this.SystemFileId) return;
 
+    const fileId = this.SystemFileId;
+    const shouldTrackUpload = this.reupdateType !== 'structure';
     this.errMsg = '';
     this.reupdatePOP = false;
     this.upLoading = true;
     this.gridsEditable = false;
     this.cdr.detectChanges();
 
-    this._systemCloudService.reUpdatePayroll(this.SystemFileId, this.reupdateType).subscribe({
+    this._systemCloudService.reUpdatePayroll(fileId, this.reupdateType).subscribe({
       next: (response) => {
-        // start tracking upload/status for the file
-        if (this.SystemFileId) {
-          this.startUploadTracking(this.SystemFileId);
+        this.errMsg = '';
+        const successMsg = this.normalizeMessage(
+          response?.details ?? response?.message,
+          'Update request sent successfully.'
+        );
+        this.toasterMessageService.showSuccess(successMsg);
+        this.getSystemFileData(fileId);
+
+        // For structure update, do not trigger sync/upload tracking.
+        // Keep tracking only for other reupdate types.
+        if (shouldTrackUpload) {
+          this.startUploadTracking(fileId);
+        } else {
+          this.upLoading = false;
+          this.gridsEditable = true;
+          this.cdr.detectChanges();
         }
       },
       error: (err) => {
+        const status = Number(err?.status);
+        const is2xxStatus = status >= 200 && status < 300;
+
+        // Some backends may return a successful payload in a non-2xx response.
+        // If object_info exists, treat it as success and continue tracking.
+        const payload = err?.error ?? err;
+        if (is2xxStatus || this.isSuccessfulReupdatePayload(payload) || this.isSuccessfulReupdatePayload(err)) {
+          this.errMsg = '';
+          this.toasterMessageService.showSuccess('Update request sent successfully.');
+          this.getSystemFileData(fileId);
+          if (shouldTrackUpload) {
+            this.startUploadTracking(fileId);
+          } else {
+            this.upLoading = false;
+            this.gridsEditable = true;
+            this.cdr.detectChanges();
+          }
+          return;
+        }
+
         console.error('Error re-updating payroll:', err);
-        this.errMsg = err.error?.details || 'An error occurred while performing update.';
+        this.errMsg = this.getErrorMessage(err, 'An error occurred while performing update.');
+        this.showErrorToast(this.errMsg);
         this.gridsEditable = true;
         this.upLoading = false;
         this.cdr.detectChanges();
@@ -806,7 +898,7 @@ export class SystemFileComponent implements OnInit {
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+        this.errMsg = this.getErrorMessage(err, 'An error occurred while adding to system.');
         this.gridsEditable = true;
         this.cdr.detectChanges();
       }
