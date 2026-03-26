@@ -424,7 +424,7 @@
             (header.key !== 'id' && header.key !== 'name' && header.key !==
             'employee_id') {
             <td class="py-2 text-sm">
-              {{ row[header.key] }}
+              {{ getFormattedTableCellValue(row, header) }}
             </td>
             } }
             <td class="py-2">
