@@ -323,7 +323,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
 
   generateEndDateOptions(): number[] {
-    return Array.from({ length: 28 }, (_, i) => i + 1);
+    return Array.from({ length: 30 }, (_, i) => i + 1);
   }
 
   closeEarlyPayrollOverlay(): void {
