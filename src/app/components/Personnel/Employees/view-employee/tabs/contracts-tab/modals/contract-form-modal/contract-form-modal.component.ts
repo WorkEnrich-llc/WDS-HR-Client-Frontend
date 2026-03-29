@@ -177,7 +177,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
-      noticePeriod: this.contract.notice_period || null
+      noticePeriod: this.contract.notice_period ?? null
     });
 
     // Set up salary validation after populating

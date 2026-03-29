@@ -44,6 +44,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   private upcomingContractId: number | null = null;
 
   @Output() contractsDataUpdated = new EventEmitter<void>();
+  /** Emitted after contracts are loaded so the parent can sync summary state without a duplicate API call. */
+  @Output() employeeContractsLoaded = new EventEmitter<Contract[]>();
   // private upcomingContract: number | null = null;
 
   private toasterService = inject(ToasterMessageService);
@@ -109,9 +111,13 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.isLoading = true;
     this.employeeService.getEmployeeContracts(this.employee.id).subscribe({
       next: (response) => {
-        this.contractsData = this.mapApiContractsToUI(response.data.list_items);
+        const rawList = response.data.list_items ?? response.data ?? [];
+        const list = Array.isArray(rawList) ? rawList : [];
+        this.contractsData = this.mapApiContractsToUI(list);
         this.totalItems = this.contractsData.length;
         this.isLoading = false;
+
+        this.employeeContractsLoaded.emit(list);
 
         const upcomingContract = this.contractsData.find(contract => contract.status === 'Upcoming');
         this.upcomingContractId = upcomingContract ? upcomingContract.id : null;
