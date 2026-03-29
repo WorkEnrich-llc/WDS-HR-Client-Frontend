@@ -16,6 +16,7 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { normalizeInterviewTypeCode } from 'app/core/helpers/normalize-interview-type.helper';
 
 type EvaluationData = {
   label: string;
@@ -1167,7 +1168,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         const interviewDept = interview.department?.id ?? interview.department ?? null;
         const interviewSection = interview.section?.id ?? interview.section ?? null;
         const interviewInterviewer = interview.interviewer?.id ?? interview.interviewer ?? null;
-        const interviewType = interview.interview_type?.id ?? interview.interview_type ?? 1;
+        const interviewType = normalizeInterviewTypeCode(interview.interview_type);
         const interviewLocation = interview.location?.id ?? interview.location ?? null;
 
         if (interview.id) {

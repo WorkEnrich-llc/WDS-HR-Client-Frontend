@@ -188,6 +188,15 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
 
   // Tab management
   currentTab: string = 'cv';
+  private readonly allowedTabs = new Set([
+    'cv',
+    'notes',
+    'feedback',
+    'interviews',
+    'assignments',
+    'job-offers',
+    'previous-applications'
+  ]);
 
   // Feedback form variables
   feedbackRating: number = 0;
@@ -213,7 +222,19 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   };
 
   // Set current tab
-  setCurrentTab(tab: string): void {
+  setCurrentTab(tab: string, updateQuery: boolean = true): void {
+    if (!this.allowedTabs.has(tab)) {
+      tab = 'cv';
+    }
+
+    if (updateQuery) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab },
+        queryParamsHandling: 'merge'
+      });
+    }
+
     this.tabSwitch$.next();
     this.currentTab = tab;
     // Always fetch feedback when feedback tab is opened
@@ -1268,6 +1289,13 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((query) => {
+      const tab = query.get('tab');
+      if (tab && this.allowedTabs.has(tab) && tab !== this.currentTab) {
+        this.setCurrentTab(tab, false);
+      }
+    });
+
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const applicationIdParam = params.get('applicationId');
       const applicationId = applicationIdParam ? parseInt(applicationIdParam, 10) : NaN;
@@ -1281,7 +1309,8 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
         this.assignments = [];
         this.applicantDetails = null;
         this.applicationDetails = null;
-        this.currentTab = 'cv';
+        const tabFromUrl = this.route.snapshot.queryParamMap.get('tab');
+        this.currentTab = tabFromUrl && this.allowedTabs.has(tabFromUrl) ? tabFromUrl : 'cv';
 
         this.jobOpeningsService.getApplicationDetails(applicationId).pipe(takeUntil(this.destroy$)).subscribe({
           next: (appRes) => {
@@ -1310,6 +1339,8 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
             }
 
             this.isLoading = false;
+            // Ensure current tab data is fetched after application context is ready.
+            this.setCurrentTab(this.currentTab, false);
           },
           error: () => {
             this.isLoading = false;
@@ -1453,7 +1484,7 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
     this.notesPendingDelete = [];
   }
 
-  refreshApplication(): void {
+  refreshApplication(targetTab?: string | void): void {
     if (!this.applicationId) return;
     this.isLoading = true;
     this.jobOpeningsService.getApplicationDetails(this.applicationId).pipe(takeUntil(this.destroy$)).subscribe({
@@ -1464,6 +1495,12 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
           this.applicantDetails.status = this.applicationDetails?.application?.status;
         }
         this.isLoading = false;
+        if (typeof targetTab === 'string' && this.allowedTabs.has(targetTab)) {
+          this.setCurrentTab(targetTab, true);
+          return;
+        }
+        // Keep interviews list in sync after schedule/reschedule (same as switching to Interviews tab)
+        this.fetchInterviews();
       },
       error: () => {
         this.isLoading = false;
