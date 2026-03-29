@@ -19,7 +19,12 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 })
 export class ViewPayrollRunsComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
-  private readonly dayColumnHints = ['day', 'days', 'absent', 'late', 'early_leave', 'overtime'];
+  /**
+   * Header `key`s whose numeric values are day counts (shown as "Day(s)").
+   * Attendance-related columns (absent, late, early_leave, overtime) are monetary in the API — do not add them here.
+   * Avoid substring matching on "day"/"days" (would false-match e.g. "Monday", "holidays").
+   */
+  private readonly dayColumnKeys = new Set<string>([]);
   private readonly percentageColumnHints = ['%', 'percent', 'percentage', 'target'];
   fetchEmployees() {
     this.loadData = true;
@@ -427,15 +432,16 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       return `${this.formatNumber(parsed)} %`;
     }
 
-    if (this.isDayColumn(keyText)) {
+    if (this.isDayColumn(header)) {
       return `${this.formatNumber(parsed)} Day(s)`;
     }
 
     return `${this.formatNumber(parsed)} EGP`;
   }
 
-  private isDayColumn(keyText: string): boolean {
-    return this.dayColumnHints.some(hint => keyText.includes(hint));
+  private isDayColumn(header: any): boolean {
+    const key = String(header?.key ?? '');
+    return this.dayColumnKeys.has(key);
   }
 
   private isPercentageColumn(keyText: string): boolean {
