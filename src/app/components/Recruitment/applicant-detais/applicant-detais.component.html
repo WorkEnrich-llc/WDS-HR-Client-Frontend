@@ -1751,21 +1751,18 @@
     <div class="input">
       <label>Interview Type</label>
       <input type="text" class="form-control"
-        [value]="(interviewViewDetails.interview_type === 2 || interviewViewDetails.interview_type?.id === 2) ? 'Online' : 'Offline'"
+        [value]="getInterviewTypeDisplay(interviewViewDetails)"
         readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input">
-      <label>Interview Location</label>
-      @if (interviewViewDetails.location?.id != null || interviewViewDetails.location?.name != null) {
-      <input type="text" class="form-control"
-        [value]="(interviewViewDetails.location?.name ?? interviewViewDetails.location) || '—'" readonly disabled
-        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-      } @else if (interviewViewDetails.meet_link) {
-      <a [href]="interviewViewDetails.meet_link" target="_blank" rel="noopener noreferrer"
+      @if (isInterviewOnlineView(interviewViewDetails)) {
+      <label>Interview Link</label>
+      @if (getInterviewLinkForView(interviewViewDetails); as linkUrl) {
+      <a [href]="linkUrl" target="_blank" rel="noopener noreferrer"
         class="form-control border d-inline-flex align-items-center gap-2 text-break"
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px); text-decoration: none; color: var(--color-primary-600, #2563eb); min-height: 48px;">
-        <span>{{ interviewViewDetails.meet_link }}</span>
+        <span>{{ linkUrl }}</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
           <polyline points="15 3 21 3 21 9"></polyline>
@@ -1775,6 +1772,17 @@
       } @else {
       <input type="text" class="form-control" value="—" readonly disabled
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      }
+      } @else {
+      <label>Interview Location</label>
+      @if (interviewViewDetails.location?.id != null || interviewViewDetails.location?.name != null) {
+      <input type="text" class="form-control"
+        [value]="(interviewViewDetails.location?.name ?? interviewViewDetails.location) || '—'" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      } @else {
+      <input type="text" class="form-control" value="—" readonly disabled
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      }
       }
     </div>
     @if (interviewViewDetails.status) {

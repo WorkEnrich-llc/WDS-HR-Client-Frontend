@@ -447,6 +447,66 @@ export class ApplicantDetaisComponent implements OnInit, OnDestroy {
     this.interviewViewDetails = null;
   }
 
+  /** View overlay: API may send interview_type as 2, { id: 2 }, "Online", or { name: "Online" }. */
+  isInterviewOnlineView(d: any): boolean {
+    if (!d) return false;
+    const t = d.interview_type;
+    if (t === 2 || t?.id === 2) return true;
+    if (typeof t === 'string') {
+      return t.trim().toLowerCase() === 'online';
+    }
+    if (t != null && typeof t === 'object' && t.name != null) {
+      return String(t.name).trim().toLowerCase() === 'online';
+    }
+    return false;
+  }
+
+  isInterviewOfflineView(d: any): boolean {
+    if (!d) return false;
+    const t = d.interview_type;
+    if (t === 1 || t?.id === 1) return true;
+    if (typeof t === 'string') {
+      return t.trim().toLowerCase() === 'offline';
+    }
+    if (t != null && typeof t === 'object' && t.name != null) {
+      return String(t.name).trim().toLowerCase() === 'offline';
+    }
+    return false;
+  }
+
+  getInterviewTypeDisplay(d: any): string {
+    if (!d) return '—';
+    if (this.isInterviewOnlineView(d)) return 'Online';
+    if (this.isInterviewOfflineView(d)) return 'Offline';
+    const t = d.interview_type;
+    if (typeof t === 'string' && t.trim()) return t.trim();
+    if (t != null && typeof t === 'object' && t.name != null) return String(t.name);
+    return '—';
+  }
+
+  /** Link URL for online interviews (several possible API field names). */
+  getInterviewLinkForView(d: any): string | null {
+    if (!d) return null;
+    const keys = [
+      'meet_link',
+      'meeting_link',
+      'interview_link',
+      'link',
+      'url',
+      'zoom_link',
+      'online_link'
+    ] as const;
+    for (const k of keys) {
+      const v = d[k];
+      if (typeof v === 'string' && v.trim()) return v.trim();
+    }
+    const loc = d.location;
+    if (typeof loc === 'string' && /^https?:\/\//i.test(loc.trim())) {
+      return loc.trim();
+    }
+    return null;
+  }
+
   // Check if interview is completed
   isInterviewCompleted(interview: any): boolean {
     return interview?.status === 'Completed' || interview?.status === 'completed' || interview?.is_completed === true;
