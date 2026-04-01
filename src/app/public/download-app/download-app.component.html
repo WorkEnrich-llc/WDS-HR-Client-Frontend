@@ -1,0 +1,112 @@
+<div class="download-page">
+  <a class="skip-link" href="#download-main">Skip to download options</a>
+
+  <main id="download-main" class="page-main" tabindex="-1">
+    <div class="hero">
+      <div class="hero-visual" aria-hidden="true">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-app-bar">
+              <div class="phone-logo-wrap">
+                @if (useLogoImage) {
+                  <img
+                    class="phone-app-logo-img"
+                    [src]="appLogoSrc"
+                    alt=""
+                    decoding="async"
+                    (error)="onLogoError()"
+                  />
+                } @else {
+                  <svg
+                    class="phone-app-logo-fallback"
+                    viewBox="0 0 40 40"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <defs>
+                      <linearGradient
+                        id="dlPhoneLogoGrad"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stop-color="#599dfe" />
+                        <stop offset="100%" stop-color="#377afd" />
+                      </linearGradient>
+                    </defs>
+                    <rect
+                      width="40"
+                      height="40"
+                      rx="10"
+                      fill="url(#dlPhoneLogoGrad)"
+                    />
+                    <path
+                      fill="#ffffff"
+                      d="M11 29V11h5.2v7.2h7.4V11H29v18h-5.2v-7.4h-7.4V29H11z"
+                    />
+                  </svg>
+                }
+              </div>
+              <span class="phone-app-name">Talent.HR</span>
+            </div>
+            <div class="screen-row"></div>
+            <div class="screen-row short"></div>
+            <div class="screen-cards">
+              <span class="mini-card"></span>
+              <span class="mini-card"></span>
+            </div>
+            <div class="screen-row"></div>
+            <div class="screen-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <h1 class="hero-title">Get the mobile app</h1>
+        <p class="hero-lead">
+          Check in and out, view attendance, submit leave and requests, and
+          stay in sync with your team—wherever you work.
+        </p>
+
+        <ul class="feature-list" aria-label="App highlights">
+          @for (item of featureItems; track item) {
+          <li>
+            <span class="feature-icon" aria-hidden="true">
+              <svg class="feature-check-svg" viewBox="0 0 24 24" focusable="false">
+                <circle class="feature-check-ring" cx="12" cy="12" r="10" />
+                <path class="feature-check-mark" d="M7.25 12.25 10.5 15.5 16.75 8.25" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="feature-text">{{ item }}</span>
+          </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <section class="store-section" [attr.aria-labelledby]="isWeb ? 'store-heading' : null">
+
+      <div class="store-actions" [class.store-actions--single]="!isWeb" role="group" [attr.aria-label]="
+          isWeb
+            ? 'App download options'
+            : platform === 'ios'
+              ? 'App Store download'
+              : 'Google Play download'
+        ">
+        @if (showAppStore) {
+        <a class="store-badge-link" [href]="appStoreUrl" target="_blank" rel="noopener noreferrer">
+          <img class="store-badge-img" [src]="appStoreBadgeSrc" alt="Download on the App Store" />
+        </a>
+        }
+
+        @if (showPlayStore) {
+        <a class="store-badge-link" [href]="playStoreUrl" target="_blank" rel="noopener noreferrer">
+          <img class="store-badge-img" [src]="googlePlayBadgeSrc" alt="Get it on Google Play" />
+        </a>
+        }
+      </div>
+    </section>
+  </main>
+</div>

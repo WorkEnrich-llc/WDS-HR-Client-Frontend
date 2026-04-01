@@ -1,0 +1,478 @@
+/* Talent.HR public download page — design tokens from src/styles/variables.css */
+
+:host {
+  --download-surface: var(--color-white);
+  --download-text: var(--color-neutral-900);
+  --download-text-muted: var(--color-neutral-600);
+  --download-border: var(--color-neutral-200);
+  --shadow-card: 0 4px 24px color-mix(in srgb, var(--color-neutral-900) 8%, transparent);
+  --shadow-hover: 0 12px 40px color-mix(in srgb, var(--color-primary-500) 18%, transparent);
+  --shadow-phone: 0 24px 48px color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+  /* End on primary-50 so the page isn’t a tall solid white slab; avoids grey html gap below short content */
+  --download-gradient: linear-gradient(165deg,
+      var(--color-primary-50) 0%,
+      var(--color-primary-100) 42%,
+      var(--color-primary-50) 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  min-height: 118dvh;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--download-text);
+  background: var(--download-gradient);
+  background-color: var(--color-primary-50);
+}
+
+.download-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  padding-block: max(var(--spacing-16), env(safe-area-inset-top, 0px)) max(var(--spacing-16), env(safe-area-inset-bottom, 0px));
+  padding-inline: max(0px, env(safe-area-inset-left, 0px)) max(0px, env(safe-area-inset-right, 0px));
+  background: transparent;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 100;
+  padding: var(--spacing-12) var(--spacing-20);
+  background: var(--color-primary-500);
+  color: var(--color-white);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--border-radius-16) 0;
+}
+
+.skip-link:focus {
+  left: 0;
+  top: 0;
+  outline: 3px solid var(--color-neutral-900);
+  outline-offset: 2px;
+}
+
+.page-main {
+  flex: 0 1 auto;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: var(--spacing-16);
+  padding-block: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-16);
+}
+
+@media (min-width: 640px) {
+  .page-main {
+    padding-inline: var(--spacing-24);
+    gap: var(--spacing-24);
+  }
+}
+
+.page-main:focus {
+  outline: none;
+}
+
+.hero {
+  display: grid;
+  gap: var(--spacing-16);
+  align-items: center;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .hero {
+    gap: var(--spacing-24);
+  }
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr 1.1fr;
+    gap: var(--spacing-32);
+  }
+}
+
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  order: -1;
+}
+
+@media (min-width: 900px) {
+  .hero-visual {
+    order: 0;
+    justify-content: flex-end;
+  }
+}
+
+.phone-frame {
+  width: min(140px, 38vw);
+  aspect-ratio: 9 / 18;
+  border-radius: var(--spacing-24);
+  padding: 8px;
+  background: linear-gradient(145deg,
+      var(--color-primary-500) 0%,
+      var(--color-primary-400) 50%,
+      var(--color-primary-600) 100%);
+  box-shadow: var(--shadow-card), var(--shadow-phone);
+}
+
+@media (min-width: 480px) {
+  .phone-frame {
+    width: min(180px, 48vw);
+    border-radius: var(--spacing-28);
+    padding: 9px;
+  }
+}
+
+@media (min-width: 900px) {
+  .phone-frame {
+    width: min(220px, 55vw);
+    border-radius: var(--spacing-32);
+    padding: 10px;
+  }
+}
+
+.phone-screen {
+  height: 100%;
+  border-radius: var(--spacing-24);
+  background: var(--download-surface);
+  padding: var(--spacing-12) var(--spacing-12) var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.phone-app-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  flex-shrink: 0;
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.phone-logo-wrap {
+  width: 1.625rem;
+  height: 1.625rem;
+  flex-shrink: 0;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  border: 2px solid var(--color-primary-200);
+  background: var(--color-white);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary-500) 28%, transparent);
+}
+
+.phone-app-logo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.phone-app-logo-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.phone-app-name {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--color-neutral-900);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+@media (min-width: 480px) {
+  .phone-logo-wrap {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+  }
+
+  .phone-app-name {
+    font-size: 0.75rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .phone-logo-wrap {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .phone-app-name {
+    font-size: 0.8125rem;
+  }
+}
+
+.screen-row {
+  min-block-size: 0.625rem;
+  border-radius: var(--spacing-4);
+  background: linear-gradient(90deg,
+      var(--color-neutral-200),
+      var(--color-neutral-100));
+}
+
+.screen-row.short {
+  width: 55%;
+}
+
+.screen-cards {
+  display: flex;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-4);
+}
+
+.mini-card {
+  flex: 1;
+  min-block-size: 2.25rem;
+  border-radius: var(--spacing-8);
+  background: linear-gradient(135deg,
+      var(--color-primary-100),
+      var(--color-primary-50));
+  border: 1px solid var(--color-primary-200);
+}
+
+@media (min-width: 900px) {
+  .mini-card {
+    min-block-size: 3rem;
+  }
+}
+
+.hero-title {
+  margin: 0 0 var(--spacing-8);
+  font-size: clamp(1.375rem, 5.5vw, var(--font-size-h1));
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+@media (min-width: 640px) {
+  .hero-title {
+    margin-bottom: var(--spacing-12);
+    font-size: clamp(1.75rem, 4vw, var(--font-size-h1));
+  }
+}
+
+.hero-lead {
+  margin: 0 0 var(--spacing-12);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--download-text-muted);
+  max-width: 36rem;
+}
+
+@media (min-width: 640px) {
+  .hero-lead {
+    margin-bottom: var(--spacing-20);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+}
+
+.feature-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+@media (min-width: 640px) {
+  .feature-list {
+    gap: var(--spacing-12);
+  }
+}
+
+.feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  font-size: var(--font-size-b3);
+  line-height: var(--line-height-md);
+  color: var(--download-text);
+}
+
+.feature-icon {
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin-top: 0.125rem;
+}
+
+.feature-check-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.feature-check-ring {
+  fill: var(--color-white);
+  stroke: var(--color-success-500);
+  stroke-width: 1.75;
+}
+
+.feature-check-mark {
+  stroke: var(--color-success-600);
+  stroke-width: 2.25;
+}
+
+.feature-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.store-section {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-title {
+  margin: 0 0 var(--spacing-8);
+  font-size: var(--font-size-b1);
+  font-weight: 700;
+}
+
+.section-subtitle {
+  margin: 0 0 var(--spacing-24);
+  color: var(--download-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  max-width: 40rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Badges always in a row; compact so two fit on narrow phones without stacking */
+.store-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+}
+
+.store-actions--single {
+  flex-wrap: wrap;
+}
+
+.store-badge-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  text-decoration: none;
+  border-radius: var(--spacing-8);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  flex: 0 1 auto;
+  padding: var(--spacing-4);
+  box-sizing: border-box;
+  max-width: calc(50% - var(--spacing-4));
+}
+
+.store-actions--single .store-badge-link {
+  max-width: none;
+  width: auto;
+  justify-content: center;
+}
+
+.store-badge-link:focus-visible {
+  outline: 3px solid var(--color-primary-500);
+  outline-offset: 4px;
+}
+
+.store-badge-link:hover {
+  opacity: 0.92;
+}
+
+.store-badge-link:active {
+  transform: scale(0.98);
+}
+
+/* Small badges; fill each link so two sit side by side */
+.store-badge-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+@media (min-width: 480px) {
+  .store-actions {
+    gap: var(--spacing-12);
+  }
+
+  .store-badge-link {
+    padding: var(--spacing-8);
+  }
+
+  .store-actions:not(.store-actions--single) .store-badge-link {
+    max-width: 9rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .store-actions:not(.store-actions--single) .store-badge-link {
+    max-width: 10.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .store-actions:not(.store-actions--single) .store-badge-link {
+    max-width: 12rem;
+  }
+}
+
+.store-actions--single .store-badge-img {
+  max-width: min(100%, 10rem);
+  width: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-badge-link {
+    transition: none;
+  }
+
+  .store-badge-link:active {
+    transform: none;
+  }
+}
+
+@media print {
+  :host {
+    background: var(--color-white);
+    min-height: auto;
+  }
+
+  .store-badge-link {
+    outline: 1px solid var(--color-neutral-300);
+  }
+}

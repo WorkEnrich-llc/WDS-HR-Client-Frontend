@@ -28,6 +28,16 @@ export const routes: Routes = [
   { path: 'assignment', loadComponent: () => import('./public/assignment/assignment.component').then(m => m.AssignmentComponent), title: 'Assignment' },
   { path: 'assignment/questions', loadComponent: () => import('./public/assignment/components/questions/questions.component').then(m => m.AssignmentQuestionsComponent), title: 'Assignment Questions' },
 
+  // Public app download (no auth)
+  {
+    path: 'download-app',
+    loadComponent: () =>
+      import('./public/download-app/download-app.component').then(
+        (m) => m.DownloadAppComponent
+      ),
+    title: 'Download Talent.HR',
+  },
+
   // Auth layout
   {
     path: '',

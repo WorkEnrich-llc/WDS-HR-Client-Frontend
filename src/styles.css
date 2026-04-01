@@ -8,8 +8,22 @@ html {
 }
 
 body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary-400) var(--color-neutral-200);
+}
+
+app-root {
+  display: block;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Public download page: same wash as component so html neutral-100 never shows in gaps */
+app-root:has(> app-download-app) {
+  background-color: var(--color-primary-50);
 }
 
 ::-webkit-scrollbar {
