@@ -498,7 +498,8 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
         // Populate recipients based on type
         if (data.sub_related && Array.isArray(data.sub_related)) {
             const recipients = data.sub_related.map((item: any) => ({
-                id: item.related_id || item.id,
+                // For employees, API expects relation `id` in related_to_employee_ids (not related_id).
+                id: relatedTo === 3 ? item.id : (item.related_id || item.id),
                 code: item.code || '',
                 name: item.name || ''
             }));

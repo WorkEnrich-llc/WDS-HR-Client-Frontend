@@ -1120,11 +1120,16 @@ export class ViewEmployeeComponent implements OnInit {
   onContractsDataUpdated(): void {
     // Keep the contracts tab open - set it before loading data
     this.setCurrentTab('contracts');
-    // Pass true to reload contracts tab after employee data is loaded
-    // Pass 'contracts' to keepTab to ensure it stays on contracts tab after reload
+    // Pass true to reload contracts tab after employee data is loaded (single contracts API call).
+    // Parent summary (firstContractDate, etc.) is synced via employeeContractsLoaded from the tab.
     this.loadEmployeeData(true, 'contracts');
-    // Also refresh contracts list for the summary display
-    this.loadEmployeeContracts();
+  }
+
+  /** Sync dashboard/summary contract fields from the contracts tab after one shared load. */
+  onEmployeeContractsLoaded(list: Contract[]): void {
+    this.contractsList = list ?? [];
+    this.calculateDates(this.contractsList);
+    this.updateEmployeeStatus(this.contractsList);
   }
 
   loadCustomValues(): void {

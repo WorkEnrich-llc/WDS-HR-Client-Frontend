@@ -19,6 +19,13 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 })
 export class ViewPayrollRunsComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
+  /**
+   * Header `key`s whose numeric values are day counts (shown as "Day(s)").
+   * Attendance-related columns (absent, late, early_leave, overtime) are monetary in the API — do not add them here.
+   * Avoid substring matching on "day"/"days" (would false-match e.g. "Monday", "holidays").
+   */
+  private readonly dayColumnKeys = new Set<string>([]);
+  private readonly percentageColumnHints = ['%', 'percent', 'percentage', 'target'];
   fetchEmployees() {
     this.loadData = true;
     const sub = this.payrollRunService.getAllSheets(this.currentPage, this.itemsPerPage).subscribe({
@@ -321,7 +328,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
 
   generateEndDateOptions(): number[] {
-    return Array.from({ length: 28 }, (_, i) => i + 1);
+    return Array.from({ length: 30 }, (_, i) => i + 1);
   }
 
   closeEarlyPayrollOverlay(): void {
@@ -393,6 +400,75 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     const filteredHeaders = headers.filter(h => h.key !== 'id' && h.key !== 'name' && h.key !== 'employee_id');
     // Employee column + filtered headers + Actions column
     return filteredHeaders.length + 2;
+  }
+
+  getFormattedTableCellValue(row: any, header: any): string {
+    const key = String(header?.key ?? '');
+    const raw = row?.[key];
+
+    if (raw === null || raw === undefined || raw === '') {
+      return '--';
+    }
+
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (!trimmed || trimmed === '--') {
+        return '--';
+      }
+      // Keep API formatted values as-is (e.g., "110.0 EGP").
+      if (/\bEGP\b/i.test(trimmed)) {
+        return trimmed;
+      }
+    }
+
+    const parsed = this.parseNumericValue(raw);
+    if (parsed === null) {
+      return String(raw);
+    }
+
+    const keyText = `${String(header?.key ?? '')} ${String(header?.display ?? '')}`.toLowerCase();
+
+    if (this.isPercentageColumn(keyText)) {
+      return `${this.formatNumber(parsed)} %`;
+    }
+
+    if (this.isDayColumn(header)) {
+      return `${this.formatNumber(parsed)} Day(s)`;
+    }
+
+    return `${this.formatNumber(parsed)} EGP`;
+  }
+
+  private isDayColumn(header: any): boolean {
+    const key = String(header?.key ?? '');
+    return this.dayColumnKeys.has(key);
+  }
+
+  private isPercentageColumn(keyText: string): boolean {
+    return this.percentageColumnHints.some(hint => keyText.includes(hint));
+  }
+
+  private parseNumericValue(value: unknown): number | null {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const normalized = value.replace(/,/g, '').trim();
+    if (!normalized) {
+      return null;
+    }
+    const match = normalized.match(/-?\d+(\.\d+)?/);
+    if (!match) {
+      return null;
+    }
+    const parsed = Number(match[0]);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  private formatNumber(value: number): string {
+    return Number(value.toFixed(2)).toString();
   }
 
   onCreateSheetClick(): void {

@@ -154,6 +154,20 @@ export class ManagePayrollComponentComponent implements OnInit {
           // Store the portion value to set it after salary portions are loaded
           this.savedPortionValue = portionValue !== null && portionValue !== undefined ? +portionValue : null;
 
+          // Ensure the "Payroll Type" (component_status) dropdown shows the exact
+          // name returned by the backend for the given id.
+          // Example: API returns { id: 1, name: 'Normal' } while constants may use 'Default'.
+          const componentStatus = data.component_status;
+          if (componentStatus?.id !== undefined && componentStatus?.name) {
+            const incomingId = +componentStatus.id;
+            const incomingName = componentStatus.name;
+
+            const exists = this.payrollComponentStatus.some((s: any) => +s.id === incomingId);
+            this.payrollComponentStatus = exists
+              ? this.payrollComponentStatus.map((s: any) => (+s.id === incomingId ? { ...s, name: incomingName } : s))
+              : [...this.payrollComponentStatus, { id: incomingId, name: incomingName }];
+          }
+
           this.createPayrollForm.patchValue({
             code: data.code,
             name: data.name,

@@ -1208,7 +1208,8 @@
             (deleteDocument)="onDelete($event)" (addDocumentClick)="addNewDocument()">
           </app-documents-tab>
           } @if (currentTab === 'contracts') {
-          <app-contracts-tab [employee]="employee" (contractsDataUpdated)="onContractsDataUpdated()">
+          <app-contracts-tab [employee]="employee" (contractsDataUpdated)="onContractsDataUpdated()"
+            (employeeContractsLoaded)="onEmployeeContractsLoaded($event)">
           </app-contracts-tab>
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>

@@ -11,6 +11,7 @@ import { EmployeeService } from 'app/core/services/personnel/employees/employee.
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { DecimalPipe } from '@angular/common';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
+import { normalizeInterviewTypeCode } from 'app/core/helpers/normalize-interview-type.helper';
 
 @Component({
   selector: 'app-interview',
@@ -26,7 +27,7 @@ export class InterviewComponent implements OnChanges {
   @Input() applicant: any;
   @Input() applicationId?: number;
   @Input() applicationDetails?: any;
-  @Output() applicationRefreshed = new EventEmitter<void>();
+  @Output() applicationRefreshed = new EventEmitter<string | void>();
   status = 'Applicant';
   interviewStatus = true;
   overlayTitle: string = 'Schedule Interview';
@@ -305,7 +306,7 @@ export class InterviewComponent implements OnChanges {
           const interviewDept = interview.department?.id ?? interview.department ?? null;
           const interviewSection = interview.section?.id ?? interview.section ?? null;
           const interviewInterviewer = interview.interviewer?.id ?? interview.interviewer ?? null;
-          const interviewType = interview.interview_type?.id ?? interview.interview_type ?? 1;
+          const interviewType = normalizeInterviewTypeCode(interview.interview_type);
 
           // Store expected values to populate fields as APIs load
           this.expectedInterviewValues = {
@@ -672,10 +673,10 @@ export class InterviewComponent implements OnChanges {
       this.svc.rescheduleInterview(this.interviewId, payload).subscribe({
         next: () => {
           this.submitting = false;
+          this.toasterService.showSuccess('Interview rescheduled successfully');
           this.closeAllOverlays();
           this.resetInterviewForm();
           this.applicationRefreshed.emit();
-          this.toasterService.showSuccess('Interview rescheduled successfully');
         },
         error: () => {
           this.submitting = false;
@@ -686,10 +687,10 @@ export class InterviewComponent implements OnChanges {
       this.svc.createInterview(this.applicationId!, payload).subscribe({
         next: () => {
           this.submitting = false;
+          this.toasterService.showSuccess('Interview scheduled successfully');
           this.closeAllOverlays();
           this.resetInterviewForm();
-          this.applicationRefreshed.emit();
-          this.toasterService.showSuccess('Interview scheduled successfully');
+          this.applicationRefreshed.emit('interviews');
         },
         error: () => {
           this.submitting = false;
