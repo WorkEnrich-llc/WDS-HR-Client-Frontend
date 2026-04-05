@@ -1,23 +1,36 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { LayoutService } from 'app/core/services/layout/layout.service';
 
 @Component({
   selector: 'app-body',
   imports: [RouterOutlet, NgClass],
+  standalone: true,
   templateUrl: './body.component.html',
   styleUrl: './body.component.css'
 })
 export class BodyComponent {
-  @Input() collapsed = true;
-  @Input() screenWidth = 0;
+  private layoutService = inject(LayoutService);
 
-  // responsive with sidenav
+  // Link properties to the centralized layout service signals
+  readonly collapsed = this.layoutService.isSidebarCollapsed;
+  readonly screenWidth = this.layoutService.screenWidth;
+
+  /**
+   * Responsive CSS class calculation based on sidebar state and current viewport.
+   */
   getBodyClass(): string {
     let styleClass = '';
-    if (this.collapsed && this.screenWidth > 768) {
+    const width = this.screenWidth();
+    const isCollapsed = this.collapsed();
+
+    // Desktop: sidebar is large (isSidebarCollapsed = true)
+    if (isCollapsed && width > 768) {
       styleClass = 'body-trimmed';
-    } else if (!this.collapsed && this.screenWidth > 0) {
+    } 
+    // Small screens or narrow mode: sidebar is icons-only or hidden
+    else if (!isCollapsed && width > 0) {
       styleClass = 'body-md-screen';
     }
 

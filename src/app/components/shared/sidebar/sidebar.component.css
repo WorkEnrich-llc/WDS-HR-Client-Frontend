@@ -1,70 +1,81 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   Sidebar – base layout
+   ══════════════════════════════════════════════════════════════════════════════ */
+
 .sidenav {
     position: fixed;
-    top: 0;
-    /* z-index        : 999 !important; */
+    inset-block: 0;
+    inset-inline-start: 0;
     width: 78px;
-    bottom: 0;
-    padding: var(--spacing-36) 0 0 0;
+    padding-block-start: var(--spacing-36);
     background: var(--color-white);
-    border-right: 1px solid var(--color-neutral-200);
-    transition: all 0.5s ease;
+    border-inline-end: 1px solid var(--color-neutral-200);
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    z-index: 100;
 }
 
 .sidenav::-webkit-scrollbar {
     display: none;
 }
 
-@media (max-width:768px) {
+/* Mobile: elevate above content */
+@media (max-width: 768px) {
     .sidenav {
         z-index: 999;
+        width: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: width, box-shadow;
+    }
+
+    .sidenav.sidenav-collapsed {
+        width: 100vw !important;
+        max-width: 280px;
+        padding-block-start: var(--spacing-36);
+        border-inline-end: 1px solid var(--color-neutral-200);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
     }
 }
 
-.svg-active-accordion {
-    fill: var(--color-primary-500) !important;
+/* Mobile backdrop */
+.sidenav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.25);
+    backdrop-filter: blur(4px);
+    z-index: 998; /* Just below sidenav (999) */
+    animation: fadeIn 0.35s ease;
 }
 
-.sidenav-nav {
-    margin-bottom: 0;
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
+/* Expanded / "collapsed" state (naming kept for backward compat) */
 .sidenav-collapsed {
     width: 17.5rem !important;
 }
 
-.sidenav ul {
-    padding: 0;
-    list-style: none;
-}
-
-.sidenav svg {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-    margin-inline-end: var(--spacing-8);
-}
-
-.sidenav svg:not(.stroke) {
-    fill: var(--color-secondary-500);
-}
-
-
-.sidenav svg.stroke {
-    fill: none;
-    stroke: var(--color-secondary-500) !important;
-}
 
 .sidebar-text,
 .accordion .accordion-button span,
-.sidenav .bottom-nav .sidenav-nav-item span {
+.bottom-nav .sidenav-nav-item span {
     opacity: 0;
-    max-width: 0;
+    width: 0;
+    visibility: hidden;
     overflow: hidden;
     white-space: nowrap;
-    transition: opacity 0.3s ease-in-out, max-width 0.3s ease-in-out;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
 }
 
@@ -72,13 +83,19 @@
 .sidenav-collapsed .accordion .accordion-button span,
 .sidenav-collapsed .bottom-nav .sidenav-nav-item span {
     opacity: 1;
-    max-width: 12.5rem;
+    width: auto;
+    visibility: visible;
+    max-width: 17rem;
 }
 
+/* Logo text area */
 .sidenav-collapsed .logo-container .sidebar-text {
     overflow: visible !important;
     max-width: none !important;
 }
+
+
+/* ── Logo container ─────────────────────────────────────────────────────────── */
 
 .logo-container {
     text-align: center;
@@ -94,16 +111,11 @@
 }
 
 .logo-inner {
-    /* padding: var(--spacing-8) 0 var(--spacing-20); */
     justify-content: space-between;
     align-items: center;
     width: 100%;
     overflow: visible;
 }
-
-/* .sidenav-collapsed .logo-inner {
-    padding: var(--spacing-8) var(--spacing-8) var(--spacing-8) 0;
-} */
 
 .logo {
     width: var(--spacing-36);
@@ -125,11 +137,16 @@
     align-items: center;
     justify-content: center;
     padding: 0 var(--spacing-8);
+    max-height: 70px;
+    overflow: visible;
 }
 
 .logo-text img {
     max-width: 100%;
     height: auto;
+    max-height: 70px;
+    object-fit: contain;
+    width: auto;
 }
 
 .logo-container button {
@@ -148,20 +165,16 @@
     fill: var(--color-primary-500);
 }
 
-.company-name {
-    font-size: var(--font-size-b3);
-    line-height: var(--line-height-xxs);
-    font-weight: bold;
-    color: var(--color-secondary-800);
-    white-space: nowrap;
-    text-transform: capitalize;
+
+/* ── Navigation items ──────────────────────────────────────────────────────── */
+
+.sidenav ul {
+    padding: 0;
+    list-style: none;
 }
 
-.company-info {
-    font-size: var(--font-size-b4);
-    line-height: var(--line-height-xxs);
-    font-weight: 500;
-    opacity: 0.7;
+.sidenav-nav {
+    margin-bottom: 0;
 }
 
 .sidenav-nav-item {
@@ -169,22 +182,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 1px solid var(--color-secondary-100);
-    border-bottom: 1px solid var(--color-secondary-100);
+    border-block: 1px solid var(--color-secondary-100);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .admin .sidenav-nav-item {
     padding: var(--spacing-16) var(--spacing-12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: var(--font-size-b3);
-    border-top: 1px solid var(--color-secondary-100);
-    border-bottom: 1px solid var(--color-secondary-100);
-}
-
-.sidenav-collapsed .bottom-nav .sidenav-nav-item {
-    border-color: transparent;
 }
 
 .sidenav-collapsed .sidenav-nav-item,
@@ -192,10 +197,23 @@
 .sidenav-collapsed .bottom-nav .sidenav-nav-item {
     padding: var(--spacing-16) var(--spacing-24);
     display: block;
-    cursor: pointer;
-    transition: all 0.3s;
 }
 
+/* Accordion body items get extra indentation when expanded */
+.sidenav-collapsed .accordion-body .sidenav-nav-item {
+    padding: var(--spacing-16) var(--spacing-48);
+}
+
+/* Transparent borders for bottom nav and accordion body items */
+.sidenav-collapsed .bottom-nav .sidenav-nav-item {
+    border-color: transparent;
+}
+
+.accordion-body .sidenav-nav-item {
+    border-color: transparent;
+}
+
+/* Links */
 .sidenav-nav-item a,
 .bottom-nav .sidenav-nav-item a,
 .accordion .accordion-body a {
@@ -204,19 +222,17 @@
     color: var(--color-secondary-700);
 }
 
+/* Hover */
 .sidenav-nav-item:hover,
 .bottom-nav .sidenav-nav-item:hover,
 .accordion .accordion-button:hover {
     background-color: var(--color-secondary-100);
 }
 
-.accordion .accordion-button:not(.collapsed) svg:not(.stroke) {
-    fill: var(--color-primary-500);
-}
-
-.accordion .accordion-button:not(.collapsed) svg.stroke {
-    fill: none;
-    stroke: var(--color-primary-500);
+/* Active state */
+.sidenav-nav-item.active {
+    position: relative;
+    background-color: var(--color-primary-50);
 }
 
 .sidenav-nav-item.active a span {
@@ -224,15 +240,11 @@
     font-weight: bold;
 }
 
-.sidenav-nav-item.active {
-    position: relative;
-    background-color: var(--color-primary-50);
-}
-
+/* Active indicator bar – uses logical property for RTL support */
 .sidenav-nav-item.active::before {
     content: '';
     position: absolute;
-    right: 0;
+    inset-inline-end: 0;
     top: 50%;
     transform: translateY(-50%);
     width: 4px;
@@ -241,24 +253,98 @@
     border-radius: 4px;
 }
 
-.sidenav-nav-item.active svg:not(.stroke) {
-    fill: var(--color-primary-500) !important;
 
+/* ── SVG icon wrapper (for innerHTML-rendered icons) ──────────────────────────
+   One viewport size so mixed intrinsic sizes (18×18, 24×24, 17×15, etc.) align visually.
+   viewBox + default preserveAspectRatio (xMidYMid meet) keeps proportions; paths stay intact. */
+
+.nav-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--spacing-24);
+    height: var(--spacing-24);
+    margin-inline-end: var(--spacing-8);
 }
 
-.sidenav-nav-item.active svg.stroke {
-    stroke: var(--color-primary-500) !important;
+:host ::ng-deep .nav-icon-wrapper svg {
+    display: block;
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
 }
+
+/* Theme tint for sidebar nav / accordion only (not logo hamburger — it uses currentColor inline) */
+:host ::ng-deep .sidenav-nav-item .nav-icon-wrapper svg:not(.stroke),
+:host ::ng-deep .accordion-button .nav-icon-wrapper svg:not(.stroke),
+:host ::ng-deep .admin .nav-icon-wrapper svg:not(.stroke),
+:host ::ng-deep .bottom-nav .nav-icon-wrapper svg:not(.stroke),
+:host ::ng-deep .lang-toggle-btn .nav-icon-wrapper svg:not(.stroke) {
+    fill: var(--color-secondary-500);
+}
+
+:host ::ng-deep .sidenav-nav-item .nav-icon-wrapper svg.stroke,
+:host ::ng-deep .accordion-button .nav-icon-wrapper svg.stroke,
+:host ::ng-deep .admin .nav-icon-wrapper svg.stroke,
+:host ::ng-deep .bottom-nav .nav-icon-wrapper svg.stroke {
+    fill: none;
+    stroke: var(--color-secondary-500);
+}
+
+/* Section-active: accordion header icon when section is current */
+:host ::ng-deep .nav-icon-wrapper.section-active svg:not(.stroke) {
+    fill: var(--color-primary-500);
+}
+
+:host ::ng-deep .nav-icon-wrapper.section-active svg.stroke {
+    stroke: var(--color-primary-500);
+    fill: none;
+}
+
+/* Active nav item icon */
+:host ::ng-deep .sidenav-nav-item.active .nav-icon-wrapper svg:not(.stroke) {
+    fill: var(--color-primary-500);
+}
+
+:host ::ng-deep .sidenav-nav-item.active .nav-icon-wrapper svg.stroke {
+    stroke: var(--color-primary-500);
+    fill: none;
+}
+
+/* Open accordion header icon */
+:host ::ng-deep .accordion-button:not(.collapsed) .nav-icon-wrapper svg:not(.stroke) {
+    fill: var(--color-primary-500);
+}
+
+:host ::ng-deep .accordion-button:not(.collapsed) .nav-icon-wrapper svg.stroke {
+    stroke: var(--color-primary-500);
+    fill: none;
+}
+
+
+/* ── Accordion overrides ────────────────────────────────────────────────────── */
 
 .accordion .accordion-item {
     border: none;
     border-bottom: 1px solid var(--color-secondary-100);
 }
 
+/*
+ * Grid keeps the Bootstrap chevron (::after) in a fixed trailing column so every row lines up
+ * in LTR and RTL (flex + margin-auto failed when label spans had different intrinsic widths).
+ */
 .accordion-button {
     padding: var(--spacing-16) var(--spacing-12);
     background: none;
     border: none;
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    text-align: start;
 }
 
 .sidenav-collapsed .accordion-button {
@@ -268,7 +354,19 @@
     border-radius: 0;
 }
 
+.accordion-button > .nav-icon-wrapper {
+    grid-column: 1;
+}
+
+.accordion-button > span:not(.nav-icon-wrapper) {
+    grid-column: 2;
+    min-width: 0;
+}
+
 .accordion-button::after {
+    grid-column: 3;
+    margin-inline-start: 0;
+    justify-self: center;
     transform: rotate(0deg) scale(0.6);
     transition: transform 0.3s ease;
     transform-origin: center;
@@ -286,55 +384,243 @@
     padding: 0;
 }
 
-.sidenav .admin .sidenav-nav-item {
-    justify-content: start;
-}
-
-.sidenav-collapsed .sidenav-nav-item {
-    padding: var(--spacing-16) var(--spacing-48);
-}
-
-.accordion-body .sidenav-nav-item {
-    border-color: transparent;
-}
-
-.link-button-outer {
-    padding: var(--spacing-16) var(--spacing-24) !important;
-    border-top: 0;
-}
-
-.accordion-item:last-of-type>.accordion-header .accordion-button.collapsed,
+/* Remove Bootstrap border-radius on first/last items */
+.accordion-item:last-of-type > .accordion-header .accordion-button.collapsed,
 .accordion-item:last-of-type,
 .accordion-item:first-of-type {
     border-radius: 0 !important;
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    -ms-border-radius: 0 !important;
-    -o-border-radius: 0 !important;
 }
+
+
+/* ── Admin list top item alignment ─────────────────────────────────────────── */
 
 .sidenav .admin .sidenav-nav-item {
     justify-content: center;
 }
 
-/* notification */
+.sidenav-collapsed .admin .sidenav-nav-item {
+    justify-content: flex-start;
+}
 
+
+/* ── Item label in accordion body ───────────────────────────────────────────── */
+
+.item-label {
+    font-size: var(--font-size-b3);
+    color: var(--color-secondary-700);
+    white-space: nowrap;
+}
+
+.sidenav-nav-item.active .item-label {
+    color: var(--color-primary-500);
+    font-weight: 600;
+}
+
+
+/* ── Language toggle button (in logo area) ──────────────────────────────── */
+
+.lang-toggle-wrapper {
+    position: relative;
+}
+
+.lang-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-6, 6px);
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-8, 8px);
+    padding: var(--spacing-6, 6px);
+    cursor: pointer;
+    color: var(--color-secondary-600);
+    transition: background-color 0.2s ease;
+}
+
+/* Globe uses the same 24×24 slot as other sidebar nav icons */
+.lang-toggle-btn .lang-toggle-globe.nav-icon-wrapper {
+    margin-inline-end: 0;
+}
+
+.lang-toggle-btn:hover {
+    background-color: var(--color-secondary-100);
+}
+
+.lang-toggle-btn:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+.lang-current {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-primary-600);
+    min-width: 1.125rem;
+    text-align: center;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* ── Language dropdown ───────────────────────────────────────────────────── */
+
+/* Fixed to viewport (top/left set in TS) so Arabic/RTL and narrow sidebar do not clip under overflow-x: hidden */
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + var(--spacing-8, 10px));
+    inset-inline-end: 0;
+    z-index: 1080;
+    min-width: 11.5rem;
+    max-width: min(17rem, calc(100vw - 2rem));
+    background: var(--color-white);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--border-radius-8, 10px);
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.04),
+        0 12px 28px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    animation: lang-dropdown-in 0.18s ease;
+}
+
+/* Arabic: Button is on the LEFT of the header -> hang RIGHT into sidebar */
+.lang-dropdown[dir="rtl"] {
+    left: 0;
+    right: auto;
+}
+
+/* English: Button is on the RIGHT of the header -> hang LEFT into sidebar */
+.lang-dropdown[dir="ltr"] {
+    right: 0;
+    left: auto;
+}
+
+@keyframes lang-dropdown-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lang-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-10, 10px);
+    padding: 10px 12px;
+    margin: 0;
+    font-size: var(--font-size-b3);
+    line-height: var(--line-height-xss, 1.25);
+    color: var(--color-secondary-700);
+    cursor: pointer;
+    border-radius: var(--border-radius-8, 8px);
+    transition: background-color 0.15s ease, color 0.15s ease;
+    unicode-bidi: isolate;
+}
+
+/* English: flag — label grows — check on the end */
+.lang-option--en {
+    direction: ltr;
+    justify-content: flex-start;
+}
+
+.lang-option--en .lang-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: start;
+}
+
+/*
+ * Arabic: grid + 1fr stretched the middle and stranded the check on the opposite edge.
+ * Flex + justify-content: flex-start packs from inline-start; in RTL that is the right — flag | label | check stay together.
+ */
+.lang-option--ar {
+    direction: rtl;
+    justify-content: flex-start;
+}
+
+.lang-option--ar .lang-option-label {
+    flex: 0 1 auto;
+    min-width: 0;
+    text-align: start;
+}
+
+.lang-option:hover {
+    background-color: var(--color-secondary-50, #f8fafc);
+}
+
+.lang-option:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: -2px;
+    background-color: var(--color-secondary-100);
+}
+
+.lang-option.active {
+    color: var(--color-primary-600);
+    font-weight: 600;
+    background-color: var(--color-primary-50);
+}
+
+.lang-option-flag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.5rem;
+    line-height: 0;
+}
+
+:host ::ng-deep .lang-option-flag svg {
+    display: block;
+    width: 1.375rem;
+    height: auto;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.lang-option-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    flex-shrink: 0;
+    opacity: 0;
+    color: var(--color-primary-500);
+    transition: opacity 0.15s ease;
+}
+
+.lang-option.active .lang-option-check {
+    opacity: 1;
+}
+
+:host ::ng-deep .lang-option-check svg {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+
+/* ── Notification styles ────────────────────────────────────────────────────── */
 
 .notification-dot {
     display: block !important;
     position: absolute;
-    top: 0;
-    right: 7px;
+    inset-block-start: 0;
+    inset-inline-end: -2px;
     width: 10px;
     height: 10px;
     background-color: var(--color-danger-500);
     border-radius: 50%;
+    border: 2px solid var(--color-white);
 }
 
 .notification {
     display: flex;
     gap: 1rem;
-    align-items: start;
+    align-items: flex-start;
     border-bottom: 1px solid var(--color-secondary-300);
     padding: var(--spacing-16) 0;
 }
@@ -347,44 +633,29 @@
     align-items: center;
     justify-content: center;
     background-color: var(--color-secondary-100);
-    padding: 0;
-    box-sizing: border-box;
     flex-shrink: 0;
-
 }
 
 .notification .icon svg {
     width: 50%;
     height: 50%;
-    max-width: 100%;
-    max-height: 100%;
-
 }
 
 .notification .icon svg path {
     fill: var(--color-secondary-500);
 }
 
-.notification.success .icon {
-    background-color: var(--color-success-100);
-}
-
-.notification.success .icon svg path {
-    fill: var(--color-success-500);
-}
-
-.notification.danger .icon {
-    background-color: var(--color-danger-100);
-}
-
-.notification.danger .icon svg path {
-    fill: var(--color-danger-500);
-}
+.notification.success .icon { background-color: var(--color-success-100); }
+.notification.success .icon svg path { fill: var(--color-success-500); }
+.notification.danger .icon { background-color: var(--color-danger-100); }
+.notification.danger .icon svg path { fill: var(--color-danger-500); }
 
 .notification .noti-content {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-8);
+    flex: 1;
+    min-width: 0;
 }
 
 .notification .noti-content h6 {
@@ -394,120 +665,55 @@
     margin: 0;
 }
 
+.notification .noti-content time,
 .notification .noti-content span {
     color: var(--color-secondary-500);
     font-size: var(--font-size-b3);
+    flex-shrink: 0;
 }
 
 .notification .noti-content p {
     color: var(--color-secondary-700);
     font-size: var(--font-size-b3);
+    margin: 0;
 }
 
 .notification .noti-content button {
     border-radius: 25px !important;
-    -webkit-border-radius: 25px !important;
-    -moz-border-radius: 25px !important;
-    -ms-border-radius: 25px !important;
-    -o-border-radius: 25px !important;
 }
 
-/* Skeleton loader styles */
-.notification-skeleton {
-    pointer-events: none;
-}
+
+/* ── Skeleton loader ────────────────────────────────────────────────────────── */
+
+.notification-skeleton { pointer-events: none; }
 
 .skeleton-line {
-    background: linear-gradient(90deg,
-            var(--color-neutral-100, #f0f0f0) 25%,
-            var(--color-neutral-200, #e0e0e0) 50%,
-            var(--color-neutral-100, #f0f0f0) 75%);
+    background: linear-gradient(
+        90deg,
+        var(--color-neutral-100, #f0f0f0) 25%,
+        var(--color-neutral-200, #e0e0e0) 50%,
+        var(--color-neutral-100, #f0f0f0) 75%
+    );
     background-size: 200% 100%;
     border-radius: var(--border-radius-8, 8px);
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
     height: 16px;
 }
 
-.skeleton-title {
-    width: 60%;
-    max-width: 200px;
-    height: 18px;
-}
-
-.skeleton-time {
-    width: 80px;
-    height: 14px;
-}
-
-.skeleton-body {
-    width: 100%;
-    height: 14px;
-    margin-top: var(--spacing-8, 8px);
-}
-
-.skeleton-body-short {
-    width: 70%;
-    height: 14px;
-    margin-top: var(--spacing-4, 4px);
-}
+.skeleton-title { width: 60%; max-width: 200px; height: 18px; }
+.skeleton-time  { width: 80px; height: 14px; }
+.skeleton-body  { width: 100%; height: 14px; margin-top: var(--spacing-8, 8px); }
+.skeleton-body-short { width: 70%; height: 14px; margin-top: var(--spacing-4, 4px); }
 
 @keyframes skeleton-shimmer {
-    0% {
-        background-position: 200% 0;
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.8;
-    }
-
-    100% {
-        background-position: -200% 0;
-        opacity: 1;
-    }
+    0%   { background-position: 200% 0; opacity: 1; }
+    50%  { opacity: 0.8; }
+    100% { background-position: -200% 0; opacity: 1; }
 }
 
-.sidenav-nav-item {
-    cursor: pointer;
-}
 
-.sidenav-collapsed .logo-container .sidebar-text {
-    width: auto;
-    max-width: 100%;
-    overflow: visible;
-}
+/* ── System-setup tour (sidebar-anchored tooltip) ───────────────────────────── */
 
-.sidebar-text {
-    max-height: 30px;
-}
-
-.logo-container .sidebar-text {
-    height: 70px;
-    max-height: 70px;
-    overflow: visible;
-    display: flex;
-    align-items: center;
-}
-
-.logo-container .sidebar-text img {
-    max-width: 100%;
-    height: auto;
-    max-height: 70px;
-    object-fit: contain;
-    width: auto;
-}
-
-.view-btn:hover {
-    transform: unset;
-    -webkit-transform: unset;
-    -moz-transform: unset;
-    -ms-transform: unset;
-    -o-transform: unset;
-}
-
-/* -----------------------------
-   System Setup Tour (sidebar anchored tooltip)
------------------------------- */
 .system-setup-backdrop {
     position: fixed;
     inset: 0;
@@ -589,20 +795,20 @@
 .system-setup-arrow {
     position: absolute;
     top: 22px;
-    left: -8px;
+    inset-inline-start: -8px;
     width: 0;
     height: 0;
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
-    border-right: 10px solid rgba(255, 255, 255, 0.88);
+    border-inline-end: 10px solid rgba(255, 255, 255, 0.88);
     filter: drop-shadow(-2px 0 0 rgba(148, 163, 184, 0.35));
 }
 
 .system-setup-card.placement-left .system-setup-arrow {
-    left: auto;
-    right: -8px;
-    border-right: 0;
-    border-left: 10px solid rgba(255, 255, 255, 0.88);
+    inset-inline-start: auto;
+    inset-inline-end: -8px;
+    border-inline-end: 0;
+    border-inline-start: 10px solid rgba(255, 255, 255, 0.88);
     filter: drop-shadow(2px 0 0 rgba(148, 163, 184, 0.35));
 }
 
@@ -647,4 +853,14 @@
     gap: 8px;
     flex-wrap: wrap;
     margin-top: 12px;
+}
+
+/* Misc */
+.view-btn:hover {
+    transform: unset;
+}
+
+.link-button-outer {
+    padding: var(--spacing-16) var(--spacing-24) !important;
+    border-top: 0;
 }

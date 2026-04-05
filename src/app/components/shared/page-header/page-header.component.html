@@ -1,78 +1,96 @@
-<div class="page-header sticky-top">
-  <!-- Breadcrumb -->
-  <nav class="mb-2">
-    @if (isLoading) {
-    <div style="width: 40%;">
-      <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="12"></app-skelaton-loading>
-    </div>
-    } @else {
-    @for (item of breadcrumbs; track item; let last = $last) {
-    @if (!last && item.link) {
-    <a [routerLink]="item.link" class="bread-link">{{ item.label }}</a> &gt;
-    }
-    @if (last || !item.link) {
-    <span class="bread-active">{{ item.label }}</span>
-    }
-    }
-    }
+<div class="page-header sticky-top" [attr.aria-busy]="isLoading()">
+  <!-- Breadcrumb (Semantic Navigation) -->
+  <nav class="mb-2" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      @if (isLoading()) {
+      <li style="width: 40%;" aria-hidden="true">
+        <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="12"></app-skelaton-loading>
+      </li>
+      } @else {
+      @for (item of breadcrumbs(); track item.label; let last = $last) {
+      <li class="breadcrumb-item" [class.active]="last">
+        @if (!last && item.link) {
+        <a [routerLink]="item.link" class="bread-link">{{ item.label }}</a>
+        } @else {
+        <span class="bread-active" [attr.aria-current]="last ? 'page' : null">{{ item.label }}</span>
+        }
+      </li>
+      }
+      }
+    </ol>
   </nav>
 
-  <!-- Title -->
-  <h2 class="mb-2">
-    @if (isLoading) {
-    <div style="width: 60%; max-width: 600px;">
-      <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="24"></app-skelaton-loading>
+  <!-- Title (H1 context) -->
+  <header class="page-header-content">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <!-- Mobile Sidebar Toggle -->
+      <button 
+        type="button" 
+        class="menu-toggle-btn d-lg-none" 
+        (click)="onMenuToggle()" 
+        aria-label="Toggle Navigation Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <h2 class="m-0">
+        @if (isLoading()) {
+        <div style="width: 60%; max-width: 600px;" aria-hidden="true">
+          <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="24"></app-skelaton-loading>
+        </div>
+        } @else {
+        {{ title() }}
+        }
+      </h2>
     </div>
-    } @else {
-    {{ title }}
-    }
-  </h2>
 
-  <div class="d-flex align-items-end justify-content-between">
-    <!-- created / updated -->
-   @if (isLoading || create || update) {
-  <div class="parag d-flex align-items-center gap-4">
-    @if (isLoading) {
-      <div class="d-flex align-items-center gap-3">
-        <div style="width: 180px;">
-          <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="14"></app-skelaton-loading>
+    <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-3">
+      <!-- metadata (created / updated) -->
+      @if (isLoading() || create() || update()) {
+      <div class="parag d-flex align-items-center gap-4" role="note">
+        @if (isLoading()) {
+        <div class="d-flex align-items-center gap-3" aria-hidden="true">
+          <div style="width: 180px;">
+            <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="14"></app-skelaton-loading>
+          </div>
+          <div style="width: 180px;">
+            <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="14"></app-skelaton-loading>
+          </div>
         </div>
-        <div style="width: 180px;">
-          <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="14"></app-skelaton-loading>
-        </div>
-      </div>
-    } @else {
-      @if (create) {
+        } @else {
+        @if (create()) {
         <p class="date-cre mb-0">
-          {{ isApplied ? 'Applied at' : 'Created at' }}:
-          <span class="text-show">{{ create }}</span>
+          {{ isApplied() ? 'Applied at' : 'Created at' }}:
+          <span class="text-show">{{ create() }}</span>
         </p>
-      }
-      @if (update) {
+        }
+        @if (update()) {
         <p class="date-cre mb-0">
-          Updated At: <span class="text-show">{{ update }}</span>
+          Updated At: <span class="text-show">{{ update() }}</span>
         </p>
-      }
-    }
-  </div>
-}
-
-
-    <!-- actions -->
-    <div class="d-flex gap-2 ms-auto parag">
-      <ng-content></ng-content>
-
-      @if (isLoading && !hasActions) {
-      <div style="display:flex; gap:8px; align-items:center;">
-        <div style="width:200px;">
-          <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="50"></app-skelaton-loading>
-        </div>
-        <div style="width:200px;">
-          <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="50"></app-skelaton-loading>
-        </div>
+        }
+        }
       </div>
       }
 
+      <!-- actions slot -->
+      <div class="d-flex gap-2 ms-auto parag">
+        <ng-content></ng-content>
+
+        @if (isLoading() && !hasActions()) {
+        <div style="display:flex; gap:8px; align-items:center;" aria-hidden="true">
+          <div style="width:200px;">
+            <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="50"></app-skelaton-loading>
+          </div>
+          <div style="width:200px;">
+            <app-skelaton-loading [rows]="1" [hasLabel]="false" [valueHeight]="50"></app-skelaton-loading>
+          </div>
+        </div>
+        }
+      </div>
     </div>
-  </div>
-</div>
+  </header>
+</div>

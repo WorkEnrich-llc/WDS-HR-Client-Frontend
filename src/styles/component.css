@@ -97,6 +97,14 @@ input[type="password"]::-webkit-password-toggle {
   border-right: 1px solid var(--color-secondary-700) !important;
 }
 
+/* Global RTL Dropdown alignment: right-align text and move arrow to the left side */
+[dir="rtl"] .form-select {
+    text-align: right !important;
+    background-position: left 0.75rem center !important;
+    padding-left: 2.75rem !important;
+    padding-right: 0.8rem !important;
+}
+
 .form-outline svg {
   position: absolute;
   top: 50%;

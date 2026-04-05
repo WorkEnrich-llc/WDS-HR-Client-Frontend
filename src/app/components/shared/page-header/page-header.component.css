@@ -1,7 +1,38 @@
-.page-header{
+.page-header {
     background-color: white;
     border-bottom: 1px solid var(--color-neutral-200);
     padding: var(--spacing-36);
+}
+
+.menu-toggle-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    padding: 6px;
+    color: var(--color-secondary-700);
+    cursor: pointer;
+    border-radius: var(--border-radius-8);
+}
+
+.menu-toggle-btn:hover {
+    background: var(--color-secondary-50);
+    color: var(--color-primary-600);
+}
+
+@media (max-width: 991px) {
+    .page-header {
+        padding: var(--spacing-20) var(--spacing-24);
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-toggle-btn {
+        display: flex;
+    }
+
+    .page-header {
+        padding: var(--spacing-16) var(--spacing-20);
+    }
 }
 .bread-link{
     font-size: var(--font-size-b3);
@@ -35,4 +66,23 @@ h2{
     font-weight: 600;
     line-height: var(--line-height-xss);
     color: var(--color-secondary-700);
+}
+
+/* Ensure actions move to the far edge in RTL (End = Left) */
+[dir="rtl"] .ms-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .ms-auto.parag {
+        margin-inline-start: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        display: block;
+    }
+    
+    .bread-link, .bread-active {
+        font-size: var(--font-size-b4, 11px);
+    }
 }

@@ -1,5 +1,4 @@
 @import url('bootstrap/bootstrap.rtl.min.css');
-body
-{
-  background-color: aquamarine !important;
+body {
+  background-color: var(--color-neutral-100) !important;
 }

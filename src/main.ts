@@ -5,7 +5,7 @@ import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { toastInterceptor } from './app/core/interceptors/toast.interceptor';
 import { errorHandlingInterceptor } from './app/core/interceptors/error-handling.interceptor';
 import { importProvidersFrom, ErrorHandler } from '@angular/core';
-import { provideRouter, withViewTransitions } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -57,7 +57,7 @@ function restoreAuthFromSubdomainHandoff(): void {
 restoreAuthFromSubdomainHandoff();
 
 export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+  return new TranslateHttpLoader(http, './assets/i18n/', '/sidebar.json');
 }
 
 bootstrapApplication(AppComponent, {
@@ -73,10 +73,7 @@ bootstrapApplication(AppComponent, {
     // provideHttpClient(withInterceptors([authInterceptor, toastInterceptor])),
 
     provideAnimations(),
-    provideRouter(
-      routes,
-      withViewTransitions(),
-    ),
+    provideRouter(routes),
 
     provideToastr({
       timeOut: 3000,

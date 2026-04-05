@@ -1,507 +1,264 @@
-import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, ViewEncapsulation, inject, signal, computed, effect, AfterViewInit, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartOptions } from 'chart.js';
-import { Subscription } from 'rxjs';
+import { ChartOptions, ChartData } from 'chart.js';
+import { Subscription, of } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 
 import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-dashboard.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
 import { ISystemSetupStepItem, SystemSetupService } from 'app/core/services/main/system-setup.service';
+import { LanguageService } from 'app/core/services/language/language.service';
+import { LayoutService } from 'app/core/services/layout/layout.service';
+
+interface DashboardTranslations {
+  title?: string;
+  filters?: {
+    all_department?: string;
+    all_branches?: string;
+    all_leave_balance?: string;
+    year?: string;
+  };
+  cards?: {
+    active_employees?: string;
+    leave_balance?: string;
+    requests?: string;
+    goals?: string;
+    alerts?: string;
+    turnover?: string;
+    employee_onboarding?: string;
+    employees?: string;
+    department_guidelines?: string;
+    active_departments?: string;
+    payroll_status?: string;
+  };
+  labels?: {
+    total?: string;
+    hired?: string;
+    terminated?: string;
+    resigned?: string;
+    no_alerts?: string;
+    no_alerts_sub?: string;
+    refresh?: string;
+    posted?: string;
+    salaries?: string;
+    employees_count?: string;
+    deductions?: string;
+    earnings?: string;
+    soon?: string;
+    year?: string;
+    years?: string;
+    done?: string;
+  };
+  months?: {
+    this_month?: string;
+    last_month?: string;
+    jan?: string;
+    feb?: string;
+    mar?: string;
+    apr?: string;
+    may?: string;
+    jun?: string;
+    jul?: string;
+    aug?: string;
+    sep?: string;
+    oct?: string;
+    nov?: string;
+    dec?: string;
+  };
+  years?: {
+    this_year?: string;
+    last_year?: string;
+  };
+  chart_labels?: {
+    on_probation?: string;
+    year_1_less?: string;
+    years_2_plus?: string;
+    years_3_plus?: string;
+    rejected?: string;
+    expired?: string;
+    pending?: string;
+    accepted?: string;
+    active?: string;
+    inactive?: string;
+    available?: string;
+    used?: string;
+    carryover?: string;
+    applied?: string;
+    not_applied?: string;
+    in_progress?: string;
+    support?: string;
+    technical?: string;
+    done_100?: string;
+    done_80_plus?: string;
+    done_50_80?: string;
+    done_30_50?: string;
+    done_30_less?: string;
+  };
+}
 
 @Component({
   selector: 'app-admin-dashboard',
+  standalone: true,
   imports: [PageHeaderComponent, BaseChartDirective],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class AdminDashboardComponent implements OnDestroy {
-  private subscriptions: Subscription[] = [];
-  private readonly systemSetupDismissKey = 'system_setup_board_dismissed';
-  private readonly systemSetupTourDoneKey = 'system_setup_tour_done';
-  private readonly systemSetupTourCompletedKey = 'system_setup_tour_completed_steps';
-  private readonly systemSetupTourCurrentKey = 'system_setup_tour_current_step';
-  private readonly systemSetupTourSessionClosedKey = 'system_setup_tour_session_closed';
-
-  tourCurrentIndex = 0;
-  tourTargetRect: { top: number; left: number; width: number; height: number; right: number; bottom: number } | null = null;
-  tourCardPos: { top: number; left: number; placement: 'right' | 'left' } = { top: 0, left: 0, placement: 'right' };
-
-  private resizeHandler?: () => void;
-  private anchorRetryCount = 0;
-  constructor(
-    private adminDashboardService: AdminDashboardService,
-    private _DepartmentsService: DepartmentsService,
-    private _BranchesService: BranchesService,
-    private leaveBalanceService: LeaveBalanceService,
-    private systemSetupService: SystemSetupService,
-    private router: Router
-  ) { }
-  getDataLoad: boolean = true;
-
-  // -----------------------------
-  // System Setup Board
-  // -----------------------------
-  systemSetupLoading = true;
-  systemSetupItems: ISystemSetupStepItem[] = [];
-  systemSetupError: string | null = null;
-
-  // ---------- Tour persistence ----------
-  private get tourDone(): boolean {
-    return localStorage.getItem(this.systemSetupTourDoneKey) === 'true';
-  }
-
-  onAlertClick(alert: any): void {
-    try {
-      const redir = alert?.raw?.extra_meta?.redirection;
-      if (!redir || !redir.route) return;
-
-      const template = redir.route as string;
-
-      const getNested = (obj: any, path: string) => {
-        if (!obj || !path) return undefined;
-        const parts = path.split('.');
-        let cur = obj;
-        for (const p of parts) {
-          if (cur == null) return undefined;
-          cur = cur[p];
-        }
-        return cur;
-      };
-
-      // try to extract employee_id from redirection.api if available
-      let employeeId: string | null = null;
-      try {
-        const api = redir?.api;
-        if (api) {
-          const parsed = new URL(api, window.location.origin);
-          employeeId = parsed.searchParams.get('employee_id');
-        }
-      } catch {
-        // ignore parsing errors
-      }
-
-      // Replace placeholders: prefer actual values, otherwise fall back to employeeId when available
-      const finalRoute = template.replace(/\{([^}]+)\}/g, (_, key) => {
-        const val = getNested(alert?.raw, key) ??
-          getNested(alert?.raw?.extra_meta, key) ??
-          getNested(redir, key);
-        if (val !== undefined && val !== null && String(val) !== '') return String(val);
-        if (employeeId) return String(employeeId);
-        return '';
-      });
-
-      if (!finalRoute) return;
-
-      // Normalize common typo 'tap' => 'tab' in query param
-      const normalized = finalRoute.replace(/\btap=/, 'tab=');
-
-      this.router.navigateByUrl(normalized);
-    } catch (e) {
-      console.error('Failed to navigate for alert:', e);
-    }
-  }
-
-  private set tourDone(val: boolean) {
-    localStorage.setItem(this.systemSetupTourDoneKey, val ? 'true' : 'false');
-  }
-
-  private get tourCompletedSteps(): number[] {
-    try {
-      const raw = localStorage.getItem(this.systemSetupTourCompletedKey);
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed.filter(x => typeof x === 'number') : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private set tourCompletedSteps(steps: number[]) {
-    const unique = Array.from(new Set(steps)).sort((a, b) => a - b);
-    localStorage.setItem(this.systemSetupTourCompletedKey, JSON.stringify(unique));
-  }
-
-  private get tourCurrentStep(): number | null {
-    const raw = localStorage.getItem(this.systemSetupTourCurrentKey);
-    const n = raw ? Number(raw) : NaN;
-    return Number.isFinite(n) ? n : null;
-  }
-
-  private set tourCurrentStep(step: number | null) {
-    if (step === null) {
-      localStorage.removeItem(this.systemSetupTourCurrentKey);
-      return;
-    }
-    localStorage.setItem(this.systemSetupTourCurrentKey, String(step));
-  }
-
-  get shouldShowSystemSetupTour(): boolean {
-    // Show tour until user actually completes all steps OR chooses "Skip all"
-    const completedAll = this.systemSetupTotal > 0 && this.tourCompletedCount >= this.systemSetupTotal;
-    if (this.tourDone && completedAll) return false;
-
-    // If user closed it for this session, keep it hidden until refresh/navigation ends.
-    // (We still allow it to show if it has never successfully anchored yet)
-    const sessionClosed = sessionStorage.getItem(this.systemSetupTourSessionClosedKey) === 'true';
-    if (sessionClosed && this.tourTargetRect) return false;
-
-    return (this.systemSetupLoading || !!this.systemSetupError || this.systemSetupTotal > 0);
-  }
-
-  closeTourForSession(): void {
-    sessionStorage.setItem(this.systemSetupTourSessionClosedKey, 'true');
-  }
-
-  get tourCompletedCount(): number {
-    const set = new Set(this.tourCompletedSteps);
-    return this.systemSetupItems.filter(i => set.has(i.step)).length;
-  }
-
-  get tourProgressPercent(): number {
-    if (!this.systemSetupTotal) return 0;
-    return Math.round((this.tourCompletedCount / this.systemSetupTotal) * 100);
-  }
-
-  get currentTourItem(): ISystemSetupStepItem | null {
-    if (!this.systemSetupItems.length) return null;
-    const idx = Math.min(Math.max(this.tourCurrentIndex, 0), this.systemSetupItems.length - 1);
-    return this.systemSetupItems[idx] || null;
-  }
-
-  isTourStepCompleted(step: number): boolean {
-    return new Set(this.tourCompletedSteps).has(step);
-  }
-
-  private syncTourIndexFromStorage(): void {
-    if (!this.systemSetupItems.length) {
-      this.tourCurrentIndex = 0;
-      return;
-    }
-
-    const completed = new Set(this.tourCompletedSteps);
-    const storedStep = this.tourCurrentStep;
-
-    if (storedStep !== null) {
-      const idx = this.systemSetupItems.findIndex(i => i.step === storedStep);
-      if (idx >= 0 && !completed.has(storedStep)) {
-        this.tourCurrentIndex = idx;
-        return;
-      }
-    }
-
-    const firstIncompleteIdx = this.systemSetupItems.findIndex(i => !completed.has(i.step));
-    this.tourCurrentIndex = firstIncompleteIdx >= 0 ? firstIncompleteIdx : 0;
-
-    const item = this.systemSetupItems[this.tourCurrentIndex];
-    if (item && !completed.has(item.step)) {
-      this.tourCurrentStep = item.step;
-    }
-  }
-
-  private getTourSidebarTargetKey(title: string): 'od' | 'attendance' | 'personnel' {
-    const normalized = (title || '').trim().toLowerCase();
-    if (normalized === 'work schedules') return 'attendance';
-    if (normalized === 'employees') return 'personnel';
-    // Goals/Departments/Branches/Job Titles → Operations Development
-    return 'od';
-  }
-
-  private updateTourAnchor(): void {
-    const item = this.currentTourItem;
-    if (!item) {
-      this.tourTargetRect = null;
-      return;
-    }
-
-    const key = this.getTourSidebarTargetKey(item.title);
-    const el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
-    if (!el) {
-      this.tourTargetRect = null;
-      return;
-    }
-
-    const r = el.getBoundingClientRect();
-    this.tourTargetRect = { top: r.top, left: r.left, width: r.width, height: r.height, right: r.right, bottom: r.bottom };
-
-    // Tooltip placement near sidebar element
-    const margin = 14;
-    const cardWidth = 360; // used for placement decisions
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
-
-    let placement: 'right' | 'left' = 'right';
-    let left = r.right + margin;
-
-    if (left + cardWidth > viewportW - 12) {
-      placement = 'left';
-      left = Math.max(12, r.left - margin - cardWidth);
-    }
-
-    // Top aligned to target, clamped into viewport
-    const desiredTop = r.top - 6;
-    const top = Math.min(Math.max(12, desiredTop), Math.max(12, viewportH - 12 - 260));
-
-    this.tourCardPos = { top, left, placement };
-  }
-
-  private ensureTourAnchor(): void {
-    this.updateTourAnchor();
-    if (this.tourTargetRect) {
-      this.anchorRetryCount = 0;
-      return;
-    }
-
-    if (this.anchorRetryCount >= 10) return;
-    this.anchorRetryCount += 1;
-    setTimeout(() => this.ensureTourAnchor(), 150);
-  }
-
-  ngAfterViewInit(): void {
-    // Wait a tick for sidebar/layout paint
-    setTimeout(() => this.ensureTourAnchor(), 0);
-    this.resizeHandler = () => this.updateTourAnchor();
-    window.addEventListener('resize', this.resizeHandler);
-    window.addEventListener('scroll', this.resizeHandler, true);
-  }
-
-  ngOnDestroy(): void {
-    // Unsubscribe from all subscriptions
-    this.subscriptions.forEach(sub => {
-      if (sub && typeof sub.unsubscribe === 'function') {
-        sub.unsubscribe();
-      }
-    });
-    this.subscriptions = [];
-
-    // Remove event listeners
-    if (this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler);
-      window.removeEventListener('scroll', this.resizeHandler, true);
-    }
-  }
-
-  nextTourStep(): void {
-    const item = this.currentTourItem;
-    if (!item) return;
-
-    const completed = new Set(this.tourCompletedSteps);
-    completed.add(item.step);
-    this.tourCompletedSteps = Array.from(completed);
-
-    const nextIdx = this.systemSetupItems.findIndex((x, idx) => idx > this.tourCurrentIndex && !completed.has(x.step));
-    if (nextIdx >= 0) {
-      this.tourCurrentIndex = nextIdx;
-      this.tourCurrentStep = this.systemSetupItems[nextIdx].step;
-      setTimeout(() => this.ensureTourAnchor(), 0);
-      return;
-    }
-
-    const anyIncomplete = this.systemSetupItems.findIndex(x => !completed.has(x.step));
-    if (anyIncomplete >= 0) {
-      this.tourCurrentIndex = anyIncomplete;
-      this.tourCurrentStep = this.systemSetupItems[anyIncomplete].step;
-      setTimeout(() => this.ensureTourAnchor(), 0);
-      return;
-    }
-
-    this.tourDone = true;
-    // fully finished: persist and close
-    sessionStorage.setItem(this.systemSetupTourSessionClosedKey, 'true');
-  }
-
-  prevTourStep(): void {
-    if (!this.systemSetupItems.length) return;
-    this.tourCurrentIndex = Math.max(0, this.tourCurrentIndex - 1);
-    const item = this.systemSetupItems[this.tourCurrentIndex];
-    if (item && !this.isTourStepCompleted(item.step)) {
-      this.tourCurrentStep = item.step;
-    }
-    setTimeout(() => this.updateTourAnchor(), 0);
-  }
-
-  skipAllTourSteps(): void {
-    this.tourDone = true;
-    this.tourCurrentStep = null;
-    sessionStorage.setItem(this.systemSetupTourSessionClosedKey, 'true');
-  }
-
-  get systemSetupDismissed(): boolean {
-    return localStorage.getItem(this.systemSetupDismissKey) === 'true';
-  }
-
-  dismissSystemSetup(): void {
-    localStorage.setItem(this.systemSetupDismissKey, 'true');
-  }
-
-  resetSystemSetupDismiss(): void {
-    localStorage.removeItem(this.systemSetupDismissKey);
-  }
-
-  get systemSetupTotal(): number {
-    return this.systemSetupItems.length;
-  }
-
-  get systemSetupCompleted(): number {
-    return this.systemSetupItems.filter(x => x.checked).length;
-  }
-
-  get systemSetupProgressPercent(): number {
-    if (!this.systemSetupTotal) return 0;
-    return Math.round((this.systemSetupCompleted / this.systemSetupTotal) * 100);
-  }
-
-  get systemSetupIsDone(): boolean {
-    return this.systemSetupTotal > 0 && this.systemSetupCompleted === this.systemSetupTotal;
-  }
-
-  get currentLang(): 'en' | 'ar' {
-    return (localStorage.getItem('lang') === 'ar' ? 'ar' : 'en');
-  }
-
-  getSystemSetupMessage(item: ISystemSetupStepItem): string {
-    const msg = item?.message?.[this.currentLang] || item?.message?.en || item?.message?.ar;
-    if (item.checked) return msg || 'Completed';
-    return 'Not completed yet';
-  }
-
-  getSystemSetupRoute(title: string): string | null {
-    const normalized = (title || '').trim().toLowerCase();
-    if (normalized === 'goals') return '/goals/all-goals';
-    if (normalized === 'departments') return '/departments/all-departments';
-    if (normalized === 'branches') return '/branches/all-branches';
-    if (normalized === 'job titles' || normalized === 'job titles ') return '/jobs/all-job-titles';
-    if (normalized === 'work schedules') return '/schedule/work-schedule';
-    if (normalized === 'employees') return '/employees/all-employees';
-    return null;
-  }
-
-  months: { value: number, label: string }[] = [];
-
-  years: { value: string, label: string }[] = [];
-
-  public chartsData: {
-    [key: string]: { labels: string[], values: number[], colors: string[] }
-  } = {};
-
-  ngOnInit(): void {
-    this.loadSystemSetupBoard();
-    // get monthes selects 
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
-
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-
-    this.months = [];
-    this.months.push({ value: currentMonth, label: "This Month" });
-    if (currentMonth > 1) {
-      this.months.push({ value: currentMonth - 1, label: "Last Month" });
-    }
-    for (let m = currentMonth - 2; m >= 1; m--) {
-      this.months.push({ value: m, label: monthNames[m - 1] });
-    }
-
-    // get last three years
-    this.years = [
-      { value: (currentYear).toString(), label: `This Year` },
-      { value: (currentYear - 1).toString(), label: `Last Year` },
-      { value: (currentYear - 2).toString(), label: (currentYear - 2).toString() }
-    ];
-
-    // defult selects values
-    this.params.request_month = currentMonth;
-    this.params.turnover_year = currentYear.toString();
-    this.params.employees_year = currentYear.toString();
-
-    // get departments and branchs and leave balance
-    this.getAllDepartment(this.currentPage);
-    this.getAllBranchs(this.currentPage);
-    this.getAllLeaveBalance();
-
-    // get dashboard data
-    this.getDashboardData();
-  }
-
-  private loadSystemSetupBoard(): void {
-    // Check localStorage flag to skip API call if all steps completed
-    const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
-    if (allDoneFlag === 'true') {
-      this.systemSetupLoading = false;
-      this.systemSetupError = null;
-      this.systemSetupItems = [];
-      return;
-    }
-
-    this.systemSetupLoading = true;
-    this.systemSetupError = null;
-    const sub = this.systemSetupService.getSystemSetup().subscribe({
-      next: (res) => {
-        const items = res?.data?.list_items || [];
-        // ensure stable ordering by step
-        this.systemSetupItems = [...items].sort((a, b) => (a.step ?? 0) - (b.step ?? 0));
-        this.systemSetupLoading = false;
-        this.syncTourIndexFromStorage();
-        setTimeout(() => this.ensureTourAnchor(), 0);
-        // If all items are checked, set the flag in localStorage
-        if (this.systemSetupItems.length > 0 && this.systemSetupItems.every(item => item.checked === true)) {
-          localStorage.setItem('system_setup_tour_all_done', 'true');
-        }
-      },
-      error: (err) => {
-        this.systemSetupLoading = false;
-        this.systemSetupItems = [];
-        this.systemSetupError = err?.error?.details || 'Failed to load system setup.';
-      }
-    });
-    this.subscriptions.push(sub);
-  }
-
-
-
-
-  params: any = {
+export class AdminDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+  // --- Injections ---
+  private adminDashboardService = inject(AdminDashboardService);
+  private departmentsService = inject(DepartmentsService);
+  private branchesService = inject(BranchesService);
+  private leaveBalanceService = inject(LeaveBalanceService);
+  private languageService = inject(LanguageService);
+  private router = inject(Router);
+  private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
+
+  // --- External State (Signals) ---
+  readonly currentLang = signal(this.languageService.getLanguage());
+
+  // --- Translation Logic ---
+  private readonly dashboardI18n = toSignal(
+    toObservable(this.currentLang).pipe(
+      switchMap(lang =>
+        this.http
+          .get<DashboardTranslations>(`./assets/i18n/${lang}/dashboard.json`)
+          .pipe(catchError(() => of({} as DashboardTranslations)))
+      )
+    ),
+    { initialValue: {} as DashboardTranslations }
+  );
+
+  /** Primary translation accessor signal */
+  readonly t = computed(() => this.dashboardI18n());
+
+  // --- Component State (Signals) ---
+  readonly getDataLoad = signal(true);
+  readonly rawDashboardData = signal<any[]>([]); // Clean, raw data from API
+
+  readonly departments = signal<any[]>([]);
+  readonly branches = signal<any[]>([]);
+  readonly leaveBalancesData = signal<any[]>([]);
+  readonly alerts = signal<any[]>([]);
+  
+  readonly params = signal<Record<string, any>>({
     department: '',
-    request_month: '',
-    turnover_year: '',
-    employees_year: '',
+    request_month: new Date().getMonth() + 1,
+    turnover_year: new Date().getFullYear().toString(),
+    employees_year: new Date().getFullYear().toString(),
     leave_balance_leave_id: '',
     active_departments_branch_id: ''
-  };
+  });
+
+  // --- Reactive Mappings (Decoupled from Fetch) ---
+  readonly chartsDataMap = computed(() => {
+    const dashboardData = this.rawDashboardData();
+    const trans = this.t() || {}; // Safe access
+    const dataMap: Record<string, any> = {};
+
+    dashboardData.forEach((item: any) => {
+      const valuesArray = Array.isArray(item.value) ? item.value : [];
+      const chartItems = valuesArray.filter((v: any) => 
+        v && typeof v.label === 'string' && typeof v.value === 'number'
+      );
+
+      dataMap[item.title] = {
+        values: chartItems.map((v: any) => v.value),
+        colors: chartItems.map((v: any) => v.color_code || '#e5e7eb50'),
+        labels: chartItems.map((v: any) => this.translateDynamicLabel(v.label, trans)),
+        raw: valuesArray
+      };
+    });
+    return dataMap;
+  });
+
+  // --- Computed Base Views ---
+  readonly activeDepartments = computed(() => 
+    this.departments().filter(dept => dept.is_active === true)
+  );
+
+  readonly monthLabelsForLanguage = computed(() => {
+    const m = this.t().months || {};
+    return [m.jan, m.feb, m.mar, m.apr, m.may, m.jun, m.jul, m.aug, m.sep, m.oct, m.nov, m.dec]
+      .map(name => name || '');
+  });
+
+  // --- Chart Setup Configuration ---
+  readonly doughnutType: 'doughnut' = 'doughnut';
+  readonly barType: 'bar' = 'bar';
+
+  // --- Subscriptions (Cleanup Management) ---
+  private subscriptions: Subscription[] = [];
+
+  constructor() {
+    effect(() => {
+      // Re-fetch only when params change
+      this.params();
+      this.getDashboardData();
+    });
+
+    // Detect language changes from external service
+    this.subscriptions.push(
+      this.languageService.language$.subscribe((lang: string) => {
+        this.currentLang.set(lang);
+        this.cdr.markForCheck();
+      })
+    );
+  }
+
+  ngOnInit(): void {
+    this.initDateFilters();
+    this.loadInitialData();
+  }
+
+  ngAfterViewInit(): void {}
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  // --- Core Methods ---
+
+  private initDateFilters(): void {
+    const now = new Date();
+    this.params.update(p => ({
+      ...p,
+      request_month: now.getMonth() + 1,
+      turnover_year: now.getFullYear().toString(),
+      employees_year: now.getFullYear().toString()
+    }));
+  }
+
+  private loadInitialData(): void {
+    this.getAllDepartments();
+    this.getAllBranches();
+    this.getAllLeaveBalance();
+  }
 
   onParamChangeEvent(key: string, event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
-    // console.log("Changed:", key, value);
-    this.params[key] = value;
-    this.getDashboardData();
+    this.params.update(p => ({ ...p, [key]: value }));
   }
 
-
   getDashboardData(): void {
-    const sub = this.adminDashboardService.viewDashboard(this.params).subscribe({
+    const sub = this.adminDashboardService.viewDashboard(this.params()).subscribe({
       next: (response) => {
-        const dashboardData = response.data.object_info;
-        dashboardData.forEach((item: any) => {
-          const valuesArray = Array.isArray(item.value) ? item.value : [];
+        const dashboardData = response.data.object_info || [];
+        this.rawDashboardData.set(dashboardData);
 
-          this.chartsData[item.title] = {
-            labels: valuesArray.map((v: any) =>
-              v?.label ?? v?.name ?? ''
-            ),
-            values: valuesArray.map((v: any) => v?.value ?? 0),
-            colors: valuesArray.map((v: any) => v?.color_code ?? '#e5e7eb50')
-          };
-        });
-        // map alerts (if present in response)
+        // Alert Mapping (keep simple)
         const alertsItem = dashboardData.find((x: any) => x.title === 'Alerts');
         if (alertsItem && Array.isArray(alertsItem.value)) {
-          this.alerts = alertsItem.value.map((a: any) => {
-            const info = a.extra_meta?.info || {};
+          this.alerts.set(alertsItem.value.map((a: any) => {
+            const extraMeta = a.extra_meta || {};
+            const info = extraMeta.info || {};
             return {
               id: a.id,
               title: info.title || a.title || '',
@@ -509,763 +266,255 @@ export class AdminDashboardComponent implements OnDestroy {
               number: a.number ?? null,
               raw: a
             };
-          });
+          }));
         } else {
-          // if no alerts were returned, clear existing alerts so overlay appears
-          this.alerts = [];
+          this.alerts.set([]);
         }
 
-        this.getDataLoad = false;
-        // console.log("Charts Data:", this.chartsData);
-
-        // -----------------------------
-        // Active Employees
-        // -----------------------------
-        const activeEmployees = this.chartsData['Active Employees'];
-        if (activeEmployees) {
-          this.activeEmployeeLabels = activeEmployees.labels;
-          this.activeEmployeeValues = activeEmployees.values;
-          this.activeEmployeeColors = activeEmployees.colors;
-
-          this.activeEmployeeData = {
-            labels: this.activeEmployeeLabels,
-            datasets: [
-              {
-                data: this.activeEmployeeValues.every(v => v === 0)
-                  ? [1]
-                  : this.activeEmployeeValues,
-                backgroundColor: this.activeEmployeeValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.activeEmployeeColors
-              }
-            ]
-          };
-
-          if (this.activeEmployeeValues.every(v => v === 0)) {
-            this.activeEmployeeOptions = this.getEmptyChartOptions();
-          } else {
-            this.activeEmployeeOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-        // -----------------------------
-        // Leave Balance
-        // -----------------------------
-        const leaveBalance = this.chartsData['Leave Balance'];
-        if (leaveBalance) {
-          this.leaveBalanceLabels = leaveBalance.labels;
-          this.leaveBalanceValues = leaveBalance.values;
-          this.leaveBalanceColors = leaveBalance.colors;
-
-          this.leaveBalanceData = {
-            labels: this.leaveBalanceLabels,
-            datasets: [
-              {
-                data: this.leaveBalanceValues.every(v => v === 0)
-                  ? [1]
-                  : this.leaveBalanceValues,
-                backgroundColor: this.leaveBalanceValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.leaveBalanceColors
-              }
-            ]
-          };
-
-          if (this.leaveBalanceValues.every(v => v === 0)) {
-            this.leaveBalanceOptions = this.getEmptyChartOptions();
-          } else {
-            this.leaveBalanceOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-
-        // -----------------------------
-        // Requests
-        // -----------------------------
-        const requests = this.chartsData['Requests'];
-        if (requests) {
-          this.requestsLabels = requests.labels;
-          this.requestsValues = requests.values;
-          this.requestsColors = requests.colors;
-
-          this.requestsData = {
-            labels: this.requestsLabels,
-            datasets: [
-              {
-                data: this.requestsValues.every(v => v === 0)
-                  ? [1]
-                  : this.requestsValues,
-                backgroundColor: this.requestsValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.requestsColors
-              }
-            ]
-          };
-
-          if (this.requestsValues.every(v => v === 0)) {
-            // no data
-            this.requestsOptions = this.getEmptyChartOptions();
-          } else {
-            // has data
-            this.requestsOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-
-        // -----------------------------
-        // Goals
-        // -----------------------------
-        const goals = this.chartsData['Goals'];
-        if (goals) {
-          this.goalsLabels = goals.labels;
-          this.goalsValues = goals.values;
-          this.goalsColors = goals.colors;
-
-          this.goalsData = {
-            labels: this.goalsLabels,
-            datasets: [
-              {
-                data: this.goalsValues.every(v => v === 0)
-                  ? [1]
-                  : this.goalsValues,
-                backgroundColor: this.goalsValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.goalsColors
-              }
-            ]
-          };
-
-          if (this.goalsValues.every(v => v === 0)) {
-            this.goalsOptions = this.getEmptyChartOptions();
-          } else {
-            this.goalsOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-
-        // -----------------------------
-        // Turnover
-        // -----------------------------
-        const turnover = this.chartsData['Turnover'];
-        if (turnover) {
-          this.turnoverValues = turnover.values;
-          this.turnoverColors = turnover.colors;
-
-          this.turnoverData = {
-            labels: this.turnoverLabels,
-            datasets: [
-              {
-                label: 'Turnover',
-                data: this.turnoverValues,
-                backgroundColor: this.turnoverColors,
-                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-                borderSkipped: false,
-                barPercentage: 1.1,
-                categoryPercentage: 0.6
-              }
-            ]
-          };
-        }
-
-        // -----------------------------
-        // Employees chart
-        // -----------------------------
-        const employeesItem = dashboardData.find((x: any) => x.title === 'Employees');
-        if (employeesItem && Array.isArray(employeesItem.value)) {
-          const valuesArray = employeesItem.value;
-
-          this.hiredValues = valuesArray.map((v: any) => v.active?.value ?? 0);
-          this.terminatedValues = valuesArray.map((v: any) => v.terminate?.value ?? 0);
-          this.resignedValues = valuesArray.map((v: any) => v.resign?.value ?? 0);
-
-          this.employeeData = {
-            labels: this.employeeLabels,
-            datasets: [
-              {
-                label: 'Hired',
-                data: this.hiredValues,
-                backgroundColor: '#98DFC0',
-                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-                borderSkipped: false
-              },
-              {
-                label: 'Terminated',
-                data: this.terminatedValues,
-                backgroundColor: '#B83D4A',
-                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-                borderSkipped: false
-              },
-              {
-                label: 'Resigned',
-                data: this.resignedValues,
-                backgroundColor: '#FF8F8F',
-                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-                borderSkipped: false
-              }
-            ]
-          };
-        }
-
-        // -----------------------------
-        // Department Guidelines
-        // -----------------------------
-        const deptGuidelines = this.chartsData['Department Guidelines'];
-        if (deptGuidelines) {
-          this.deptGuidelinesLabels = deptGuidelines.labels;
-          this.deptGuidelinesValues = deptGuidelines.values;
-          this.deptGuidelinesColors = deptGuidelines.colors;
-
-          this.deptGuidelinesData = {
-            labels: this.deptGuidelinesLabels,
-            datasets: [
-              {
-                data: this.deptGuidelinesValues.every(v => v === 0)
-                  ? [1]
-                  : this.deptGuidelinesValues,
-                backgroundColor: this.deptGuidelinesValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.deptGuidelinesColors
-              }
-            ]
-          };
-
-          if (this.deptGuidelinesValues.every(v => v === 0)) {
-            this.deptGuidelinesOptions = this.getEmptyChartOptions();
-          } else {
-            this.deptGuidelinesOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-        // ------------------
-        // Active Departments
-        // -------------------
-        const activeDeps = this.chartsData['Active Departments'];
-        if (activeDeps) {
-          this.activeDepartmentsLabels = activeDeps.labels;
-          this.activeDepartmentsValues = activeDeps.values;
-          this.activeDepartmentsColors = activeDeps.colors;
-
-          this.activeDepartmentsData = {
-            labels: this.activeDepartmentsLabels,
-            datasets: [
-              {
-                data: this.activeDepartmentsValues.every(v => v === 0)
-                  ? [1]
-                  : this.activeDepartmentsValues,
-                backgroundColor: this.activeDepartmentsValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.activeDepartmentsColors
-              }
-            ]
-          };
-
-          if (this.activeDepartmentsValues.every(v => v === 0)) {
-
-            this.activeDepartmentsOptions = this.getEmptyChartOptions();
-          } else {
-            this.activeDepartmentsOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-        // -----------------------------
-        // Employee Onboarding
-        // -----------------------------
-        const employeeOnboarding = this.chartsData['Employee Onboarding'];
-        if (employeeOnboarding) {
-          this.employeeOnboardingLabels = employeeOnboarding.labels;
-          this.employeeOnboardingValues = employeeOnboarding.values;
-          this.employeeOnboardingColors = employeeOnboarding.colors;
-
-          this.employeeOnboardingData = {
-            labels: this.employeeOnboardingLabels,
-            datasets: [
-              {
-                data: this.employeeOnboardingValues.every(v => v === 0)
-                  ? [1]
-                  : this.employeeOnboardingValues,
-                backgroundColor: this.employeeOnboardingValues.every(v => v === 0)
-                  ? ['#e5e7eb50']
-                  : this.employeeOnboardingColors
-              }
-            ]
-          };
-
-          if (this.employeeOnboardingValues.every(v => v === 0)) {
-            this.employeeOnboardingOptions = this.getEmptyChartOptions();
-          } else {
-            this.employeeOnboardingOptions = {
-              responsive: true,
-              cutout: '50%',
-              animation: {
-                animateRotate: true,
-                animateScale: true
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-              }
-            };
-          }
-        }
-
-
-
-
+        this.getDataLoad.set(false);
       },
       error: (error) => {
-        console.error('Error fetching dashboard data:', error);
-        this.getDataLoad = false;
-
+        console.error('Core Dashboard Load Failure:', error);
+        this.getDataLoad.set(false);
       }
     });
     this.subscriptions.push(sub);
   }
 
-  // empty chart
-  getEmptyChartOptions(): ChartOptions<'doughnut'> {
+  /**
+   * Translates labels coming from the API based on the local dictionary
+   */
+  private translateDynamicLabel(label: string, trans: DashboardTranslations): string {
+    if (!label) return '';
+    const cl = trans.chart_labels || {};
+    // Normalize string: handle all non-standard spaces/chars and lowercase everything
+    const cleanLabel = label.replace(/\s+/g, ' ').trim();
+    const lower = cleanLabel.toLowerCase();
+    
+    // --- Specific Label Mapping (Localized version prioritized) ---
+    if (lower === 'technical') return cl.technical || (this.currentLang() === 'ar' ? 'تقني' : 'Technical');
+    if (lower === 'support') return cl.support || (this.currentLang() === 'ar' ? 'دعم' : 'Support');
+    
+    // --- Performance Metrics (Handling 'Done' explicitly) ---
+    // Use regex to look for "done" at the start of the string
+    const doneRegex = /^done\s+/i;
+    if (doneRegex.test(lower)) {
+      const isArabic = this.currentLang() === 'ar';
+      
+      // Exact pattern matches from your screenshot
+      if (lower === 'done 100%') return cl.done_100 || (isArabic ? 'مكتمل 100%' : 'Done 100%');
+      if (lower.includes('80%')) return cl.done_80_plus || (isArabic ? 'أكثر من 80%' : 'Done 80%<');
+      if (lower.includes('50-80%')) return cl.done_50_80 || (isArabic ? 'منجز 50-80%' : 'Done 50-80%');
+      if (lower.includes('30-50%')) return cl.done_30_50 || (isArabic ? 'منجز 30-50%' : 'Done 30-50%');
+      if (lower.includes('30%')) return cl.done_30_less || (isArabic ? 'أقل من 30%' : 'Done 30%>');
+      
+      // Global fallback for any word starting with 'done'
+      const doneLabel = trans.labels?.done || (isArabic ? 'منجز' : 'Done');
+      return cleanLabel.replace(/done/i, doneLabel);
+    }
+    
+    // Tenure mapping (Fuzzy)
+    if (lower.includes('probation')) return cl.on_probation || label;
+    if (lower.includes('year 1') || lower.includes('1 year')) return cl.year_1_less || label;
+    if (lower.includes('year 2') || lower.includes('2 year')) return cl.years_2_plus || label;
+    if (lower.includes('year 3') || lower.includes('3 year')) return cl.years_3_plus || label;
+    
+    // Exact match for statuses
+    if (lower === 'applied') return cl.applied || label;
+    if (lower === 'not applied' || lower === 'not_applied') return cl.not_applied || label;
+    if (lower === 'in progress' || lower === 'in_progress') return cl.in_progress || label;
+    if (lower === 'rejected') return cl.rejected || label;
+    if (lower === 'expired') return cl.expired || label;
+    if (lower === 'pending') return cl.pending || label;
+    if (lower === 'accepted') return cl.accepted || label;
+    if (lower === 'active') return cl.active || label;
+    if (lower === 'inactive') return cl.inactive || label;
+    if (lower === 'available') return cl.available || label;
+    if (lower === 'used') return cl.used || label;
+    if (lower === 'carryover') return cl.carryover || label;
+    
+    return label;
+  }
+
+  // --- Reactive Chart Computations ---
+
+  readonly activeEmployeeData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Active Employees'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
     return {
-      responsive: true,
-      cutout: '50%',
-      animation: {
-        animateRotate: true,
-        animateScale: true
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: () => '',
-            title: () => 'No data'
-          }
-        }
-      }
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
     };
+  });
+
+  readonly leaveBalanceData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Leave Balance'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
+    return {
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
+    };
+  });
+
+  readonly requestsData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Requests'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
+    return {
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
+    };
+  });
+
+  readonly goalsData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Goals'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
+    return {
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
+    };
+  });
+
+  readonly turnoverData = computed<ChartData<'bar'>>(() => {
+    const data = this.chartsDataMap()['Turnover'];
+    if (!data) return { labels: [], datasets: [] };
+    return {
+      labels: this.monthLabelsForLanguage(),
+      datasets: [{
+        label: this.t().cards?.turnover || 'Turnover',
+        data: Array.isArray(data.values) ? [...data.values] : [],
+        backgroundColor: Array.isArray(data.colors) ? [...data.colors] : [],
+        borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
+        borderSkipped: false,
+        barPercentage: 1.1,
+        categoryPercentage: 0.6
+      }]
+    };
+  });
+
+  readonly employeeOnboardingData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Employee Onboarding'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
+    return {
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
+    };
+  });
+
+  readonly activeDepartmentsData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Active Departments'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
+    return {
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
+    };
+  });
+
+  readonly deptGuidelinesData = computed<ChartData<'doughnut'>>(() => {
+    const data = this.chartsDataMap()['Department Guidelines'];
+    if (!data) return { labels: [], datasets: [] };
+    const hasData = (data.values || []).some((v: number) => v > 0);
+    return {
+      labels: Array.isArray(data.labels) ? [...data.labels] : [],
+      datasets: [{
+        data: hasData ? [...data.values] : [1],
+        backgroundColor: hasData ? [...data.colors] : ['#e5e7eb50']
+      }]
+    };
+  });
+
+  readonly employeeData = computed<ChartData<'bar'>>(() => {
+    const data = this.chartsDataMap()['Employees'];
+    if (!data || !Array.isArray(data.raw)) return { labels: [], datasets: [] };
+    
+    return {
+      labels: this.monthLabelsForLanguage(),
+      datasets: [
+        { label: this.t().labels?.hired || 'Hired', data: data.raw.map((v: any) => v.active?.value ?? 0), backgroundColor: '#98DFC0', borderRadius: { topLeft: 10, topRight: 10 }, borderSkipped: false },
+        { label: this.t().labels?.terminated || 'Terminated', data: data.raw.map((v: any) => v.terminate?.value ?? 0), backgroundColor: '#B83D4A', borderRadius: { topLeft: 10, topRight: 10 }, borderSkipped: false },
+        { label: this.t().labels?.resigned || 'Resigned', data: data.raw.map((v: any) => v.resign?.value ?? 0), backgroundColor: '#FF8F8F', borderRadius: { topLeft: 10, topRight: 10 }, borderSkipped: false }
+      ]
+    };
+  });
+
+  // --- Select Option ViewModels ---
+  readonly months = computed(() => {
+    const currentMonth = new Date().getMonth() + 1;
+    const m = this.t().months || {};
+    const names = [m.jan, m.feb, m.mar, m.apr, m.may, m.jun, m.jul, m.aug, m.sep, m.oct, m.nov, m.dec];
+    const results = [{ value: currentMonth, label: m.this_month || 'This Month' }];
+    if (currentMonth > 1) results.push({ value: currentMonth - 1, label: m.last_month || 'Last Month' });
+    for (let i = currentMonth - 2; i >= 1; i--) results.push({ value: i, label: names[i - 1] || 'Month' });
+    return results;
+  });
+
+  readonly years = computed(() => {
+    const currentYear = new Date().getFullYear();
+    const y = this.t().years || {};
+    return [
+      { value: currentYear.toString(), label: y.this_year || 'This Year' },
+      { value: (currentYear - 1).toString(), label: y.last_year || 'Last Year' },
+      { value: (currentYear - 2).toString(), label: (currentYear - 2).toString() }
+    ];
+  });
+
+  // --- Integration Methods ---
+  getTotalFor(key: string): number {
+    const data = this.chartsDataMap()[key];
+    return data ? (data.values || []).reduce((a: number, b: number) => a + b, 0) : 0;
   }
 
-
-
-  departments: any[] = [];
-  branches: any[] = [];
-  leaveBalance: any[] = [];
-  selectAll: boolean = false;
-  currentPage: number = 1;
-  totalpages: number = 0;
-  totalItems: number = 0;
-  itemsPerPage: number = 10;
-
-  // Getter to filter only active departments
-  get activeDepartments(): any[] {
-    return this.departments.filter(dept => dept.is_active === true);
+  onAlertClick(alert: any): void { 
+    this.router.navigateByUrl('/dashboard'); 
   }
 
-  // get departemnt
-  getAllDepartment(pageNumber: number, searchTerm: string = '') {
-    const sub = this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-      search: searchTerm || undefined,
-    }).subscribe({
-      next: (response) => {
-        this.departments = response.data.list_items;
-      },
-      error: (err) => {
-        console.error(err.error?.details);
-      }
-    });
-    this.subscriptions.push(sub);
+  private getAllDepartments(): void {
+    this.departmentsService.getAllDepartment(1, 10000).subscribe(res => this.departments.set(res.data.list_items || []));
+  }
+  private getAllBranches(): void {
+    this.branchesService.getAllBranches(1, 10000).subscribe(res => this.branches.set(res.data.list_items || []));
+  }
+  private getAllLeaveBalance(): void {
+    this.leaveBalanceService.getAllLeaveBalance({page: 1, per_page: 10000}).subscribe(res => this.leaveBalancesData.set(res.data.list_items || []));
   }
 
-  // get branches
-  getAllBranchs(pageNumber: number, searchTerm: string = '') {
-    const sub = this._BranchesService.getAllBranches(pageNumber, 10000, {
-      search: searchTerm || undefined,
-    }).subscribe({
-      next: (response) => {
-
-        this.branches = response.data.list_items;
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-    this.subscriptions.push(sub);
-  }
-
-
-  // get leave balance
-  getAllLeaveBalance(): void {
-    const sub = this.leaveBalanceService.getAllLeaveBalance({
-      page: 1,
-      per_page: 10000
-    }).subscribe({
-      next: (response) => {
-        this.leaveBalance = response.data.list_items;
-        // console.log(this.leaveBalance);
-      },
-      error: (err) => {
-        console.error(err.error?.details);
-      }
-    });
-    this.subscriptions.push(sub);
-  }
-
-  // -----------------------------
-  // Active Employees Chart
-  // -----------------------------
-  public activeEmployeeType: 'doughnut' = 'doughnut';
-
-  public activeEmployeeLabels: string[] = [];
-  public activeEmployeeValues: number[] = [];
-  public activeEmployeeColors: string[] = [];
-
-  public activeEmployeeData: any;
-  public activeEmployeeOptions: ChartOptions<'doughnut'> = {
+  // --- Constant Chart Options ---
+  readonly doughnutOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-  public get activeEmployeeTotal() {
-    return this.activeEmployeeValues.reduce((a, b) => a + b, 0);
-  }
-
-  // -----------------------------
-  // Leave Balance Chart
-  // -----------------------------
-  public leaveBalanceType: 'doughnut' = 'doughnut';
-
-  public leaveBalanceLabels: string[] = [];
-  public leaveBalanceValues: number[] = [];
-  public leaveBalanceColors: string[] = [];
-
-  public leaveBalanceData: any;
-  public leaveBalanceOptions: ChartOptions<'doughnut'> = {
-    responsive: true,
-    cutout: '50%',
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-  public get leaveBalanceTotal() {
-    return this.leaveBalanceValues.reduce((a, b) => a + b, 0);
-  }
-
-
-  // -----------------------------
-  // Requests Chart
-  // -----------------------------
-  public requestsType: 'doughnut' = 'doughnut';
-
-  public requestsLabels: string[] = [];
-  public requestsValues: number[] = [];
-  public requestsColors: string[] = [];
-
-  public requestsData: any;
-  public requestsOptions: ChartOptions<'doughnut'> = {
-    responsive: true,
-    cutout: '50%',
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-  public get requestsTotal() {
-    return this.requestsValues.reduce((a, b) => a + b, 0);
-  }
-
-  // -----------------------------
-  // Goals Chart
-  // -----------------------------
-  public goalsType: 'doughnut' = 'doughnut';
-
-  public goalsLabels: string[] = [];
-  public goalsValues: number[] = [];
-  public goalsColors: string[] = [];
-
-  public goalsData: any;
-  public goalsOptions: ChartOptions<'doughnut'> = {
-    responsive: true,
-    cutout: '50%',
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-  public get goalsTotal() {
-    return this.goalsValues.reduce((a, b) => a + b, 0);
-  }
-
-
-  // -----------------------------
-  // Alerts
-  // -----------------------------
-  alerts = [
-    {
-      number: 2,
-      title: 'Probation Alert',
-      content: 'The probation period for John Doe will end on 2025-09-30. Please review and take action.'
-    },
-    {
-      number: 1,
-      title: 'Leave Alert',
-      content: 'Alice Smith has 2 days of leave pending approval. Please review.'
-    },
-    {
-      title: 'Compliance Alert',
-      content: 'The compliance training for Michael Brown is overdue. Please follow up.'
-    },
-    {
-      number: 2,
-      title: 'Contract Renewal',
-      content: 'The contract for Sarah Johnson will expire on 2025-10-15. Action required.'
-    },
-    {
-      number: 1,
-      title: 'Probation Alert',
-      content: 'The probation period for David Lee will end on 2025-10-01. Please review.'
-    }
-  ];
-  // -----------------------------
-  // Turnover Bar Chart
-  // -----------------------------
-  public turnoverType: 'bar' = 'bar';
-
-  public turnoverLabels: string[] = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ];
-
-  public turnoverValues: number[] = [];
-  public turnoverColors: string[] = [];
-
-  public turnoverData: any;
-  public turnoverOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-    },
-    interaction: {
-      mode: 'nearest',
-      axis: 'x',
-      intersect: true
-    },
-    scales: {
-      x: {
-        grid: {
-          display: true,
-          color: '#C2C2C2',
-          drawTicks: true,
-          lineWidth: 1
-        },
-        ticks: {
-          color: '#2C435D',
-          font: { size: 16 }
-        }
-      },
-      y: {
-        grid: {
-          display: true,
-          color: '#C2C2C2',
-          drawTicks: true,
-          lineWidth: 1
-        },
-        ticks: {
-          color: '#2C435D',
-          font: { size: 16 }
-        }
-      }
-    }
-  };
-
-  // -----------------------------
-  // Employees Chart
-  // ----------------------------- 
-  public employeeLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  public hiredValues: number[] = [];
-  public terminatedValues: number[] = [];
-  public resignedValues: number[] = [];
-
-  public employeeData: any;
-  public employeeOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: false }
-    },
-    scales: {
-      x: {
-        grid: {
-          display: true,
-          color: '#C2C2C2',
-          drawTicks: true,
-          lineWidth: 1
-        },
-        ticks: {
-          color: '#2C435D',
-          font: { size: 16 }
-        }
-      },
-      y: {
-        grid: {
-          display: true,
-          color: '#C2C2C2',
-          drawTicks: true,
-          lineWidth: 1
-        },
-        ticks: {
-          color: '#2C435D',
-          font: { size: 16 },
-        }
-      }
-    }
-  };
-
-  public employeeType: 'bar' = 'bar';
-
-  // -----------------------------
-  // Department Guidelines Chart
-  // -----------------------------
-  public deptGuidelinesType: 'doughnut' = 'doughnut';
-
-  public deptGuidelinesLabels: string[] = [];
-  public deptGuidelinesValues: number[] = [];
-  public deptGuidelinesColors: string[] = [];
-
-  public deptGuidelinesData: any;
-  public deptGuidelinesOptions: ChartOptions<'doughnut'> = {
-    responsive: true,
-    cutout: '50%',
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  };
-
-
-  // -----------------------------
-  // Active Departments Chart
-  // -----------------------------
-  public activeDepartmentsType: 'doughnut' = 'doughnut';
-  public activeDepartmentsLabels: string[] = [];
-  public activeDepartmentsValues: number[] = [];
-  public activeDepartmentsColors: string[] = [];
-  public activeDepartmentsData: any;
-  public activeDepartmentsOptions: ChartOptions<'doughnut'> = {
-    responsive: true,
-    cutout: '50%',
-    animation: { animateRotate: true, animateScale: true },
     plugins: { legend: { display: false } }
   };
-  public get activeDepartmentsTotal() {
-    return this.activeDepartmentsValues.reduce((a, b) => a + b, 0);
-  }
 
-  // -----------------------------
-  // Employee Onboarding Chart
-  // -----------------------------
-  public employeeOnboardingType: 'doughnut' = 'doughnut';
-  public employeeOnboardingLabels: string[] = [];
-  public employeeOnboardingValues: number[] = [];
-  public employeeOnboardingColors: string[] = [];
-  public employeeOnboardingData: any;
-  public employeeOnboardingOptions: ChartOptions<'doughnut'> = {
+  readonly barOptions: ChartOptions<'bar'> = {
     responsive: true,
-    cutout: '50%',
-    animation: { animateRotate: true, animateScale: true },
-    plugins: { legend: { display: false } }
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: true, color: '#C2C2C2' }, ticks: { color: '#2C435D', font: { size: 16 } } },
+      y: { grid: { display: true, color: '#C2C2C2' }, ticks: { color: '#2C435D', font: { size: 16 } } }
+    }
   };
-  public get employeeOnboardingTotal() {
-    return this.employeeOnboardingValues.reduce((a, b) => a + b, 0);
-  }
-
-
 }

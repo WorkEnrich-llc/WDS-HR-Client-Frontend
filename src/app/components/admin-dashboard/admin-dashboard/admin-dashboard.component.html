@@ -1,10 +1,16 @@
 <!-- pageheader and progress -->
-<app-page-header title="Admin Dashboard">
+<app-page-header [title]="t().title || 'Admin Dashboard'">
   <div class="filter-contain">
     <div class="form-outline w-100 position-relative custom-date-wrapper">
-      <select name="department" id="department" (change)="onParamChangeEvent('department', $event)" class="form-select">
-        <option value="" selected>All Department</option>
-        @for (dept of activeDepartments; track $index) {
+      <select 
+        name="department" 
+        id="department" 
+        (change)="onParamChangeEvent('department', $event)" 
+        class="form-select"
+        [attr.aria-label]="t().filters?.all_department"
+      >
+        <option value="" selected>{{ t().filters?.all_department }}</option>
+        @for (dept of activeDepartments(); track $index) {
         <option [value]="dept.id">{{ dept.name }}</option>
         }
       </select>
@@ -14,41 +20,41 @@
 
 <!-- start page content -->
 <div class="content-hug">
-  <!-- System Setup tour moved to Sidebar -->
-
   <!-- first Grid -->
   <div class="dashboard-grid mb-4">
     <div class="column">
       <!-- active employee card -->
       <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
-        <h2>Active Employees</h2>
+        <h2>{{ t().cards?.active_employees }}</h2>
 
-        @if(getDataLoad){
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
-
+        } @else {
         <div class="d-flex align-items-center mt-auto gap-2">
           <!-- Doughnut -->
           <div style="height: 200px">
-            <canvas baseChart [data]="activeEmployeeData" [type]="activeEmployeeType"
-              [options]="activeEmployeeOptions"></canvas>
+            <canvas baseChart 
+              [data]="activeEmployeeData()" 
+              [type]="doughnutType"
+              [options]="doughnutOptions">
+            </canvas>
           </div>
           <!-- Stickers -->
           <div class="d-flex flex-column gap-2">
-            @for (val of activeEmployeeValues; track $index) {
+            @for (val of chartsDataMap()['Active Employees']?.values; track $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="activeEmployeeColors[$index]"></div>
-              <p>{{ activeEmployeeLabels[$index] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Active Employees']?.colors[$index]"></div>
+              <p>{{ chartsDataMap()['Active Employees']?.labels[$index] }}</p>
             </div>
-            } @if(chartsData['Active Employees']) {
+            } @if(chartsDataMap()['Active Employees']) {
             <hr />
             <div class="sticker">
-              <div class="number text-end">{{ activeEmployeeTotal }}</div>
+              <div class="number text-end">{{ getTotalFor('Active Employees') }}</div>
               <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p>{{ t().labels?.total }}</p>
             </div>
             }
           </div>
@@ -59,41 +65,49 @@
       <!-- leave balance card -->
       <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
-          <h2>Leave Balance</h2>
+          <h2>{{ t().cards?.leave_balance }}</h2>
           <div class="form-outline select-inner">
-            <select id="leave_balance_leave_id" (change)="onParamChangeEvent('leave_balance_leave_id', $event)"
-              name="leave_balance_leave_id" class="form-select">
-              <option value="">All Leave Balance</option>
-              @for (m of leaveBalance; track m) {
-              <option [value]="m.leave.id">{{ m.leave.name }}</option>
+            <select 
+              id="leave_balance_leave_id" 
+              (change)="onParamChangeEvent('leave_balance_leave_id', $event)"
+              name="leave_balance_leave_id" 
+              class="form-select"
+              [attr.aria-label]="t().filters?.all_leave_balance || 'All Leave Balance'"
+            >
+              <option value="">{{ t().filters?.all_leave_balance || 'All Leave Balance' }}</option>
+              @for (m of leaveBalancesData(); track $index) {
+              <option [value]="m.leave?.id">{{ m.leave?.name }}</option>
               }
             </select>
           </div>
         </div>
-        @if(getDataLoad){
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="d-flex align-items-center mt-auto gap-2">
           <div style="height: 200px">
-            <canvas baseChart [data]="leaveBalanceData" [type]="leaveBalanceType"
-              [options]="leaveBalanceOptions"></canvas>
+            <canvas baseChart 
+              [data]="leaveBalanceData()" 
+              [type]="doughnutType"
+              [options]="doughnutOptions">
+            </canvas>
           </div>
           <!-- Stickers -->
           <div class="d-flex flex-column gap-2">
-            @for (val of leaveBalanceValues; track $index) {
+            @for (val of chartsDataMap()['Leave Balance']?.values; track $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="leaveBalanceColors[$index]"></div>
-              <p>{{ leaveBalanceLabels[$index] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Leave Balance']?.colors[$index]"></div>
+              <p>{{ chartsDataMap()['Leave Balance']?.labels[$index] }}</p>
             </div>
-            } @if(chartsData['Leave Balance']) {
+            } @if(chartsDataMap()['Leave Balance']) {
             <hr />
             <div class="sticker">
-              <div class="number text-end">{{ leaveBalanceTotal }}</div>
+              <div class="number text-end">{{ getTotalFor('Leave Balance') }}</div>
               <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p>{{ t().labels?.total }}</p>
             </div>
             }
           </div>
@@ -105,39 +119,39 @@
       <!-- Requests card -->
       <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
-          <h2>Requests</h2>
+          <h2>{{ t().cards?.requests }}</h2>
           <div class="form-outline select-inner">
             <select id="request_month" (change)="onParamChangeEvent('request_month', $event)" name="request_month"
-              class="form-select">
-              @for (m of months; track m) {
+              class="form-select" [attr.aria-label]="t().cards?.requests">
+              @for (m of months(); track m.value) {
               <option [value]="m.value">{{ m.label }}</option>
               }
             </select>
           </div>
         </div>
-        @if(getDataLoad){
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="d-flex align-items-center mt-auto gap-2">
           <div style="height: 200px">
-            <canvas baseChart [data]="requestsData" [type]="requestsType" [options]="requestsOptions"></canvas>
+            <canvas baseChart [data]="requestsData()" [type]="doughnutType" [options]="doughnutOptions"></canvas>
           </div>
           <!-- Stickers -->
           <div class="d-flex flex-column gap-2">
-            @for (val of requestsValues; track $index) {
+            @for (val of chartsDataMap()['Requests']?.values; track $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="requestsColors[$index]"></div>
-              <p>{{ requestsLabels[$index] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Requests']?.colors[$index]"></div>
+              <p>{{ chartsDataMap()['Requests']?.labels[$index] }}</p>
             </div>
-            } @if(chartsData['Requests']) {
+            } @if(chartsDataMap()['Requests']) {
             <hr />
             <div class="sticker">
-              <div class="number text-end">{{ requestsTotal }}</div>
+              <div class="number text-end">{{ getTotalFor('Requests') }}</div>
               <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p>{{ t().labels?.total }}</p>
             </div>
             }
           </div>
@@ -147,30 +161,30 @@
 
       <!-- Goals card -->
       <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
-        <h2>Goals</h2>
-        @if(getDataLoad){
+        <h2>{{ t().cards?.goals }}</h2>
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="d-flex align-items-center mt-auto gap-2">
           <div style="height: 200px">
-            <canvas baseChart [data]="goalsData" [type]="goalsType" [options]="goalsOptions"></canvas>
+            <canvas baseChart [data]="goalsData()" [type]="doughnutType" [options]="doughnutOptions"></canvas>
           </div>
           <!-- Stickers -->
           <div class="d-flex flex-column gap-2">
-            @for (val of goalsValues; track $index) {
+            @for (val of chartsDataMap()['Goals']?.values; track $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="goalsColors[$index]"></div>
-              <p>{{ goalsLabels[$index] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Goals']?.colors[$index]"></div>
+              <p>{{ chartsDataMap()['Goals']?.labels[$index] }}</p>
             </div>
-            } @if(chartsData['Goals']) {
+            } @if(chartsDataMap()['Goals']) {
             <hr />
             <div class="sticker">
-              <div class="number text-end">{{ goalsTotal }}</div>
+              <div class="number text-end">{{ getTotalFor('Goals') }}</div>
               <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p>{{ t().labels?.total }}</p>
             </div>
             }
           </div>
@@ -182,59 +196,56 @@
     <div class="column last-column">
       <!-- alerts Card -->
       <div class="content-box alerts flex-fill d-flex flex-column h-100 position-relative">
-
-        <h2>Alerts</h2>
-        @if(getDataLoad){
+        <h2>{{ t().cards?.alerts }}</h2>
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100 h-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
-        <div class="alerts-list">
-          @if(alerts && alerts.length) {
-          @for (alert of alerts; track $index) {
-          <div class="alert" (click)="onAlertClick(alert)" role="button" tabindex="0"
-            (keydown.enter)="onAlertClick(alert)" style="cursor: pointer">
-            <div class="icon">
-              @if(alert.number) {
-              <span>{{ alert.number }}</span>
-              } @else {
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
-                  opacity=".5" />
-                <path fill="currentColor"
-                  d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
-              </svg>
-              }
-            </div>
-
-            <div class="alert-content">
-              <div class="d-flex align-items-center justify-content-between">
-                <h6>{{ alert.title }}</h6>
+        } @else {
+        <div class="alerts-list" role="list">
+          @if(alerts() && alerts().length) {
+            @for (alert of alerts(); track $index) {
+            <div class="alert" (click)="onAlertClick(alert)" role="listitem" tabindex="0"
+              (keydown.enter)="onAlertClick(alert)" style="cursor: pointer">
+              <div class="icon">
+                @if(alert.number) {
+                  <span>{{ alert.number }}</span>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
+                      opacity=".5" />
+                    <path fill="currentColor"
+                      d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+                  </svg>
+                }
               </div>
-              <p class="m-0">{{ alert.content }}</p>
-            </div>
-          </div>
-          }
 
-          } @else {
-          <!-- Empty state when there are no alerts -->
-          <div class="d-flex flex-column align-items-center justify-content-center" style="min-height:160px; gap:10px;">
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true">
-              <path d="M12 2C6.477 2 2 6.477 2 12" stroke="#377AFD" stroke-opacity="0.15" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M12 22c5.523 0 10-4.477 10-10" stroke="#377AFD" stroke-opacity="0.15" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M12 8v5" stroke="#377AFD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-              <circle cx="12" cy="16.2" r="0.7" fill="#377AFD" />
-            </svg>
-            <div class="setup-done-title">No alerts</div>
-            <div class="setup-done-sub" style="text-align:center; max-width:220px;">You're all caught up — there are no
-              alerts right now.</div>
-            <div style="margin-top:8px;">
-              <a role="button" class="setup-step-link" (click)="getDashboardData()">Refresh</a>
+              <div class="alert-content">
+                <div class="d-flex align-items-center justify-content-between">
+                  <h6>{{ alert.title }}</h6>
+                </div>
+                <p class="m-0">{{ alert.content }}</p>
+              </div>
             </div>
-          </div>
+            }
+          } @else {
+            <!-- Empty state when there are no alerts -->
+            <div class="d-flex flex-column align-items-center justify-content-center" style="min-height:160px; gap:10px;" role="status">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true">
+                <path d="M12 2C6.477 2 2 6.477 2 12" stroke="#377AFD" stroke-opacity="0.15" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 22c5.523 0 10-4.477 10-10" stroke="#377AFD" stroke-opacity="0.15" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 8v5" stroke="#377AFD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="12" cy="16.2" r="0.7" fill="#377AFD" />
+              </svg>
+              <div class="setup-done-title">{{ t().labels?.no_alerts }}</div>
+              <div class="setup-done-sub" style="text-align:center; max-width:220px;">{{ t().labels?.no_alerts_sub }}</div>
+              <div style="margin-top:8px;">
+                <button type="button" class="btn btn-link p-0 setup-step-link" (click)="getDashboardData()">{{ t().labels?.refresh }}</button>
+              </div>
+            </div>
           }
         </div>
         }
@@ -247,22 +258,22 @@
     <div class="col-12 col-lg-8">
       <div class="content-box flex-fill d-flex flex-column h-100">
         <div class="d-flex align-items-center justify-content-between mb-3">
-          <h2>Turnover</h2>
+          <h2>{{ t().cards?.turnover }}</h2>
           <div class="form-outline w-50 select-inner">
-            <select id="turnover_year" (change)="onParamChangeEvent('turnover_year', $event)" class="form-select">
-              @for (y of years; track y) {
+            <select id="turnover_year" (change)="onParamChangeEvent('turnover_year', $event)" class="form-select" [attr.aria-label]="t().cards?.turnover">
+              @for (y of years(); track y.value) {
               <option [value]="y.value">{{ y.label }}</option>
               }
             </select>
           </div>
         </div>
-        @if(getDataLoad){
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100 flex-fill" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="flex-fill" style="width: 100%; height: 100%; min-height: 300px">
-          <canvas baseChart [data]="turnoverData" [type]="turnoverType" [options]="turnoverOptions"
+          <canvas baseChart [data]="turnoverData()" [type]="barType" [options]="barOptions"
             style="width: 100%; height: 100%">
           </canvas>
         </div>
@@ -273,32 +284,32 @@
     <!-- Employee Onboarding -->
     <div class="col-12 col-lg-4">
       <div class="content-box flex-fill d-flex flex-column h-100">
-        <h2 class="mb-3">Employee Onboarding</h2>
-        @if(getDataLoad){
+        <h2 class="mb-3">{{ t().cards?.employee_onboarding }}</h2>
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="d-flex align-items-center justify-content-center flex-fill gap-3">
           <div style="height: 200px; flex-shrink: 0">
-            <canvas baseChart [data]="employeeOnboardingData" [type]="employeeOnboardingType"
-              [options]="employeeOnboardingOptions">
+            <canvas baseChart [data]="employeeOnboardingData()" [type]="doughnutType"
+              [options]="doughnutOptions">
             </canvas>
           </div>
 
           <div class="d-flex flex-column gap-2" style="flex-shrink: 0">
-            @for (val of employeeOnboardingValues; track i; let i = $index) {
+            @for (val of chartsDataMap()['Employee Onboarding']?.values; track $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="employeeOnboardingColors[i]"></div>
-              <p>{{ employeeOnboardingLabels[i] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Employee Onboarding']?.colors[$index]"></div>
+              <p>{{ chartsDataMap()['Employee Onboarding']?.labels[$index] }}</p>
             </div>
-            } @if(chartsData['Employee Onboarding']) {
+            } @if(chartsDataMap()['Employee Onboarding']) {
             <hr />
             <div class="sticker">
-              <div class="number text-end">{{ employeeOnboardingTotal }}</div>
+              <div class="number text-end">{{ getTotalFor('Employee Onboarding') }}</div>
               <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p>{{ t().labels?.total }}</p>
             </div>
             }
           </div>
@@ -311,37 +322,37 @@
     <div class="col-12">
       <div class="content-box flex-fill d-flex flex-column">
         <div class="d-flex align-items-center justify-content-between">
-          <h2>Employees</h2>
+          <h2>{{ t().cards?.employees }}</h2>
           <div class="form-outline w-50 select-inner">
-            <select id="employees_year" (change)="onParamChangeEvent('employees_year', $event)" class="form-select">
-              @for (y of years; track y) {
+            <select id="employees_year" (change)="onParamChangeEvent('employees_year', $event)" class="form-select" [attr.aria-label]="t().cards?.employees">
+              @for (y of years(); track y.value) {
               <option [value]="y.value">{{ y.label }}</option>
               }
             </select>
           </div>
         </div>
-        @if(getDataLoad){
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="mt-3" style="height: 300px; width: 100%">
-          <canvas baseChart [data]="employeeData" [type]="employeeType" [options]="employeeOptions"
+          <canvas baseChart [data]="employeeData()" [type]="barType" [options]="barOptions"
             style="width: 100%; height: 100%">
           </canvas>
         </div>
         <div class="d-flex align-items-center justify-content-center gap-5 mt-2">
           <div class="sticker">
             <div class="label" style="background-color: #98dfc0"></div>
-            <p>Hired</p>
+            <p>{{ t().labels?.hired }}</p>
           </div>
           <div class="sticker">
             <div class="label" style="background-color: #b83d4a"></div>
-            <p>Terminated</p>
+            <p>{{ t().labels?.terminated }}</p>
           </div>
           <div class="sticker">
             <div class="label" style="background-color: #ff8f8f"></div>
-            <p>Resigned</p>
+            <p>{{ t().labels?.resigned }}</p>
           </div>
         </div>
         }
@@ -351,24 +362,24 @@
     <!-- Department Guidelines -->
     <div class="col-12 col-lg-4 d-flex flex-column gap-3">
       <div class="content-box flex-fill d-flex flex-column h-100">
-        <h2>Department Guidelines</h2>
-        @if(getDataLoad){
+        <h2>{{ t().cards?.department_guidelines }}</h2>
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="d-flex align-items-center mt-auto gap-2">
           <div style="height: 200px">
-            <canvas baseChart [data]="deptGuidelinesData" [type]="deptGuidelinesType" [options]="deptGuidelinesOptions">
+            <canvas baseChart [data]="deptGuidelinesData()" [type]="doughnutType" [options]="doughnutOptions">
             </canvas>
           </div>
 
           <div class="d-flex flex-column gap-2">
-            @for (val of deptGuidelinesValues; track $index; let i = $index) {
+            @for (val of chartsDataMap()['Department Guidelines']?.values; track $index; let i = $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="deptGuidelinesColors[i]"></div>
-              <p>{{ deptGuidelinesLabels[i] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Department Guidelines']?.colors[i]"></div>
+              <p>{{ chartsDataMap()['Department Guidelines']?.labels[i] }}</p>
             </div>
             }
           </div>
@@ -381,43 +392,43 @@
     <div class="col-12 col-lg-4 d-flex flex-column gap-3">
       <div class="content-box flex-fill d-flex flex-column h-100 gap-4">
         <div class="d-flex align-items-center justify-content-between">
-          <h2>Active Departments</h2>
+          <h2>{{ t().cards?.active_departments }}</h2>
           <div class="form-outline select-inner">
             <select name="active_departments_branch_id" (change)="
                 onParamChangeEvent('active_departments_branch_id', $event)
-              " id="status" class="form-select">
-              <option value="" selected>All Branches</option>
-              @for (branch of branches; track $index) {
+              " id="status" class="form-select" [attr.aria-label]="t().filters?.all_branches">
+              <option value="" selected>{{ t().filters?.all_branches }}</option>
+              @for (branch of branches(); track $index) {
               <option [value]="branch.id">{{ branch.name }}</option>
               }
             </select>
           </div>
         </div>
-        @if(getDataLoad){
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="d-flex align-items-center mt-auto gap-2">
           <div style="height: 200px">
-            <canvas baseChart [data]="activeDepartmentsData" [type]="activeDepartmentsType"
-              [options]="activeDepartmentsOptions">
+            <canvas baseChart [data]="activeDepartmentsData()" [type]="doughnutType"
+              [options]="doughnutOptions">
             </canvas>
           </div>
 
           <div class="d-flex flex-column gap-2 mt-3">
-            @for (val of activeDepartmentsValues; track val; let i = $index) {
+            @for (val of chartsDataMap()['Active Departments']?.values; track $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
-              <div class="label" [style.background-color]="activeDepartmentsColors[i]"></div>
-              <p>{{ activeDepartmentsLabels[i] }}</p>
+              <div class="label" [style.background-color]="chartsDataMap()['Active Departments']?.colors[$index]"></div>
+              <p>{{ chartsDataMap()['Active Departments']?.labels[$index] }}</p>
             </div>
-            } @if(chartsData['Active Departments']) {
+            } @if(chartsDataMap()['Active Departments']) {
             <hr />
             <div class="sticker">
-              <div class="number text-end">{{ activeDepartmentsTotal }}</div>
+              <div class="number text-end">{{ getTotalFor('Active Departments') }}</div>
               <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
+              <p>{{ t().labels?.total }}</p>
             </div>
             }
           </div>
@@ -431,7 +442,6 @@
       <div class="content-box payroll flex-fill d-flex flex-column h-100 position-relative">
         <div class="overlay">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-            <!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
             <path fill="currentColor" fill-rule="evenodd"
               d="M12 2C7.867 2 5.8 2 5.198 3.3a2.5 2.5 0 0 0-.13.346c-.41 1.387 1.052 2.995 3.974 6.21L11 12h2l1.958-2.143c2.922-3.216 4.383-4.824 3.974-6.21a2.5 2.5 0 0 0-.13-.348C18.2 2 16.133 2 12 2"
               clip-rule="evenodd" />
@@ -439,17 +449,17 @@
               d="M5.198 20.7C5.8 22 7.867 22 12 22s6.2 0 6.802-1.3a2.5 2.5 0 0 0 .13-.346c.41-1.387-1.052-2.995-3.974-6.21L13 12h-2l-1.958 2.143c-2.922 3.216-4.383 4.824-3.974 6.21q.052.18.13.348"
               opacity=".5" />
           </svg>
-          <span>Soon</span>
+          <span>{{ t().labels?.soon }}</span>
         </div>
-        <h2>Payroll Status Summary</h2>
-        @if(getDataLoad){
+        <h2>{{ t().cards?.payroll_status }}</h2>
+        @if(getDataLoad()){
         <div class="d-flex justify-content-center align-items-center w-100" style="min-height: 200px">
           <div class="spinner-border text-primary" style="width: 4rem; height: 4rem" role="status"></div>
         </div>
-        } @if(!getDataLoad){
+        } @else {
         <div class="mt-auto">
           <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-            <span class="month text-center w-100">July</span>
+            <span class="month text-center w-100">{{ t().months?.jul || 'July' }}</span>
             <div class="w-100">
               <span class="badge-success m-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -458,28 +468,28 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                   </g>
                 </svg>
-                <span>Posted</span>
+                <span>{{ t().labels?.posted }}</span>
               </span>
             </div>
           </div>
           <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
             <div class="info-dark text-center d-flex flex-column gap-1 w-100">
               <div class="strong">840,000</div>
-              <span>Total Salaries</span>
+              <span>{{ t().labels?.salaries }}</span>
             </div>
             <div class="info-dark text-center d-flex flex-column gap-1 w-100 border-start">
               <div class="strong">120</div>
-              <span>Employees</span>
+              <span>{{ t().labels?.employees_count }}</span>
             </div>
           </div>
           <div class="d-flex align-items-center justify-content-between py-2">
             <div class="info-danger text-center d-flex flex-column gap-1 w-100">
               <div class="strong">120,000</div>
-              <span>Total Deductions</span>
+              <span>{{ t().labels?.deductions }}</span>
             </div>
             <div class="info-success text-center d-flex flex-column gap-1 w-100 border-start">
               <div class="strong">120,000</div>
-              <span>Total Earnings</span>
+              <span>{{ t().labels?.earnings }}</span>
             </div>
           </div>
         </div>
